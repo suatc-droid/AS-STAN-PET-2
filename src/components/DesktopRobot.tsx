@@ -22,7 +22,11 @@ import {
   Award,
   BookOpen,
   Smile,
-  Cloud
+  Cloud,
+  Search,
+  ArrowLeft,
+  Activity,
+  Newspaper
 } from 'lucide-react';
 import { WorkflowTemplate, ActiveStep } from '../types';
 
@@ -31,6 +35,7 @@ interface QuizQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
+  category: 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı';
 }
 
 const quizQuestions: QuizQuestion[] = [
@@ -38,37 +43,164 @@ const quizQuestions: QuizQuestion[] = [
     question: "657 Sayılı Devlet Memurları Kanunu'na göre mazeretsiz ve kesintisiz kaç gün göreve gelmeyen memur müstafi (çekilmiş) sayılır?",
     options: ["5 gün", "7 gün", "10 gün", "15 gün"],
     correctIndex: 2,
-    explanation: "657 DMK Md. 94 uyarınca izinsiz veya özürsüz kesintisiz 10 gün görevini terk eden memur müstafi sayılır."
+    explanation: "657 DMK Md. 94 uyarınca izinsiz veya özürsüz kesintisiz 10 gün görevini terk eden memur müstafi sayılır.",
+    category: "Genel Mevzuat"
   },
   {
     question: "Doğum yapan kadın memura doğum sonrası ilk altı ayda günde kaç saat süt izni verilir?",
     options: ["1 saat", "1.5 saat", "2 saat", "3 saat"],
     correctIndex: 3,
-    explanation: "657 DMK Md. 104/D uyarınca doğum sonrası ilk altı ayda günde 3 saat, ikinci altı ayda ise günde 1.5 saat süt izni verilir."
+    explanation: "657 DMK Md. 104/D uyarınca doğum sonrası ilk altı ayda günde 3 saat, ikinci altı ayda ise günde 1.5 saat süt izni verilir.",
+    category: "İzin Hakları"
   },
   {
     question: "Sözleşmeli personelin (4/B) kullanılmayan yıllık izinleri hakkında hangisi doğrudur?",
     options: ["Sonraki yıla devreder", "Sonraki yıla devredemez, yanar", "Para iadesi yapılır", "Ertesi yıla sadece yarısı devreder"],
     correctIndex: 1,
-    explanation: "Sözleşmeli Personel Çalıştırılmasına İlişkin Esaslar gereğince 4/B personelin yıllık izni takvim yılı sonunda yanar, sonraki yıla devretmez."
+    explanation: "Sözleşmeli Personel Çalıştırılmasına İlişkin Esaslar gereğince 4/B personelin yıllık izni takvim yılı sonunda yanar, sonraki yıla devretmez.",
+    category: "Sözleşmeli Personel"
   },
   {
     question: "Sağlık personeline her yıl yıllık izinlerine ek olarak verilen ücretli şua izni kaç gündür?",
     options: ["10 gün", "15 gün", "20 gün", "30 gün"],
     correctIndex: 3,
-    explanation: "Radyasyonla çalışan sağlık personeline her yıl yıllık izinlerine ilaveten 30 gün ücretli sağlık izni (şua izni) verilmesi yasal bir zorunluluktur."
+    explanation: "Radyasyonla çalışan sağlık personeline her yıl yıllık izinlerine ilaveten 30 gün ücretli sağlık izni (şua izni) verilmesi yasal bir zorunluluktur.",
+    category: "Sağlık Mevzuatı"
   },
   {
     question: "657 DMK'ya göre aday memurluk süresi en fazla ne kadar olabilir?",
     options: ["6 ay", "1 yıl", "2 yıl", "3 yıl"],
     correctIndex: 2,
-    explanation: "657 DMK Md. 54 uyarınca aday memurluk süresi asgari 1 yıl, azami 2 yıl olabilir."
+    explanation: "657 DMK Md. 54 uyarınca aday memurluk süresi asgari 1 yıl, azami 2 yıl olabilir.",
+    category: "Genel Mevzuat"
   },
   {
     question: "Kamu görevlilerinin mal bildirimi beyanlarını sonu hangi rakamlarla biten yıllarda yenilemeleri zorunludur?",
     options: ["Her yıl", "Tek yıllar", "(0) ve (5) ile biten", "Çift yıllar"],
     correctIndex: 2,
-    explanation: "3628 Sayılı Kanun Md. 6 gereğince mal bildirimleri sonu (0) ve (5) ile biten yıllarda en geç Şubat ayı sonuna kadar yenilenmelidir."
+    explanation: "3628 Sayılı Kanun Md. 6 gereğince mal bildirimleri sonu (0) ve (5) ile biten yıllarda en geç Şubat ayı sonuna kadar yenilenmelidir.",
+    category: "Genel Mevzuat"
+  },
+  {
+    question: "Memurun bakmakla yükümlü olduğu veya hayatı tehlikeye girecek derece ağır kaza/uzun tedavi gerektiren hastalık durumlarında sağlık kurulu raporu ile en fazla kaç aya kadar refakat izni verilebilir?",
+    options: ["1 ay", "2 ay", "3 ay", "6 ay"],
+    correctIndex: 2,
+    explanation: "657 DMK Md. 105 uyarınca refakat izni sağlık kurulu raporu şartıyla 3 aya kadar verilir ve en fazla toplamda 6 aya kadar uzatılabilir.",
+    category: "İzin Hakları"
+  },
+  {
+    question: "Devlet memuruna; kendisinin veya çocuğunun evlenmesi ya da birinci derece yakınlarının ölümü halinde kaç gün mazeret izni verilir?",
+    options: ["3 gün", "5 gün", "7 gün", "10 gün"],
+    correctIndex: 2,
+    explanation: "657 DMK Md. 104/B uyarınca memura evlenme ve vefat hallerinde isteği üzerine 7 gün mazeret izni verilir.",
+    category: "İzin Hakları"
+  },
+  {
+    question: "Disiplin amiri, disiplin suçu teşkil eden eylemi öğrendikten sonra en geç kaç ay içinde soruşturma başlatmak zorundadır, aksi takdirde ceza verme yetkisi zamanaşımına uğrar?",
+    options: ["1 ay", "3 ay", "6 ay", "1 yıl"],
+    correctIndex: 0,
+    explanation: "657 DMK Md. 127 uyarınca disiplin amiri eylemi öğrendiği tarihten itibaren en geç 1 ay içinde soruşturmaya başlamalıdır.",
+    category: "Genel Mevzuat"
+  },
+  {
+    question: "Hizmet süresi 10 yıldan fazla olan memur veya sağlık çalışanlarının yıllık izin süresi kaç gündür?",
+    options: ["15 gün", "20 gün", "25 gün", "30 gün"],
+    correctIndex: 3,
+    explanation: "657 DMK Md. 102 uyarınca hizmeti 1 yıldan 10 yıla kadar olanların 20 gün, 10 yıldan fazla olanların ise 30 gün yıllık izni vardır.",
+    category: "İzin Hakları"
+  },
+  {
+    question: "Eşinin doğum yapması durumunda erkek memura isteği üzerine kaç gün mazeret (babalık) izni verilir?",
+    options: ["3 gün", "5 gün", "7 gün", "10 gün"],
+    correctIndex: 3,
+    explanation: "657 DMK Md. 104/B uyarınca eşi doğum yapan memura isteği üzerine 10 gün babalık izni verilmesi yasal haktır.",
+    category: "İzin Hakları"
+  },
+  {
+    question: "Memurluktan usulüne uygun şekilde istifa (çekilme) eden bir kişi, istifa tarihinden itibaren en az kaç ay geçmeden tekrar memurluğa atanamaz?",
+    options: ["3 ay", "6 ay", "1 yıl", "2 yıl"],
+    correctIndex: 1,
+    explanation: "657 DMK Md. 97 uyarınca usulüne uygun istifa edenler 6 ay, usulüne uymadan görevden ayrılanlar ise 1 yıl geçmeden memurluğa geri dönemez.",
+    category: "Genel Mevzuat"
+  }
+];
+
+interface ExerciseStep {
+  text: string;
+  duration: number;
+}
+
+const eyeExerciseSteps: ExerciseStep[] = [
+  { text: "Gözlerinizi sıkıca kapatın ve 5 saniye dinlendirin. 😌", duration: 5 },
+  { text: "Gözlerinizi açın. Başınızı kıpırdatmadan sadece gözlerinizle en sağa bakın. 👀👉", duration: 5 },
+  { text: "Şimdi başınızı oynatmadan sadece gözlerinizle en sola bakın. 👈👀", duration: 5 },
+  { text: "Gözlerinizi hızlıca 10 kez kırpıştırın. 👁️⚡", duration: 5 },
+  { text: "Ufka veya odanın en uzak noktasına 10 saniye odaklanın. 🌅", duration: 10 },
+  { text: "Harika! Gözleriniz tazelendi. Enerjiniz arttı! 🔋✨", duration: 0 }
+];
+
+const stretchExerciseSteps: ExerciseStep[] = [
+  { text: "Yavaşça başınızı sağa yatırın ve omuz esnemesini hissedin. 🧘‍♂️", duration: 5 },
+  { text: "Yavaşça başınızı sola yatırın ve 5 saniye bekleyin. 🧘‍♀️", duration: 5 },
+  { text: "Sırtınızı dikleştirip omuzlarınızı dairesel olarak arkaya doğru yuvarlayın. 🌀", duration: 5 },
+  { text: "Kollarınızı yukarı uzatıp gökyüzüne uzanır gibi esneyin. 🙆‍♂️", duration: 8 },
+  { text: "Mükemmel! Kaslarınız gevşedi ve dolaşımınız hızlandı! 💪⚡", duration: 0 }
+];
+
+const postureExerciseSteps: ExerciseStep[] = [
+  { text: "Sırtınızı dikleştirin, omuzlarınızı geriye yuvarlayın ve göğsünüzü açın. 📐", duration: 5 },
+  { text: "Derin bir nefes alın (4 saniye): Al, al, al... 💨", duration: 4 },
+  { text: "Nefesinizi tutun (4 saniye): Tut, tut, tut... ⏱️", duration: 4 },
+  { text: "Yavaşça ağzınızdan verin (6 saniye): Ver, ver, ver... 🍃", duration: 6 },
+  { text: "Süper! Doğru duruş ve solunum beyninize giden oksijeni artırdı! 🧠✨", duration: 0 }
+];
+
+interface RegulatoryFeedItem {
+  id: number;
+  date: string;
+  source: string;
+  title: string;
+  summary: string;
+  isCritical: boolean;
+  link: string;
+}
+
+const regulatoryFeedItems: RegulatoryFeedItem[] = [
+  {
+    id: 1,
+    date: "07.07.2026",
+    source: "Resmî Gazete - Sayı: 32612",
+    title: "Sağlık Bakanlığı Atama ve Yer Değiştirme Yönetmeliğinde Değişiklik",
+    summary: "Eş durumu mazeret tayinlerinde istenen prim gün sayısı ve belge şartları güncellendi. Deprem bölgesi kadrolarına atanan personel için ek mazeret hakları tanımlandı.",
+    isCritical: true,
+    link: "https://www.resmigazete.gov.tr/"
+  },
+  {
+    id: 2,
+    date: "06.07.2026",
+    source: "Sağlık Bakanlığı - Yönetim Hizmetleri Genel Müdürlüğü",
+    title: "2026 Yılı 2. Dönem İlk Defa ve Yeniden Atama Kurası İlanı",
+    summary: "Uzman hekim, uzman diş tabibi, tabip, diş tabibi ve eczacı kadroları için başvurular başladı. Son başvuru tarihi 15 Temmuz.",
+    isCritical: false,
+    link: "https://yhgm.saglik.gov.tr/"
+  },
+  {
+    id: 3,
+    date: "05.07.2026",
+    source: "Resmî Gazete - Sayı: 32610",
+    title: "657 Sayılı Kanun Kapsamında Yeni Enflasyon Farkı ve Katsayı Düzenlemesi",
+    summary: "Memur maaş katsayıları ve yan ödeme kararnamesi yürürlüğe girdi. 15 Temmuz itibarıyla geçerli olacak kıst maaş katsayı tablosu açıklandı.",
+    isCritical: true,
+    link: "https://www.resmigazete.gov.tr/"
+  },
+  {
+    id: 4,
+    date: "02.07.2026",
+    source: "Anayasa Mahkemesi Kararı",
+    title: "Yıllık İzin Sürelerinin Bölünmesine İlişkin Karar",
+    summary: "AYM, sözleşmeli personelin yıllık izinlerinin bölümler halinde kullanılmasına dair yönetmelik kısıtlamasını iptal ederek esneklik getirdi.",
+    isCritical: false,
+    link: "https://www.resmigazete.gov.tr/"
   }
 ];
 
@@ -335,6 +467,23 @@ export function DesktopRobot({
 
   const [isSleeping, setIsSleeping] = useState(false);
 
+  const [petTheme, setPetThemeState] = useState<'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('pet_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch (e) {}
+    return 'dark'; // Default to dark theme for standalone, but toggleable
+  });
+
+  const setPetTheme = (val: 'light' | 'dark' | ((prev: any) => any)) => {
+    setPetThemeState(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      try { localStorage.setItem('pet_theme', next); } catch (e) {}
+      window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_theme', value: next } }));
+      return next;
+    });
+  };
+
   // Desktop Pet specific state variables
   const [isRoaming, setIsRoamingState] = useState<boolean>(() => {
     try {
@@ -412,6 +561,20 @@ export function DesktopRobot({
     return 0;
   });
 
+  // Quick Search, Step Analysis and Quiz Category states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchView, setIsSearchView] = useState(false);
+  const [showStepAnalysis, setShowStepAnalysis] = useState(false);
+  const [quizCategory, setQuizCategory] = useState<'Tümü' | 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı'>('Tümü');
+
+  // Smart Regulatory Feed and Well-being states
+  const [showRegulatoryFeed, setShowRegulatoryFeed] = useState(false);
+  const [showWellbeing, setShowWellbeing] = useState(false);
+  const [wellbeingStage, setWellbeingStage] = useState<'menu' | 'eye' | 'stretch' | 'posture'>('menu');
+  const [wellbeingStep, setWellbeingStep] = useState(0);
+  const [wellbeingTimer, setWellbeingTimer] = useState(5);
+  const [wellbeingActive, setWellbeingActive] = useState(false);
+
   const setQuizScore = (val: number | ((prev: number) => number)) => {
     setQuizScoreState(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
@@ -455,6 +618,9 @@ export function DesktopRobot({
         }
         if (key === 'pet_teleport_enabled') {
           setTeleportEnabledState(newValue === 'true');
+        }
+        if (key === 'pet_theme') {
+          setPetThemeState(newValue as any);
         }
       } catch (err) {
         console.error("Sync error:", err);
@@ -665,6 +831,51 @@ export function DesktopRobot({
     return () => clearInterval(checkInterval);
   }, [breakRemindersEnabled, isFocusing]);
 
+  // Well-being Routine Timer Logic
+  useEffect(() => {
+    if (!wellbeingActive) return;
+
+    const steps = wellbeingStage === 'eye' 
+      ? eyeExerciseSteps 
+      : wellbeingStage === 'stretch' 
+        ? stretchExerciseSteps 
+        : wellbeingStage === 'posture' 
+          ? postureExerciseSteps 
+          : [];
+
+    if (steps.length === 0) return;
+
+    const interval = setInterval(() => {
+      setWellbeingTimer(prev => {
+        if (prev <= 1) {
+          // Move to next step
+          const nextStep = wellbeingStep + 1;
+          if (nextStep >= steps.length) {
+            // Completed!
+            setWellbeingActive(false);
+            setWellbeingStep(0);
+            setWellbeingTimer(0);
+            playBeep(880, 250);
+            // Boost energy and stats
+            setEnergyLevel(prevEnergy => Math.min(100, prevEnergy + 15));
+            updateStats('interactions', 1);
+            setRobotState('happy');
+            setBubbleText("Tebrikler! Sağlık rutinini tamamladın. Kendini daha zinde ve enerjik hissediyor musun? 🌟💪");
+          } else {
+            setWellbeingStep(nextStep);
+            const duration = steps[nextStep].duration;
+            playBeep(660, 120);
+            return duration;
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [wellbeingActive, wellbeingStep, wellbeingStage]);
+
   const startFocusSession = (minutes: number) => {
     setFocusTimeLeft(minutes * 60);
     setIsFocusing(true);
@@ -758,6 +969,113 @@ export function DesktopRobot({
     }
     
     return `💡 ADIM İPUCU [${step.title}]:\n\n${step.description}\n\nYasal Mevzuat: ${step.helpText}`;
+  };
+
+  interface LegislativeAnalysis {
+    title: string;
+    lawNo: string;
+    duration: string;
+    criticalPoints: string[];
+    kvkkWarning: string;
+  }
+
+  const getStructuredAnalysis = (step: ActiveStep): LegislativeAnalysis => {
+    const title = step.title.toLowerCase();
+    
+    if (title.includes('evrak') || title.includes('belge') || title.includes('diploma') || title.includes('adli sicil')) {
+      return {
+        title: "Göreve Başlama Evrakları",
+        lawNo: "657 DMK Madde 48",
+        duration: "Tebligattan itibaren 15 Gün",
+        criticalPoints: [
+          "Diploma aslı veya noter onaylı örneği kontrol edilmelidir.",
+          "Güvenlik Soruşturması ve Arşiv Araştırması belgesi olmalıdır.",
+          "Sağlık kurulu raporunda görevini yapmasına engel bir durumu olmadığı belirtilmelidir."
+        ],
+        kvkkWarning: "Özel nitelikli kişisel veriler (sağlık raporu, sabıka kaydı) şifreli klasörde saklanmalıdır."
+      };
+    }
+    
+    if (title.includes('sözleşme') || title.includes('hizmet sözleşmesi')) {
+      return {
+        title: "Hizmet Sözleşmesi İmzalama",
+        lawNo: "Sözleşmeli Personel Esasları Md. 5",
+        duration: "Göreve Başlama Günü",
+        criticalPoints: [
+          "Sözleşmeler mali yıl bazlı düzenlenmeli, her sayfası paraflanmalıdır.",
+          "İmza yetkilisi ve personelin ıslak imzaları tamamlanmalıdır.",
+          "Sözleşme damga vergisinden muaftır (Sağlık Bakanlığı muafiyeti)."
+        ],
+        kvkkWarning: "Sözleşme nüshaları yetkisiz kişilerin göremeyeceği şekilde özlük dosyasında saklanmalıdır."
+      };
+    }
+
+    if (title.includes('sgk') || title.includes('sigorta') || title.includes('işe giriş')) {
+      return {
+        title: "SGK İşe Giriş Bildirgesi",
+        lawNo: "5510 Sayılı Kanun Madde 8",
+        duration: "Göreve Başlamadan En Geç 1 Gün Önce",
+        criticalPoints: [
+          "Giriş bildirgesi mutlaka işe başlamadan önceki gün verilmelidir.",
+          "Geç bildirim halinde asgari ücret tutarında idari para cezası kesilir.",
+          "Meslek kodu (hekim, memur vs.) doğru seçilmelidir."
+        ],
+        kvkkWarning: "SGK bildirgelerindeki T.C. kimlik numaraları ve kimlik verileri üçüncü şahıslarla paylaşılmamalıdır."
+      };
+    }
+
+    if (title.includes('banka') || title.includes('iban') || title.includes('maaş') || title.includes('hesap')) {
+      return {
+        title: "Maaş ve Banka Hesap Girişleri",
+        lawNo: "657 DMK Madde 164",
+        duration: "İlk Maaş Dönemi Öncesi",
+        criticalPoints: [
+          "Devlet memurlarına maaş her ayın 15'inde peşin ödenir.",
+          "Ay ortası başlangıçlarda kıst (yarım) maaş hesaplanmalıdır.",
+          "Anlaşmalı banka IBAN bilgisi resmi dilekçeyle alınmalıdır."
+        ],
+        kvkkWarning: "IBAN ve maaş tutarı bilgileri finansal gizlilik kapsamındadır, yetkisiz erişim engellenmelidir."
+      };
+    }
+
+    if (title.includes('sistem') || title.includes('ekip') || title.includes('çkys') || title.includes('ortak') || title.includes('kayıt')) {
+      return {
+        title: "EKİP ve ÇKYS Sistem Girişleri",
+        lawNo: "Bakanlık Bilgi Sistemleri Yönergesi",
+        duration: "Göreve Başlama Günü",
+        criticalPoints: [
+          "EKİP (Entegre Kurumsal İşlem Platformu) kaydı mutlaka güncellenmelidir.",
+          "Sistemde başlama yapılmadan kadro aktif hale gelmez.",
+          "Maaş mutemetliği entegrasyonu kontrol edilmelidir."
+        ],
+        kvkkWarning: "Sistem şifreleri kişiye özeldir, ortak şifre kullanımı yasaktır ve loglanmaktadır."
+      };
+    }
+
+    if (title.includes('dys') || title.includes('üst yazı') || title.includes('yazışma') || title.includes('resmi yazı')) {
+      return {
+        title: "DYS Üst Yazı Süreci",
+        lawNo: "Resmî Yazışma Kuralları Yönetmeliği",
+        duration: "Aynı Gün",
+        criticalPoints: [
+          "DYS (Doküman Yönetim Sistemi) üzerinden elektronik imzalı yazılmalıdır.",
+          "Ekli evraklar taranarak sisteme eklenmelidir.",
+          "Sayı ve tarih kontrolü sistem tarafından otomatik takip edilir."
+        ],
+        kvkkWarning: "DYS yazışmalarında eklerdeki T.C. kimlik numaraları maskelenmelidir."
+      };
+    }
+
+    return {
+      title: step.title,
+      lawNo: "657 Sayılı DMK Genel Hükümler",
+      duration: "Süreç İçerisinde",
+      criticalPoints: [
+        step.description,
+        `Yasal Yönerge: ${step.helpText}`
+      ],
+      kvkkWarning: "Personel verileri KVKK kurallarına uygun olarak şifreli ve güvenli ortamlarda muhafaza edilmelidir."
+    };
   };
 
   const activeStepId = activeStep?.id;
@@ -1037,9 +1355,25 @@ export function DesktopRobot({
     }
   };
 
-  const handleStartQuiz = () => {
-    const randomIdx = Math.floor(Math.random() * quizQuestions.length);
-    setCurrentQuizIndex(randomIdx);
+  const handleStartQuiz = (category?: 'Tümü' | 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı') => {
+    const activeCat = category !== undefined ? category : quizCategory;
+    if (category !== undefined) {
+      setQuizCategory(category);
+    }
+
+    const filtered = activeCat === 'Tümü' 
+      ? quizQuestions 
+      : quizQuestions.filter(q => q.category === activeCat);
+    
+    if (filtered.length === 0) {
+      const randomIdx = Math.floor(Math.random() * quizQuestions.length);
+      setCurrentQuizIndex(randomIdx);
+    } else {
+      const randSubIdx = Math.floor(Math.random() * filtered.length);
+      const origIdx = quizQuestions.findIndex(q => q.question === filtered[randSubIdx].question);
+      setCurrentQuizIndex(origIdx !== -1 ? origIdx : 0);
+    }
+
     setQuizAnswered(false);
     setSelectedAnswerIndex(null);
     setRobotState('thinking');
@@ -1093,313 +1427,360 @@ export function DesktopRobot({
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="relative w-[240px] bg-slate-950/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-800 flex flex-col text-white text-xs mb-2.5 z-50 animate-fade-in overflow-hidden"
+                className={`relative w-[240px] backdrop-blur-md rounded-2xl shadow-2xl border flex flex-col text-xs mb-2.5 z-50 animate-fade-in overflow-hidden ${
+                  petTheme === 'light' 
+                    ? 'bg-white/95 text-slate-850 border-slate-200 shadow-slate-200/50' 
+                    : 'bg-slate-950/95 text-white border-slate-800 shadow-black/80'
+                }`}
                 onContextMenu={(e) => e.preventDefault()}
               >
                 {/* Scrollable Container */}
                 <div className="max-h-[300px] overflow-y-auto custom-scrollbar p-2.5 flex flex-col gap-1.5">
-                  <div className="text-[11px] font-bold text-slate-400 px-2 pb-1.5 border-b border-slate-800 mb-1 flex justify-between items-center sticky top-0 bg-slate-950/95 z-10">
+                  <div className={`text-[11px] font-bold px-2 pb-1.5 border-b mb-1 flex justify-between items-center sticky top-0 z-10 ${
+                    petTheme === 'light' 
+                      ? 'text-slate-400 border-slate-100 bg-white/95' 
+                      : 'text-slate-400 border-slate-800 bg-slate-950/95'
+                  }`}>
                     <span>ASİSTAN PET MENÜSÜ 🤖</span>
-                    <button onClick={() => setContextMenu(null)} className="hover:text-white transition-colors">
+                    <button onClick={() => setContextMenu(null)} className={`transition-colors ${petTheme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'}`}>
                       <X size={12} />
                     </button>
                   </div>
 
-                  {/* Stats View inside Dark Menu */}
-                  <div className="grid grid-cols-3 gap-1 px-2 py-1.5 bg-slate-900/50 rounded-lg border border-slate-800/50 mb-1">
+                  {/* Stats View inside Menu */}
+                  <div className={`grid grid-cols-3 gap-1 px-2 py-1.5 rounded-lg border mb-1 ${
+                    petTheme === 'light' 
+                      ? 'bg-slate-50 border-slate-100 text-slate-750' 
+                      : 'bg-slate-900/50 border-slate-800/50 text-slate-300'
+                  }`}>
                     <div className="flex flex-col items-center">
                       <span className="text-[8px] text-slate-500 font-bold uppercase">Odak</span>
-                      <span className="text-[10px] text-blue-400 font-mono">{stats.focusMinutes}dk</span>
+                      <span className={`text-[10px] font-mono font-bold ${petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'}`}>{stats.focusMinutes}dk</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-[8px] text-slate-500 font-bold uppercase">Quiz</span>
-                      <span className="text-[10px] text-amber-400 font-mono">{stats.quizzesSolved}</span>
+                      <span className={`text-[10px] font-mono font-bold ${petTheme === 'light' ? 'text-amber-600' : 'text-amber-400'}`}>{stats.quizzesSolved}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-[8px] text-slate-500 font-bold uppercase">İlgi</span>
-                      <span className="text-[10px] text-rose-400 font-mono">{stats.interactions}</span>
+                      <span className={`text-[10px] font-mono font-bold ${petTheme === 'light' ? 'text-rose-600' : 'text-rose-400'}`}>{stats.interactions}</span>
                     </div>
                   </div>
 
-                  {/* Weather Info in Dark Menu */}
+                  {/* Weather Info */}
                   {weather && (
-                    <div className="px-2 py-1.5 bg-blue-900/20 rounded-lg border border-blue-800/30 mb-1 flex items-center justify-between">
+                    <div className={`px-2 py-1.5 rounded-lg border mb-1 flex items-center justify-between ${
+                      petTheme === 'light' 
+                        ? 'bg-blue-50/50 border-blue-100 text-blue-700' 
+                        : 'bg-blue-900/20 border-blue-800/30 text-blue-200'
+                    }`}>
                       <div className="flex items-center gap-1.5">
-                        <Cloud size={12} className="text-blue-400" />
-                        <span className="text-[9px] text-blue-300 font-bold uppercase">Hava Durumu</span>
+                        <Cloud size={12} className={petTheme === 'light' ? 'text-blue-500 animate-pulse' : 'text-blue-400'} />
+                        <span className="text-[9px] font-bold uppercase">Hava Durumu</span>
                       </div>
-                      <span className="text-[10px] text-blue-200 font-mono">{weather.temp}°C</span>
+                      <span className="text-[10px] font-mono font-bold">{weather.temp}°C</span>
                     </div>
                   )}
 
-                <button
-                  onClick={() => {
-                    handleStartQuiz();
-                    setContextMenu(null);
-                  }}
-                  className="w-full text-left px-2 py-2 hover:bg-amber-950 hover:text-amber-300 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold text-amber-400"
-                >
-                  <Award size={13} className="text-amber-500 animate-bounce" />
-                  <span>Mevzuat Bilgi Sınavı 🏆</span>
-                </button>
+                  <button
+                    onClick={() => {
+                      setIsSearchView(true);
+                      setIsVisible(true);
+                      setShowBubble(true);
+                      setShowStepAnalysis(false);
+                      setContextMenu(null);
+                      playBeep(520, 100);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-blue-50 text-blue-700' 
+                        : 'hover:bg-blue-950 text-blue-400'
+                    }`}
+                  >
+                    <Search size={13} className="text-blue-500" />
+                    <span>Mevzuat Hızlı Arama 🔍</span>
+                  </button>
 
-                <div className="h-px bg-slate-800 my-0.5"></div>
+                  <button
+                    onClick={() => {
+                      setShowStepAnalysis(true);
+                      setIsVisible(true);
+                      setShowBubble(true);
+                      setIsSearchView(false);
+                      setContextMenu(null);
+                      playBeep(520, 100);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-emerald-50 text-emerald-700' 
+                        : 'hover:bg-emerald-950 text-emerald-400'
+                    }`}
+                  >
+                    <BookOpen size={13} className="text-emerald-500" />
+                    <span>Canlı Adım Analizi 📋</span>
+                  </button>
 
-                {/* Focus Mode Controls */}
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🎯 Odaklanma Modu (Pomodoro)</span>
-                  <div className="grid grid-cols-2 gap-1">
-                    {!isFocusing ? (
-                      <>
+                  <button
+                    onClick={() => {
+                      setShowRegulatoryFeed(true);
+                      setIsVisible(true);
+                      setShowBubble(true);
+                      setIsSearchView(false);
+                      setShowStepAnalysis(false);
+                      setShowWellbeing(false);
+                      setCurrentQuizIndex(null);
+                      setContextMenu(null);
+                      playBeep(520, 100);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-amber-50 text-amber-700' 
+                        : 'hover:bg-amber-950 text-amber-400'
+                    }`}
+                  >
+                    <Newspaper size={13} className="text-amber-500" />
+                    <span>Resmi Gazete Takibi 📰</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowWellbeing(true);
+                      setIsVisible(true);
+                      setShowBubble(true);
+                      setIsSearchView(false);
+                      setShowStepAnalysis(false);
+                      setShowRegulatoryFeed(false);
+                      setCurrentQuizIndex(null);
+                      setContextMenu(null);
+                      setWellbeingStage('menu');
+                      playBeep(520, 100);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-rose-50 text-rose-700' 
+                        : 'hover:bg-rose-950 text-rose-400'
+                    }`}
+                  >
+                    <Activity size={13} className="text-rose-500" />
+                    <span>İSG ve Sağlık Rutini ⏱️</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleStartQuiz();
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-amber-50 text-amber-700' 
+                        : 'hover:bg-amber-950 text-amber-400'
+                    }`}
+                  >
+                    <Award size={13} className="text-amber-500 animate-bounce" />
+                    <span>Mevzuat Bilgi Sınavı 🏆</span>
+                  </button>
+
+                  <div className={`h-px my-0.5 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
+
+                  {/* Focus Mode Controls */}
+                  <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🎯 Odaklanma Modu (Pomodoro)</span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {!isFocusing ? (
+                        <>
+                          <button
+                            onClick={() => startFocusSession(25)}
+                            className={`px-2 py-1.5 border rounded text-[9.5px] font-bold transition-all flex items-center justify-center gap-1 ${
+                              petTheme === 'light' 
+                                ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100' 
+                                : 'bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30'
+                            }`}
+                          >
+                            <Zap size={11} /> 25 Dakika
+                          </button>
+                          <button
+                            onClick={() => startFocusSession(50)}
+                            className={`px-2 py-1.5 border rounded text-[9.5px] font-bold transition-all flex items-center justify-center gap-1 ${
+                              petTheme === 'light' 
+                                ? 'bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100' 
+                                : 'bg-purple-600/20 text-purple-400 border border-purple-500/30 hover:bg-purple-600/30'
+                            }`}
+                          >
+                            <CheckCircle size={11} /> 50 Dakika
+                          </button>
+                        </>
+                      ) : (
                         <button
-                          onClick={() => startFocusSession(25)}
-                          className="px-2 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 rounded text-[9.5px] font-bold transition-all flex items-center justify-center gap-1"
+                          onClick={() => { setIsFocusing(false); setFocusTimeLeft(0); handleInteract('idle', "Odaklanma seansını durdurdum. Dinlenmek istersen buradayım! 🛋️"); }}
+                          className={`col-span-2 px-2 py-1.5 border rounded text-[9.5px] font-bold transition-all flex items-center justify-center gap-1 ${
+                            petTheme === 'light' 
+                              ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100' 
+                              : 'bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600/30'
+                          }`}
                         >
-                          <Zap size={11} /> 25 Dakika
+                          <X size={11} /> Seansı Durdur
                         </button>
-                        <button
-                          onClick={() => startFocusSession(50)}
-                          className="px-2 py-1.5 bg-purple-600/20 text-purple-400 border border-purple-500/30 hover:bg-purple-600/30 rounded text-[9.5px] font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                          <CheckCircle size={11} /> 50 Dakika
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => { setIsFocusing(false); setFocusTimeLeft(0); handleInteract('idle', "Odaklanma seansını durdurdum. Dinlenmek istersen buradayım! 🛋️"); }}
-                        className="col-span-2 px-2 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600/30 rounded text-[9.5px] font-bold transition-all flex items-center justify-center gap-1"
-                      >
-                        <X size={11} /> Seansı Durdur
-                      </button>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="h-px bg-slate-800 my-0.5"></div>
+                  <div className={`h-px my-0.5 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
 
-                {/* Roaming & Teleport Controls */}
-                <div className="px-2 py-1 flex flex-col gap-1.5 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🚀 Gezinme ve Işınlanma</span>
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input 
-                      type="checkbox" 
-                      checked={isRoaming} 
-                      onChange={(e) => {
-                        setIsRoaming(e.target.checked);
-                        if (e.target.checked) {
-                          handleInteract('happy', "Süper! Masaüstünde gezinmeye başlıyorum! 🚶‍♂️✨");
-                        } else {
-                          handleInteract('idle', "Yürüyüşü durdurdum, sakince bekliyorum. 🛋️");
-                        }
-                      }}
-                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors">Otonom Gezinme (Ekran Yürüyüşü)</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input 
-                      type="checkbox" 
-                      checked={teleportEnabled} 
-                      onChange={(e) => {
-                        setTeleportEnabled(e.target.checked);
-                        if (e.target.checked) {
-                          handleInteract('happy', "Harika! Rastgele aralıklarla ışınlanacağım! 🚀✨");
-                        } else {
-                          handleInteract('idle', "Zıplamayı durdurdum, sabit duruyorum. ⚓");
-                        }
-                      }}
-                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors">Rastgele Işınlanma Modu 🔮</span>
-                  </label>
-                </div>
+                  {/* Toggle Theme Option */}
+                  <button
+                    onClick={() => {
+                      setPetTheme(petTheme === 'light' ? 'dark' : 'light');
+                      playBeep(520, 80);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium ${
+                      petTheme === 'light' ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    <Sparkles size={13} className="text-amber-500 animate-pulse" />
+                    <span>Masaüstü Teması: {petTheme === 'light' ? 'Açık ☀️' : 'Koyu 🌙'}</span>
+                  </button>
 
-                <div className="h-px bg-slate-800 my-0.5"></div>
+                  <div className={`h-px my-0.5 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
 
-                {/* Inline Name Editor */}
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🏷️ Asistan İsmi</span>
-                  <div className="flex gap-1 mb-1">
-                    <input
-                      type="text"
-                      value={petName}
-                      onChange={(e) => setPetName(e.target.value)}
-                      placeholder="Asistan ismi..."
-                      className="bg-slate-900 text-white text-[10.5px] px-2 py-1 rounded border border-slate-800 flex-1 outline-none focus:border-blue-500 font-bold"
-                    />
-                  </div>
-                </div>
-
-                {/* Custom Interactive Selectors inside Context Menu (Dark Mode Styled for Standalone) */}
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🎭 Kostüm Değiştir</span>
-                  <div className="grid grid-cols-4 gap-1">
-                    {[
-                      { id: 'classic', label: 'Mavi' },
-                      { id: 'expert', label: 'Uzman' },
-                      { id: 'stethoscope', label: 'Hekim' },
-                      { id: 'glasses', label: 'Tarz' }
-                    ].map(item => (
+                  {/* Pet Care Section */}
+                  <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🔋 Pet Bakımı (Besleme & Sevme)</span>
+                    <div className="grid grid-cols-2 gap-1 mb-1">
                       <button
-                        key={item.id}
                         type="button"
-                        onClick={() => { setCostume(item.id as any); playBeep(520, 80); }}
-                        className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${costume === item.id ? 'bg-blue-600 text-white border-blue-500 shadow-sm' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-850'}`}
+                        onClick={() => { handlePetAction('stroke'); setContextMenu(null); }}
+                        className={`px-1 py-1 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                          petTheme === 'light' 
+                            ? 'bg-rose-50 border-rose-200 hover:bg-rose-100 text-rose-700' 
+                            : 'bg-rose-950 border border-rose-900/50 hover:bg-rose-900 text-rose-300'
+                        }`}
                       >
-                        {item.label}
+                        <span>Okşa 👋</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🔍 Metin Boyutu</span>
-                  <div className="grid grid-cols-3 gap-1">
-                    {[
-                      { id: 'normal', label: 'Normal' },
-                      { id: 'large', label: 'Büyük' },
-                      { id: 'xlarge', label: 'X-Büyük' }
-                    ].map(item => (
                       <button
-                        key={item.id}
                         type="button"
-                        onClick={() => { setFontSizeMode(item.id as any); playBeep(520, 80); }}
-                        className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${fontSizeMode === item.id ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-850'}`}
+                        onClick={() => { handlePetAction('clean'); setContextMenu(null); }}
+                        className={`px-1 py-1 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                          petTheme === 'light' 
+                            ? 'bg-sky-50 border-sky-200 hover:bg-sky-100 text-sky-700' 
+                            : 'bg-sky-950 border border-sky-900/50 hover:bg-sky-900 text-sky-300'
+                        }`}
                       >
-                        {item.label}
+                        <span>Temizle ✨</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🎶 Ses Efekti Teması</span>
-                  <div className="grid grid-cols-3 gap-1">
-                    {[
-                      { id: 'retro', label: 'Retro 👾' },
-                      { id: 'modern', label: 'Modern ✨' },
-                      { id: 'futuristic', label: 'Fütüristik 🚀' }
-                    ].map(item => (
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
                       <button
-                        key={item.id}
                         type="button"
-                        onClick={() => { setSoundTheme(item.id as any); setTimeout(() => playBeep(520, 100), 50); }}
-                        className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${soundTheme === item.id ? 'bg-sky-600 text-white border-sky-500 shadow-sm' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-850'}`}
+                        onClick={() => { handlePetAction('feed_doc'); setContextMenu(null); }}
+                        className={`px-1 py-1 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                          petTheme === 'light' 
+                            ? 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100 text-emerald-700' 
+                            : 'bg-emerald-950 border border-emerald-900/50 hover:bg-emerald-900 text-emerald-300'
+                        }`}
                       >
-                        {item.label}
+                        <span>Genelge 📑</span>
                       </button>
-                    ))}
+                      <button
+                        type="button"
+                        onClick={() => { handlePetAction('give_coffee'); setContextMenu(null); }}
+                        className={`px-1 py-1 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                          petTheme === 'light' 
+                            ? 'bg-amber-50 border-amber-200 hover:bg-amber-100 text-amber-700' 
+                            : 'bg-amber-950 border border-amber-900/50 hover:bg-amber-900 text-amber-300'
+                        }`}
+                      >
+                        <span>Kahve ☕</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={`h-px my-0.5 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
+
+                  <button
+                    onClick={() => {
+                      showNextTip();
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium ${
+                      petTheme === 'light' ? 'hover:bg-slate-100 text-slate-705' : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    <HelpCircle size={13} className="text-amber-500" />
+                    <span>Mevzuat İpucu Ver</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleTellJoke();
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex colors flex-items-center gap-2 text-xs font-medium ${
+                      petTheme === 'light' ? 'hover:bg-slate-100 text-slate-705' : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    <Coffee size={13} className="text-indigo-500" />
+                    <span>Beni Eğlendir (Şaka) 🎭</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleHumTune();
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium ${
+                      petTheme === 'light' ? 'hover:bg-slate-100 text-slate-705' : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    <Volume2 size={13} className="text-sky-500" />
+                    <span>Melodi Mırıldan 🎵</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSoundEnabled(!soundEnabled);
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium ${
+                      petTheme === 'light' ? 'hover:bg-slate-100 text-slate-705' : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    {soundEnabled ? <Volume2 size={13} className="text-blue-500" /> : <VolumeX size={13} className="text-slate-400" />}
+                    <span>Asistan Sesleri: {soundEnabled ? "Açık" : "Kapalı"}</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsMinimized(!isMinimized);
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium ${
+                      petTheme === 'light' ? 'hover:bg-slate-100 text-slate-705' : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    {isMinimized ? <Maximize2 size={13} className="text-emerald-500" /> : <Minimize2 size={13} className="text-rose-500" />}
+                    <span>{isMinimized ? "Asistanı Büyüt" : "Simge Durumuna Getir"}</span>
+                  </button>
+
+                  <button
+                    onClick={() => window.close()}
+                    className="w-full text-left px-2 py-2 hover:bg-red-50 hover:text-red-600 text-red-500 rounded-lg transition-colors flex items-center gap-2 text-xs font-semibold mt-1"
+                  >
+                    <X size={13} />
+                    <span>Kapat</span>
+                  </button>
+                  
+                  <div className={`px-2 py-1 flex flex-col gap-1 text-[10px] text-center italic mt-1 border-t ${
+                    petTheme === 'light' ? 'text-slate-400 border-slate-100 bg-slate-50/50' : 'text-slate-500 border-slate-850 bg-slate-900/10'
+                  }`}>
+                    {currentHour >= 22 || currentHour < 6 ? "🌙 Gece Modu" : "☀️ Gündüz Modu"}
                   </div>
                 </div>
 
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🔋 Pet Bakımı (Besleme & Sevme)</span>
-                  <div className="grid grid-cols-2 gap-1 mb-1">
-                    <button
-                      type="button"
-                      onClick={() => { handlePetAction('stroke'); setContextMenu(null); }}
-                      className="px-1 py-1 bg-rose-950 border border-rose-900/50 hover:bg-rose-900 text-rose-300 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                    >
-                      <span>Okşa 👋</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { handlePetAction('clean'); setContextMenu(null); }}
-                      className="px-1 py-1 bg-sky-950 border border-sky-900/50 hover:bg-sky-900 text-sky-300 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                    >
-                      <span>Temizle ✨</span>
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1">
-                    <button
-                      type="button"
-                      onClick={() => { handlePetAction('feed_doc'); setContextMenu(null); }}
-                      className="px-1 py-1 bg-emerald-950 border border-emerald-900/50 hover:bg-emerald-900 text-emerald-300 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                    >
-                      <span>Genelge 📑</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { handlePetAction('give_coffee'); setContextMenu(null); }}
-                      className="px-1 py-1 bg-amber-950 border border-amber-900/50 hover:bg-amber-900 text-amber-300 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                    >
-                      <span>Kahve ☕</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="h-px bg-slate-800 my-0.5"></div>
-
-                <button
-                  onClick={() => {
-                    showNextTip();
-                    setContextMenu(null);
-                  }}
-                  className="w-full text-left px-2 py-2 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium"
-                >
-                  <HelpCircle size={13} className="text-amber-400" />
-                  <span>Mevzuat İpucu Ver</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleTellJoke();
-                    setContextMenu(null);
-                  }}
-                  className="w-full text-left px-2 py-2 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium"
-                >
-                  <Coffee size={13} className="text-indigo-400" />
-                  <span>Beni Eğlendir (Şaka) 🎭</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleHumTune();
-                    setContextMenu(null);
-                  }}
-                  className="w-full text-left px-2 py-2 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium"
-                >
-                  <Volume2 size={13} className="text-sky-400" />
-                  <span>Melodi Mırıldan 🎵</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setSoundEnabled(!soundEnabled);
-                    setContextMenu(null);
-                  }}
-                  className="w-full text-left px-2 py-2 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium"
-                >
-                  {soundEnabled ? <Volume2 size={13} className="text-blue-400" /> : <VolumeX size={13} className="text-slate-400" />}
-                  <span>Asistan Sesleri: {soundEnabled ? "Açık" : "Kapalı"}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setIsMinimized(!isMinimized);
-                    setContextMenu(null);
-                  }}
-                  className="w-full text-left px-2 py-2 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-xs font-medium"
-                >
-                  {isMinimized ? <Maximize2 size={13} className="text-emerald-400" /> : <Minimize2 size={13} className="text-rose-400" />}
-                  <span>{isMinimized ? "Asistanı Büyüt" : "Simge Durumuna Getir"}</span>
-                </button>
-
-                <button
-                  onClick={() => window.close()}
-                  className="w-full text-left px-2 py-2 hover:bg-red-950 hover:text-red-300 rounded-lg transition-colors flex items-center gap-2 text-xs font-semibold text-red-400 mt-1"
-                >
-                  <X size={13} />
-                  <span>Kapat</span>
-                </button>
-                
-                <div className="px-2 py-1 flex flex-col gap-1 text-[10px] text-center italic text-slate-500 border-t border-slate-800 mt-1">
-                  {currentHour >= 22 || currentHour < 6 ? "🌙 Gece Modu" : "☀️ Gündüz Modu"}
-                </div>
-              </div>
-
-              {/* Speech Bubble Tail for Menu */}
-                <div className="absolute -bottom-1 w-2.5 h-2.5 bg-slate-950 border-r border-b border-slate-800 rotate-45 left-1/2 -translate-x-1/2" />
+                {/* Speech Bubble Tail for Menu */}
+                <div className={`absolute -bottom-1 w-2.5 h-2.5 border-r border-b rotate-45 left-1/2 -translate-x-1/2 ${
+                  petTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-950 border-slate-800'
+                }`} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -1411,17 +1792,432 @@ export function DesktopRobot({
                 initial={{ opacity: 0, y: 15, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="relative w-[245px] bg-white rounded-2xl p-3.5 shadow-2xl border border-slate-200/90 flex flex-col gap-2 text-slate-800 mb-2.5"
+                className={`relative w-[245px] rounded-2xl p-3.5 shadow-2xl border flex flex-col gap-2 mb-2.5 transition-all duration-300 ${
+                  petTheme === 'light' 
+                    ? 'bg-white border-slate-200/95 text-slate-800 shadow-slate-200/40' 
+                    : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
+                }`}
               >
-                {currentQuizIndex !== null ? (
-                  <div className="flex flex-col gap-2 w-full">
-                    <div className="flex items-center gap-1.5 text-blue-600 font-bold border-b border-slate-100 pb-1.5">
-                      <Award size={13} className="animate-bounce shrink-0" />
-                      <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
-                      <span className="ml-auto text-[9px] bg-blue-100 px-1.5 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                {isSearchView ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
+                    }`}>
+                      <Search size={13} className="shrink-0" />
+                      <span className="text-[11px]">Mevzuat Hızlı Arama</span>
+                      <button 
+                        onClick={() => { setIsSearchView(false); setSearchQuery(''); }}
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1"
+                      >
+                        <ArrowLeft size={10} /> Geri
+                      </button>
                     </div>
                     
-                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed text-slate-800 max-h-24 overflow-y-auto pr-1`}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Aramak istediğiniz konuyu yazın..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={`w-full text-[11px] px-2.5 py-1.5 rounded-lg border outline-none font-medium shadow-sm pr-7 ${
+                          petTheme === 'light' 
+                            ? 'bg-white text-slate-800 border-slate-200 focus:border-blue-500' 
+                            : 'bg-slate-900 text-white border-slate-800 focus:border-blue-500'
+                        }`}
+                        autoFocus
+                      />
+                      {searchQuery && (
+                        <button 
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                        >
+                          <X size={11} />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1">
+                      {(() => {
+                        const query = searchQuery.toLowerCase().trim();
+                        if (!query) {
+                          return (
+                            <div className="flex flex-col gap-1.5">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Hızlı Konular:</span>
+                              <div className="grid grid-cols-2 gap-1">
+                                {['İzin', 'Doğum', 'Maaş', 'Sözleşme', '657 DMK', 'İstifa'].map((topic) => (
+                                  <button
+                                    key={topic}
+                                    onClick={() => setSearchQuery(topic)}
+                                    className={`text-[10px] font-semibold py-1 px-1.5 border rounded-lg text-left transition-colors truncate ${
+                                      petTheme === 'light' 
+                                        ? 'border-slate-100 hover:bg-slate-50 text-slate-600' 
+                                        : 'border-slate-900 hover:bg-slate-900/40 text-slate-350'
+                                    }`}
+                                  >
+                                    🔍 {topic}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        const filtered = tips.filter(tip => tip.toLowerCase().includes(query));
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="text-[10px] text-slate-400 text-center py-4">
+                              Aramanızla eşleşen mevzuat bilgisi bulunamadı.
+                            </div>
+                          );
+                        }
+
+                        return filtered.map((tip, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setBubbleText(tip);
+                              setIsSearchView(false);
+                              setSearchQuery('');
+                              handleInteract('happy', "Aradığın mevzuat bilgisini buldum! İşte detaylar: 📑👇");
+                            }}
+                            className={`text-[10px] leading-tight font-medium p-2 border rounded-xl text-left transition-all ${
+                              petTheme === 'light' 
+                                ? 'border-slate-100 hover:bg-slate-50 hover:border-blue-300 text-slate-700 hover:text-blue-800' 
+                                : 'border-slate-900 hover:bg-slate-900/50 hover:border-blue-500/50 text-slate-350 hover:text-blue-400'
+                            }`}
+                          >
+                            {tip.length > 80 ? tip.substring(0, 80) + '...' : tip}
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                ) : showStepAnalysis ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-emerald-600 border-slate-100' : 'text-emerald-400 border-slate-800'
+                    }`}>
+                      <BookOpen size={13} className="shrink-0 text-emerald-500 animate-pulse" />
+                      <span className="text-[11px] truncate">Canlı Adım Analizi</span>
+                      <button 
+                        onClick={() => { setShowStepAnalysis(false); }}
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                      >
+                        <ArrowLeft size={10} /> Geri
+                      </button>
+                    </div>
+
+                    {activeStep ? (() => {
+                      const analysis = getStructuredAnalysis(activeStep);
+                      return (
+                        <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                          <div className="flex flex-col gap-0.5">
+                            <span className={`text-[10px] font-black uppercase tracking-wider ${petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>Adım:</span>
+                            <span className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400 leading-tight">{analysis.title}</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <div className={`p-1.5 border rounded-lg ${petTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-slate-900/30 border-slate-800'}`}>
+                              <p className="text-[8px] text-slate-400 font-bold uppercase">Yasal Dayanak</p>
+                              <p className="text-[9.5px] font-black text-slate-700 dark:text-slate-200 truncate" title={analysis.lawNo}>{analysis.lawNo}</p>
+                            </div>
+                            <div className={`p-1.5 border rounded-lg ${petTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-slate-900/30 border-slate-800'}`}>
+                              <p className="text-[8px] text-slate-400 font-bold uppercase">Yasal Süre</p>
+                              <p className="text-[9.5px] font-black text-slate-700 dark:text-slate-200 truncate" title={analysis.duration}>{analysis.duration}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wide">Kritik İşlem Adımları:</p>
+                            <ul className="flex flex-col gap-1 pl-1">
+                              {analysis.criticalPoints.map((pt, idx) => (
+                                <li key={idx} className="text-[10px] leading-tight font-semibold text-slate-600 dark:text-slate-300 flex items-start gap-1">
+                                  <span className="text-emerald-500 shrink-0 font-extrabold">✓</span>
+                                  <span>{pt}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className={`p-1.5 border rounded-lg flex items-start gap-1.5 ${
+                            petTheme === 'light' 
+                              ? 'bg-amber-50 border-amber-200/50 text-amber-900' 
+                              : 'bg-amber-950/20 border-amber-900/30 text-amber-200'
+                          }`}>
+                            <ShieldAlert size={12} className="text-amber-500 shrink-0 mt-0.5" />
+                            <div className="flex-1 leading-tight">
+                              <span className="text-[8px] font-black uppercase block tracking-wider mb-0.5">KVKK & Güvenlik</span>
+                              <span className="text-[9px] font-bold">{analysis.kvkkWarning}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              window.open(`https://www.google.com/search?q=${encodeURIComponent(analysis.lawNo + ' ' + analysis.title + ' mevzuat kararı')}`, '_blank');
+                              handleInteract('happy', "Mevzuat araması için tarayıcınızda yeni sekme açtım! 🌐");
+                            }}
+                            className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-200 font-bold text-[9px] py-1.5 rounded-lg border dark:border-slate-800 transition-colors flex items-center justify-center gap-1 shadow-sm mt-0.5"
+                          >
+                            Mevzuat Bankasında Ara 🌐
+                          </button>
+                        </div>
+                      );
+                    })() : (
+                      <div className="flex flex-col items-center justify-center py-4 text-center">
+                        <BookOpen size={24} className="text-slate-300 dark:text-slate-700 mb-1.5 animate-bounce" />
+                        <p className={`text-[10px] font-semibold leading-normal ${petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
+                          Şu anda seçili aktif bir süreç adımı bulunmuyor. Süreç tablosundan bir adıma tıklayarak canlı yasal analizi başlatabilirsiniz.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : showRegulatoryFeed ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-amber-600 border-slate-100' : 'text-amber-400 border-slate-800'
+                    }`}>
+                      <Newspaper size={13} className="shrink-0 text-amber-500 animate-pulse" />
+                      <span className="text-[11px] truncate">Resmi Gazete Takibi</span>
+                      <button 
+                        onClick={() => { setShowRegulatoryFeed(false); }}
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                      >
+                        <ArrowLeft size={10} /> Geri
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Son 48 Saatteki Gelişmeler:</p>
+                      {regulatoryFeedItems.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`p-2 border rounded-xl flex flex-col gap-1 transition-all ${
+                            item.isCritical 
+                              ? petTheme === 'light' 
+                                ? 'bg-red-50/55 border-red-200 text-slate-850' 
+                                : 'bg-red-950/20 border-red-900/40 text-slate-100'
+                              : petTheme === 'light' 
+                                ? 'bg-slate-50 border-slate-100 text-slate-800' 
+                                : 'bg-slate-900/30 border-slate-800 text-slate-200'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center gap-1">
+                            <span className="text-[8px] font-extrabold text-slate-400">{item.date}</span>
+                            <span className={`text-[8px] font-black px-1 rounded-full ${
+                              item.isCritical 
+                                ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-400' 
+                                : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            }`}>{item.source}</span>
+                          </div>
+                          <h4 className="text-[10px] font-black leading-tight">{item.title}</h4>
+                          <p className="text-[9px] leading-snug font-medium text-slate-500 dark:text-slate-350">{item.summary}</p>
+                          <button
+                            onClick={() => {
+                              window.open(item.link, '_blank');
+                              handleInteract('happy', "Sizi resmi kaynağa yönlendiriyorum... 🌐");
+                            }}
+                            className={`w-full text-center py-1 rounded text-[8.5px] font-bold border transition-colors mt-1 ${
+                              petTheme === 'light' 
+                                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200' 
+                                : 'bg-slate-900 hover:bg-slate-850 text-slate-300 border-slate-800'
+                            }`}
+                          >
+                            Resmi Gazete Metni 🔗
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : showWellbeing ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-rose-600 border-slate-100' : 'text-rose-400 border-slate-800'
+                    }`}>
+                      <Activity size={13} className="shrink-0 text-rose-500 animate-pulse" />
+                      <span className="text-[11px] truncate">İSG ve Sağlık Rutini</span>
+                      <button 
+                        onClick={() => { 
+                          setShowWellbeing(false); 
+                          setWellbeingActive(false); 
+                          setWellbeingStep(0); 
+                          setWellbeingStage('menu'); 
+                        }}
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                      >
+                        <ArrowLeft size={10} /> Kapat
+                      </button>
+                    </div>
+
+                    {wellbeingStage === 'menu' ? (
+                      <div className="flex flex-col gap-1.5">
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Lütfen Bir Egzersiz Seçin:</p>
+                        <button
+                          onClick={() => {
+                            setWellbeingStage('eye');
+                            setWellbeingStep(0);
+                            setWellbeingTimer(eyeExerciseSteps[0].duration);
+                            setWellbeingActive(true);
+                            playBeep(520, 100);
+                            setRobotState('happy');
+                          }}
+                          className={`p-2 border rounded-xl text-left transition-all ${
+                            petTheme === 'light' 
+                              ? 'border-slate-100 hover:bg-rose-50/50 hover:border-rose-200 text-slate-750' 
+                              : 'border-slate-900 hover:bg-rose-950/10 hover:border-rose-900/30 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-extrabold text-[11px] block">👁️ Masa Başı Göz Egzersizi</span>
+                          <span className="text-[9px] text-slate-400 font-medium">Göz kuruluğu ve yorgunluğunu önler (30 sn)</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setWellbeingStage('stretch');
+                            setWellbeingStep(0);
+                            setWellbeingTimer(stretchExerciseSteps[0].duration);
+                            setWellbeingActive(true);
+                            playBeep(520, 100);
+                            setRobotState('happy');
+                          }}
+                          className={`p-2 border rounded-xl text-left transition-all ${
+                            petTheme === 'light' 
+                              ? 'border-slate-100 hover:bg-rose-50/50 hover:border-rose-200 text-slate-750' 
+                              : 'border-slate-900 hover:bg-rose-950/10 hover:border-rose-900/30 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-extrabold text-[11px] block">🧘‍♂️ Ergonomik Esnetme</span>
+                          <span className="text-[9px] text-slate-400 font-medium">Boyun, omuz ve sırt kaslarını gevşetir (28 sn)</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setWellbeingStage('posture');
+                            setWellbeingStep(0);
+                            setWellbeingTimer(postureExerciseSteps[0].duration);
+                            setWellbeingActive(true);
+                            playBeep(520, 100);
+                            setRobotState('happy');
+                          }}
+                          className={`p-2 border rounded-xl text-left transition-all ${
+                            petTheme === 'light' 
+                              ? 'border-slate-100 hover:bg-rose-50/50 hover:border-rose-200 text-slate-750' 
+                              : 'border-slate-900 hover:bg-rose-950/10 hover:border-rose-900/30 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-extrabold text-[11px] block">📐 Duruş ve Solunum Kontrolü</span>
+                          <span className="text-[9px] text-slate-400 font-medium">Doğru oturuş ve beynin oksijenlenmesi (25 sn)</span>
+                        </button>
+                      </div>
+                    ) : (() => {
+                      const steps = wellbeingStage === 'eye' 
+                        ? eyeExerciseSteps 
+                        : wellbeingStage === 'stretch' 
+                          ? stretchExerciseSteps 
+                          : postureExerciseSteps;
+                      const isLast = wellbeingStep === steps.length - 1;
+                      
+                      return (
+                        <div className="flex flex-col gap-2.5 items-center justify-center py-2 text-center">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center border font-mono font-bold text-sm ${
+                            wellbeingActive ? 'animate-pulse text-rose-500 border-rose-500 bg-rose-50/50 dark:bg-rose-950/20' : 'text-slate-400 border-slate-300'
+                          }`}>
+                            {wellbeingTimer > 0 ? `${wellbeingTimer}s` : "✓"}
+                          </div>
+
+                          <div className="flex flex-col gap-1 px-1">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Adım {wellbeingStep + 1} / {steps.length}</span>
+                            <p className="text-[11px] font-extrabold leading-normal">{steps[wellbeingStep].text}</p>
+                          </div>
+
+                          {!isLast && (
+                            <div className="flex gap-1.5 w-full mt-1">
+                              <button
+                                onClick={() => {
+                                  setWellbeingActive(!wellbeingActive);
+                                  playBeep(440, 80);
+                                }}
+                                className={`flex-1 font-bold text-[9px] py-1.5 rounded-lg border transition-colors ${
+                                  wellbeingActive 
+                                    ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200' 
+                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                                }`}
+                              >
+                                {wellbeingActive ? "Duraklat" : "Devam Et"}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (wellbeingStep < steps.length - 1) {
+                                    const next = wellbeingStep + 1;
+                                    setWellbeingStep(next);
+                                    setWellbeingTimer(steps[next].duration);
+                                    if (next === steps.length - 1) {
+                                      setWellbeingActive(false);
+                                      setEnergyLevel(prev => Math.min(100, prev + 15));
+                                      updateStats('interactions', 1);
+                                      setRobotState('happy');
+                                    } else {
+                                      playBeep(660, 100);
+                                    }
+                                  }
+                                }}
+                                className={`flex-1 font-bold text-[9px] py-1.5 rounded-lg border bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-200 dark:border-slate-800`}
+                              >
+                                {wellbeingStep === steps.length - 2 ? "Bitir" : "Geç"}
+                              </button>
+                            </div>
+                          )}
+
+                          {isLast && (
+                            <button
+                              onClick={() => {
+                                setWellbeingStage('menu');
+                                setWellbeingStep(0);
+                                setWellbeingActive(false);
+                              }}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm mt-1"
+                            >
+                              Ana Menüye Dön
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : currentQuizIndex !== null ? (
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className={`flex flex-col gap-1.5 border-b pb-1.5 ${
+                      petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+                    }`}>
+                      <div className={`flex items-center gap-1.5 font-bold ${
+                        petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'
+                      }`}>
+                        <Award size={13} className="animate-bounce shrink-0" />
+                        <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
+                        <span className="ml-auto text-[9px] bg-blue-100 px-1.5 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                      </div>
+                      <div className="flex items-center gap-1 justify-between text-[8px] font-bold text-slate-400 mt-0.5">
+                        <span>Konu Seçin:</span>
+                        <select
+                          value={quizCategory}
+                          onChange={(e) => handleStartQuiz(e.target.value as any)}
+                          className={`text-[8px] font-bold px-1 py-0.5 rounded border outline-none cursor-pointer ${
+                            petTheme === 'light' 
+                              ? 'bg-white text-slate-650 border-slate-200' 
+                              : 'bg-slate-900 text-slate-300 border-slate-800'
+                          }`}
+                        >
+                          <option value="Tümü">Tümü (12 Soru)</option>
+                          <option value="Genel Mevzuat">Genel Mevzuat</option>
+                          <option value="İzin Hakları">İzin Hakları</option>
+                          <option value="Sözleşmeli Personel">Sözleşmeli Personel</option>
+                          <option value="Sağlık Mevzuatı">Sağlık Mevzuatı</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed max-h-24 overflow-y-auto pr-1 ${
+                      petTheme === 'light' ? 'text-slate-800' : 'text-slate-200'
+                    }`}>
                       {quizQuestions[currentQuizIndex].question}
                     </p>
 
@@ -1432,15 +2228,23 @@ export function DesktopRobot({
                             key={idx}
                             type="button"
                             onClick={() => handleSelectQuizAnswer(idx)}
-                            className="w-full text-left px-2.5 py-1.5 border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 rounded-xl transition-all duration-200 text-[11px] font-semibold text-slate-700 hover:text-blue-800 flex items-center justify-between"
+                            className={`w-full text-left px-2.5 py-1.5 border transition-all duration-200 text-[11px] font-semibold flex items-center justify-between rounded-xl ${
+                              petTheme === 'light' 
+                                ? 'border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 text-slate-700 hover:text-blue-800' 
+                                : 'border-slate-800 hover:border-blue-500 hover:bg-blue-950/50 text-slate-300 hover:text-blue-400'
+                            }`}
                           >
                             <span className="truncate pr-1">{opt}</span>
-                            <span className="text-[9px] font-black text-slate-400 border border-slate-200 px-1 rounded bg-slate-50 uppercase shrink-0">{String.fromCharCode(65 + idx)}</span>
+                            <span className={`text-[9px] font-black border px-1 rounded uppercase shrink-0 ${
+                              petTheme === 'light' ? 'text-slate-400 border-slate-200 bg-slate-50' : 'text-slate-500 border-slate-800 bg-slate-900'
+                            }`}>{String.fromCharCode(65 + idx)}</span>
                           </button>
                         ))}
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-1.5 mt-1 p-2 rounded-xl border bg-slate-50 border-slate-100 animate-fade-in text-[10px]">
+                      <div className={`flex flex-col gap-1.5 mt-1 p-2 rounded-xl border animate-fade-in text-[10px] ${
+                        petTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-slate-900/40 border-slate-800'
+                      }`}>
                         <div className="flex items-center gap-1">
                           {selectedAnswerIndex === quizQuestions[currentQuizIndex].correctIndex ? (
                             <span className="text-emerald-600 font-extrabold flex items-center gap-1">🎉 Doğru! (+10 Enerji)</span>
@@ -1448,7 +2252,9 @@ export function DesktopRobot({
                             <span className="text-rose-600 font-extrabold">❌ Yanlış! Doğrusu: {String.fromCharCode(65 + quizQuestions[currentQuizIndex].correctIndex)}</span>
                           )}
                         </div>
-                        <p className="text-[10px] text-slate-500 leading-normal italic">
+                        <p className={`text-[10px] leading-normal italic ${
+                          petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'
+                        }`}>
                           {quizQuestions[currentQuizIndex].explanation}
                         </p>
                         <div className="flex gap-1 mt-1">
@@ -1462,7 +2268,9 @@ export function DesktopRobot({
                           <button
                             type="button"
                             onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); }}
-                            className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-[9px] py-1 px-2.5 rounded transition-colors"
+                            className={`font-bold text-[9px] py-1 px-2.5 rounded transition-colors ${
+                              petTheme === 'light' ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                            }`}
                           >
                             Kapat
                           </button>
@@ -1473,13 +2281,21 @@ export function DesktopRobot({
                 ) : (
                   <>
                     {/* Status/Levels Bar in normal bubble view */}
-                    <div className="flex items-center justify-between gap-1.5 text-[9px] text-slate-400 font-bold border-b border-slate-100 pb-1.5 mb-1 bg-amber-50/25 py-1 px-1.5 rounded-lg">
-                      <div className="flex items-center gap-1 text-slate-600 font-extrabold shrink-0">
+                    <div className={`flex items-center justify-between gap-1.5 text-[9px] font-bold border-b pb-1.5 mb-1 py-1 px-1.5 rounded-lg ${
+                      petTheme === 'light' 
+                        ? 'text-slate-400 border-slate-100 bg-amber-50/25' 
+                        : 'text-slate-500 border-slate-800 bg-amber-950/10'
+                    }`}>
+                      <div className={`flex items-center gap-1 font-extrabold shrink-0 ${
+                        petTheme === 'light' ? 'text-slate-600' : 'text-slate-300'
+                      }`}>
                         <span>💬 {petName}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Zap size={10} className="text-amber-500 fill-amber-500 animate-bounce" />
-                        <div className="w-16 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div className={`w-16 h-1.5 rounded-full overflow-hidden ${
+                          petTheme === 'light' ? 'bg-slate-200' : 'bg-slate-800'
+                        }`}>
                           <div className="bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${energyLevel}%` }} />
                         </div>
                         <span className="text-[9px] text-amber-600">{energyLevel}%</span>
@@ -1487,22 +2303,34 @@ export function DesktopRobot({
                     </div>
 
                     {/* Bubble Text */}
-                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed text-slate-800 whitespace-pre-line max-h-24 overflow-y-auto pr-1`}>
+                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed whitespace-pre-line max-h-24 overflow-y-auto pr-1 ${
+                      petTheme === 'light' ? 'text-slate-800' : 'text-slate-100'
+                    }`}>
                       {bubbleText}
                     </p>
 
                     {/* Compact Actions inside speech bubble */}
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-100 mt-0.5">
+                    <div className={`flex justify-between items-center pt-2 border-t mt-0.5 ${
+                      petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+                    }`}>
                       <div className="flex gap-1.5">
                         <button
                           onClick={showNextTip}
-                          className="bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-md py-1 px-2.5 text-[10px] font-extrabold transition-all border border-amber-100/50"
+                          className={`rounded-md py-1 px-2.5 text-[10px] font-extrabold transition-all border ${
+                            petTheme === 'light' 
+                              ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-100/50' 
+                              : 'bg-amber-950/40 hover:bg-amber-900/40 text-amber-300 border-amber-900/30'
+                          }`}
                         >
                           İpucu 💡
                         </button>
                         <button
                           onClick={() => setSoundEnabled(!soundEnabled)}
-                          className="bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-md py-1 px-1.5 text-[10px] transition-all border border-slate-200/30 flex items-center justify-center"
+                          className={`rounded-md py-1 px-1.5 text-[10px] transition-all border flex items-center justify-center ${
+                            petTheme === 'light' 
+                              ? 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200/30' 
+                              : 'bg-slate-900 hover:bg-slate-850 text-slate-300 border-slate-800/50'
+                          }`}
                         >
                           {soundEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
                         </button>
@@ -1518,7 +2346,9 @@ export function DesktopRobot({
                 )}
 
                 {/* Speech Bubble Tail */}
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-r border-b border-slate-200/80 rotate-45" />
+                <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 border-r border-b rotate-45 ${
+                  petTheme === 'light' ? 'bg-white border-slate-200/80' : 'bg-slate-950 border-slate-800/90'
+                }`} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -1744,41 +2574,462 @@ export function DesktopRobot({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 onPointerDown={(e) => e.stopPropagation()} // Stop dragging when interacting with bubble
-                className="absolute bottom-24 w-72 bg-white rounded-2xl p-4 shadow-2xl border border-slate-100 flex flex-col gap-3 text-slate-800 cursor-default"
+                className={`absolute bottom-24 w-72 rounded-2xl p-4 shadow-2xl border flex flex-col gap-3 cursor-default transition-all duration-300 ${
+                  petTheme === 'light'
+                    ? 'bg-white border-slate-100 text-slate-800 shadow-slate-200/40'
+                    : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
+                }`}
               >
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-b border-r border-slate-100 rotate-45"></div>
+                <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 border-b border-r rotate-45 ${
+                  petTheme === 'light' ? 'bg-white border-slate-100' : 'bg-slate-950 border-slate-800'
+                }`}></div>
                 
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span className="text-[11px] font-bold text-blue-600 flex items-center gap-1 uppercase tracking-wider">
+                <div className={`flex items-center justify-between border-b pb-2 ${
+                  petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+                }`}>
+                  <span className={`text-[11px] font-bold flex items-center gap-1 uppercase tracking-wider ${
+                    petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'
+                  }`}>
                     <Zap size={12} className="text-amber-500 animate-pulse" />
                     Asistan Pet & Yapay Zekâ
                   </span>
                   <div className="flex items-center gap-1.5">
                     <button 
                       onClick={() => setSoundEnabled(!soundEnabled)}
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      className={`${petTheme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'} transition-colors`}
                       title={soundEnabled ? "Sesi Kapat" : "Sesi Aç"}
                     >
                       {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
                     </button>
                     <button 
                       onClick={() => setShowBubble(false)}
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      className={`${petTheme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'} transition-colors`}
                     >
                       <X size={13} />
                     </button>
                   </div>
                 </div>
 
-                {currentQuizIndex !== null ? (
-                  <div className="flex flex-col gap-2.5 w-full">
-                    <div className="flex items-center gap-1.5 text-blue-600 font-bold border-b border-slate-100 pb-1.5">
-                      <Award size={13} className="animate-bounce shrink-0" />
-                      <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
-                      <span className="ml-auto text-[10px] bg-blue-100 px-2 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                {isSearchView ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
+                    }`}>
+                      <Search size={13} className="shrink-0" />
+                      <span className="text-[11px]">Mevzuat Hızlı Arama</span>
+                      <button 
+                        onClick={() => { setIsSearchView(false); setSearchQuery(''); }}
+                        className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1"
+                      >
+                        <ArrowLeft size={11} /> Geri
+                      </button>
                     </div>
                     
-                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed text-slate-800 max-h-24 overflow-y-auto pr-1`}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Aramak istediğiniz konuyu yazın..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={`w-full text-xs px-2.5 py-1.5 rounded-lg border outline-none font-medium shadow-sm pr-7 ${
+                          petTheme === 'light' 
+                            ? 'bg-white text-slate-800 border-slate-200 focus:border-blue-500' 
+                            : 'bg-slate-900 text-white border-slate-800 focus:border-blue-500'
+                        }`}
+                        autoFocus
+                      />
+                      {searchQuery && (
+                        <button 
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                        >
+                          <X size={11} />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1">
+                      {(() => {
+                        const query = searchQuery.toLowerCase().trim();
+                        if (!query) {
+                          return (
+                            <div className="flex flex-col gap-1.5">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Hızlı Konular:</span>
+                              <div className="grid grid-cols-2 gap-1.5">
+                                {['İzin', 'Doğum', 'Maaş', 'Sözleşme', '657 DMK', 'İstifa'].map((topic) => (
+                                  <button
+                                    key={topic}
+                                    onClick={() => setSearchQuery(topic)}
+                                    className={`text-[10px] font-semibold py-1 px-1.5 border rounded-lg text-left transition-colors truncate ${
+                                      petTheme === 'light' 
+                                        ? 'border-slate-100 hover:bg-slate-50 text-slate-600' 
+                                        : 'border-slate-900 hover:bg-slate-900/40 text-slate-350'
+                                    }`}
+                                  >
+                                    🔍 {topic}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        const filtered = tips.filter(tip => tip.toLowerCase().includes(query));
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="text-[10px] text-slate-400 text-center py-4">
+                              Aramanızla eşleşen mevzuat bilgisi bulunamadı.
+                            </div>
+                          );
+                        }
+
+                        return filtered.map((tip, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setBubbleText(tip);
+                              setIsSearchView(false);
+                              setSearchQuery('');
+                              handleInteract('happy', "Aradığın mevzuat bilgisini buldum! İşte detaylar: 📑👇");
+                            }}
+                            className={`text-[10px] leading-tight font-medium p-2 border rounded-xl text-left transition-all ${
+                              petTheme === 'light' 
+                                ? 'border-slate-100 hover:bg-slate-50 hover:border-blue-300 text-slate-700 hover:text-blue-800' 
+                                : 'border-slate-900 hover:bg-slate-900/50 hover:border-blue-500/50 text-slate-350 hover:text-blue-400'
+                            }`}
+                          >
+                            {tip.length > 80 ? tip.substring(0, 80) + '...' : tip}
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                ) : showStepAnalysis ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-emerald-600 border-slate-100' : 'text-emerald-400 border-slate-800'
+                    }`}>
+                      <BookOpen size={13} className="shrink-0 text-emerald-500 animate-pulse" />
+                      <span className="text-[11px] truncate">Canlı Adım Analizi</span>
+                      <button 
+                        onClick={() => { setShowStepAnalysis(false); }}
+                        className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                      >
+                        <ArrowLeft size={11} /> Geri
+                      </button>
+                    </div>
+
+                    {activeStep ? (() => {
+                      const analysis = getStructuredAnalysis(activeStep);
+                      return (
+                        <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                          <div className="flex flex-col gap-0.5">
+                            <span className={`text-[10px] font-black uppercase tracking-wider ${petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>Adım:</span>
+                            <span className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400 leading-tight">{analysis.title}</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <div className={`p-1.5 border rounded-lg ${petTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-slate-900/30 border-slate-800'}`}>
+                              <p className="text-[8px] text-slate-400 font-bold uppercase">Yasal Dayanak</p>
+                              <p className="text-[9.5px] font-black text-slate-700 dark:text-slate-200 truncate" title={analysis.lawNo}>{analysis.lawNo}</p>
+                            </div>
+                            <div className={`p-1.5 border rounded-lg ${petTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-slate-900/30 border-slate-800'}`}>
+                              <p className="text-[8px] text-slate-400 font-bold uppercase">Yasal Süre</p>
+                              <p className="text-[9.5px] font-black text-slate-700 dark:text-slate-200 truncate" title={analysis.duration}>{analysis.duration}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wide">Kritik İşlem Adımları:</p>
+                            <ul className="flex flex-col gap-1 pl-1">
+                              {analysis.criticalPoints.map((pt, idx) => (
+                                <li key={idx} className="text-[10px] leading-tight font-semibold text-slate-600 dark:text-slate-300 flex items-start gap-1">
+                                  <span className="text-emerald-500 shrink-0 font-extrabold">✓</span>
+                                  <span>{pt}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className={`p-1.5 border rounded-lg flex items-start gap-1.5 ${
+                            petTheme === 'light' 
+                              ? 'bg-amber-50 border-amber-200/50 text-amber-900' 
+                              : 'bg-amber-950/20 border-amber-900/30 text-amber-200'
+                          }`}>
+                            <ShieldAlert size={12} className="text-amber-500 shrink-0 mt-0.5" />
+                            <div className="flex-1 leading-tight">
+                              <span className="text-[8px] font-black uppercase block tracking-wider mb-0.5">KVKK & Güvenlik</span>
+                              <span className="text-[9px] font-bold">{analysis.kvkkWarning}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              window.open(`https://www.google.com/search?q=${encodeURIComponent(analysis.lawNo + ' ' + analysis.title + ' mevzuat kararı')}`, '_blank');
+                              handleInteract('happy', "Mevzuat araması için tarayıcınızda yeni sekme açtım! 🌐");
+                            }}
+                            className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-200 font-bold text-[9px] py-1.5 rounded-lg border dark:border-slate-800 transition-colors flex items-center justify-center gap-1 shadow-sm mt-0.5"
+                          >
+                            Mevzuat Bankasında Ara 🌐
+                          </button>
+                        </div>
+                      );
+                    })() : (
+                      <div className="flex flex-col items-center justify-center py-4 text-center">
+                        <BookOpen size={24} className="text-slate-300 dark:text-slate-700 mb-1.5 animate-bounce" />
+                        <p className={`text-[10px] font-semibold leading-normal ${petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
+                          Şu anda seçili aktif bir süreç adımı bulunmuyor. Süreç tablosundan bir adıma tıklayarak canlı yasal analizi başlatabilirsiniz.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : showRegulatoryFeed ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-amber-600 border-slate-100' : 'text-amber-400 border-slate-800'
+                    }`}>
+                      <Newspaper size={13} className="shrink-0 text-amber-500 animate-pulse" />
+                      <span className="text-[11px] truncate">Resmi Gazete Takibi</span>
+                      <button 
+                        onClick={() => { setShowRegulatoryFeed(false); }}
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                      >
+                        <ArrowLeft size={10} /> Geri
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Son 48 Saatteki Gelişmeler:</p>
+                      {regulatoryFeedItems.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`p-2 border rounded-xl flex flex-col gap-1 transition-all ${
+                            item.isCritical 
+                              ? petTheme === 'light' 
+                                ? 'bg-red-50/55 border-red-200 text-slate-850' 
+                                : 'bg-red-950/20 border-red-900/40 text-slate-100'
+                              : petTheme === 'light' 
+                                ? 'bg-slate-50 border-slate-100 text-slate-800' 
+                                : 'bg-slate-900/30 border-slate-800 text-slate-200'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center gap-1">
+                            <span className="text-[8px] font-extrabold text-slate-400">{item.date}</span>
+                            <span className={`text-[8px] font-black px-1 rounded-full ${
+                              item.isCritical 
+                                ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-400' 
+                                : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            }`}>{item.source}</span>
+                          </div>
+                          <h4 className="text-[10px] font-black leading-tight">{item.title}</h4>
+                          <p className="text-[9px] leading-snug font-medium text-slate-500 dark:text-slate-350">{item.summary}</p>
+                          <button
+                            onClick={() => {
+                              window.open(item.link, '_blank');
+                              handleInteract('happy', "Sizi resmi kaynağa yönlendiriyorum... 🌐");
+                            }}
+                            className={`w-full text-center py-1 rounded text-[8.5px] font-bold border transition-colors mt-1 ${
+                              petTheme === 'light' 
+                                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200' 
+                                : 'bg-slate-900 hover:bg-slate-850 text-slate-300 border-slate-800'
+                            }`}
+                          >
+                            Resmi Gazete Metni 🔗
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : showWellbeing ? (
+                  <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                      petTheme === 'light' ? 'text-rose-600 border-slate-100' : 'text-rose-400 border-slate-800'
+                    }`}>
+                      <Activity size={13} className="shrink-0 text-rose-500 animate-pulse" />
+                      <span className="text-[11px] truncate">İSG ve Sağlık Rutini</span>
+                      <button 
+                        onClick={() => { 
+                          setShowWellbeing(false); 
+                          setWellbeingActive(false); 
+                          setWellbeingStep(0); 
+                          setWellbeingStage('menu'); 
+                        }}
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                      >
+                        <ArrowLeft size={10} /> Kapat
+                      </button>
+                    </div>
+
+                    {wellbeingStage === 'menu' ? (
+                      <div className="flex flex-col gap-1.5">
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Lütfen Bir Egzersiz Seçin:</p>
+                        <button
+                          onClick={() => {
+                            setWellbeingStage('eye');
+                            setWellbeingStep(0);
+                            setWellbeingTimer(eyeExerciseSteps[0].duration);
+                            setWellbeingActive(true);
+                            playBeep(520, 100);
+                            setRobotState('happy');
+                          }}
+                          className={`p-2 border rounded-xl text-left transition-all ${
+                            petTheme === 'light' 
+                              ? 'border-slate-100 hover:bg-rose-50/50 hover:border-rose-200 text-slate-750' 
+                              : 'border-slate-900 hover:bg-rose-950/10 hover:border-rose-900/30 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-extrabold text-[11px] block">👁️ Masa Başı Göz Egzersizi</span>
+                          <span className="text-[9px] text-slate-400 font-medium">Göz kuruluğu ve yorgunluğunu önler (30 sn)</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setWellbeingStage('stretch');
+                            setWellbeingStep(0);
+                            setWellbeingTimer(stretchExerciseSteps[0].duration);
+                            setWellbeingActive(true);
+                            playBeep(520, 100);
+                            setRobotState('happy');
+                          }}
+                          className={`p-2 border rounded-xl text-left transition-all ${
+                            petTheme === 'light' 
+                              ? 'border-slate-100 hover:bg-rose-50/50 hover:border-rose-200 text-slate-750' 
+                              : 'border-slate-900 hover:bg-rose-950/10 hover:border-rose-900/30 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-extrabold text-[11px] block">🧘‍♂️ Ergonomik Esnetme</span>
+                          <span className="text-[9px] text-slate-400 font-medium">Boyun, omuz ve sırt kaslarını gevşetir (28 sn)</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setWellbeingStage('posture');
+                            setWellbeingStep(0);
+                            setWellbeingTimer(postureExerciseSteps[0].duration);
+                            setWellbeingActive(true);
+                            playBeep(520, 100);
+                            setRobotState('happy');
+                          }}
+                          className={`p-2 border rounded-xl text-left transition-all ${
+                            petTheme === 'light' 
+                              ? 'border-slate-100 hover:bg-rose-50/50 hover:border-rose-200 text-slate-750' 
+                              : 'border-slate-900 hover:bg-rose-950/10 hover:border-rose-900/30 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-extrabold text-[11px] block">📐 Duruş ve Solunum Kontrolü</span>
+                          <span className="text-[9px] text-slate-400 font-medium">Doğru oturuş ve beynin oksijenlenmesi (25 sn)</span>
+                        </button>
+                      </div>
+                    ) : (() => {
+                      const steps = wellbeingStage === 'eye' 
+                        ? eyeExerciseSteps 
+                        : wellbeingStage === 'stretch' 
+                          ? stretchExerciseSteps 
+                          : postureExerciseSteps;
+                      const isLast = wellbeingStep === steps.length - 1;
+                      
+                      return (
+                        <div className="flex flex-col gap-2.5 items-center justify-center py-2 text-center">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center border font-mono font-bold text-sm ${
+                            wellbeingActive ? 'animate-pulse text-rose-500 border-rose-500 bg-rose-50/50 dark:bg-rose-950/20' : 'text-slate-400 border-slate-300'
+                          }`}>
+                            {wellbeingTimer > 0 ? `${wellbeingTimer}s` : "✓"}
+                          </div>
+
+                          <div className="flex flex-col gap-1 px-1">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Adım {wellbeingStep + 1} / {steps.length}</span>
+                            <p className="text-[11px] font-extrabold leading-normal">{steps[wellbeingStep].text}</p>
+                          </div>
+
+                          {!isLast && (
+                            <div className="flex gap-1.5 w-full mt-1">
+                              <button
+                                onClick={() => {
+                                  setWellbeingActive(!wellbeingActive);
+                                  playBeep(440, 80);
+                                }}
+                                className={`flex-1 font-bold text-[9px] py-1.5 rounded-lg border transition-colors ${
+                                  wellbeingActive 
+                                    ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200' 
+                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                                }`}
+                              >
+                                {wellbeingActive ? "Duraklat" : "Devam Et"}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (wellbeingStep < steps.length - 1) {
+                                    const next = wellbeingStep + 1;
+                                    setWellbeingStep(next);
+                                    setWellbeingTimer(steps[next].duration);
+                                    if (next === steps.length - 1) {
+                                      setWellbeingActive(false);
+                                      setEnergyLevel(prev => Math.min(100, prev + 15));
+                                      updateStats('interactions', 1);
+                                      setRobotState('happy');
+                                    } else {
+                                      playBeep(660, 100);
+                                    }
+                                  }
+                                }}
+                                className={`flex-1 font-bold text-[9px] py-1.5 rounded-lg border bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-200 dark:border-slate-800`}
+                              >
+                                {wellbeingStep === steps.length - 2 ? "Bitir" : "Geç"}
+                              </button>
+                            </div>
+                          )}
+
+                          {isLast && (
+                            <button
+                              onClick={() => {
+                                setWellbeingStage('menu');
+                                setWellbeingStep(0);
+                                setWellbeingActive(false);
+                              }}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm mt-1"
+                            >
+                              Ana Menüye Dön
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : currentQuizIndex !== null ? (
+                  <div className="flex flex-col gap-2.5 w-full">
+                    <div className={`flex flex-col gap-1.5 border-b pb-1.5 ${
+                      petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+                    }`}>
+                      <div className={`flex items-center gap-1.5 font-bold ${
+                        petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'
+                      }`}>
+                        <Award size={13} className="animate-bounce shrink-0" />
+                        <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
+                        <span className="ml-auto text-[10px] bg-blue-100 px-2 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                      </div>
+                      <div className="flex items-center gap-1 justify-between text-[9px] font-bold text-slate-400 mt-0.5">
+                        <span>Konu Seçin:</span>
+                        <select
+                          value={quizCategory}
+                          onChange={(e) => handleStartQuiz(e.target.value as any)}
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded border outline-none cursor-pointer ${
+                            petTheme === 'light' 
+                              ? 'bg-white text-slate-650 border-slate-200' 
+                              : 'bg-slate-900 text-slate-300 border-slate-800'
+                          }`}
+                        >
+                          <option value="Tümü">Tümü (12 Soru)</option>
+                          <option value="Genel Mevzuat">Genel Mevzuat</option>
+                          <option value="İzin Hakları">İzin Hakları</option>
+                          <option value="Sözleşmeli Personel">Sözleşmeli Personel</option>
+                          <option value="Sağlık Mevzuatı">Sağlık Mevzuatı</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed max-h-24 overflow-y-auto pr-1 ${
+                      petTheme === 'light' ? 'text-slate-800' : 'text-slate-200'
+                    }`}>
                       {quizQuestions[currentQuizIndex].question}
                     </p>
 
@@ -1789,15 +3040,23 @@ export function DesktopRobot({
                             key={idx}
                             type="button"
                             onClick={() => handleSelectQuizAnswer(idx)}
-                            className="w-full text-left px-3 py-2 border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 rounded-xl transition-all duration-200 text-xs font-semibold text-slate-700 hover:text-blue-800 flex items-center justify-between"
+                            className={`w-full text-left px-3 py-2 border rounded-xl transition-all duration-200 text-xs font-semibold flex items-center justify-between ${
+                              petTheme === 'light' 
+                                ? 'border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 text-slate-700 hover:text-blue-800' 
+                                : 'border-slate-850 hover:border-blue-500 hover:bg-blue-950/50 text-slate-300 hover:text-blue-400'
+                            }`}
                           >
                             <span className="truncate pr-1">{opt}</span>
-                            <span className="text-[10px] font-black text-slate-400 border border-slate-200 px-1.5 rounded bg-slate-50 uppercase shrink-0">{String.fromCharCode(65 + idx)}</span>
+                            <span className={`text-[10px] font-black border px-1.5 rounded uppercase shrink-0 ${
+                              petTheme === 'light' ? 'text-slate-400 border-slate-200 bg-slate-50' : 'text-slate-500 border-slate-800 bg-slate-900'
+                            }`}>{String.fromCharCode(65 + idx)}</span>
                           </button>
                         ))}
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-2 mt-1 p-2.5 rounded-xl border bg-slate-50 border-slate-100 animate-fade-in">
+                      <div className={`flex flex-col gap-2 mt-1 p-2.5 rounded-xl border animate-fade-in ${
+                        petTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-slate-900/40 border-slate-800'
+                      }`}>
                         <div className="flex items-center gap-1">
                           {selectedAnswerIndex === quizQuestions[currentQuizIndex].correctIndex ? (
                             <span className="text-emerald-600 font-extrabold flex items-center gap-1 text-xs">🎉 Doğru! (+10 Enerji)</span>
@@ -1805,7 +3064,9 @@ export function DesktopRobot({
                             <span className="text-rose-600 font-extrabold text-xs">❌ Yanlış! Doğru Cevap: {String.fromCharCode(65 + quizQuestions[currentQuizIndex].correctIndex)}</span>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 leading-relaxed italic">
+                        <p className={`text-xs leading-relaxed italic ${
+                          petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'
+                        }`}>
                           {quizQuestions[currentQuizIndex].explanation}
                         </p>
                         <div className="flex gap-1.5 mt-1.5">
@@ -1819,7 +3080,9 @@ export function DesktopRobot({
                           <button
                             type="button"
                             onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Sınavı başarıyla bitirdin! Harika bir beyin jimnastiğiydi. 😊"); }}
-                            className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-1.5 px-3 rounded-xl transition-colors"
+                            className={`font-bold text-xs py-1.5 px-3 rounded-xl transition-colors ${
+                              petTheme === 'light' ? 'bg-slate-200 hover:bg-slate-300 text-slate-705' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                            }`}
                           >
                             Kapat
                           </button>
@@ -1830,13 +3093,21 @@ export function DesktopRobot({
                 ) : (
                   <>
                     {/* Status/Levels Bar in normal bubble view */}
-                    <div className="flex items-center justify-between gap-2 text-[10px] text-slate-400 font-bold border-b border-slate-100 pb-2 mb-1.5 bg-amber-50/25 py-1.5 px-2 rounded-xl">
-                      <div className="flex items-center gap-1.5 text-slate-600 font-extrabold shrink-0">
+                    <div className={`flex items-center justify-between gap-2 text-[10px] font-bold border-b pb-2 mb-1.5 py-1.5 px-2 rounded-xl ${
+                      petTheme === 'light' 
+                        ? 'text-slate-400 border-slate-100 bg-amber-50/25' 
+                        : 'text-slate-500 border-slate-800 bg-amber-950/10'
+                    }`}>
+                      <div className={`flex items-center gap-1.5 font-extrabold shrink-0 ${
+                        petTheme === 'light' ? 'text-slate-600' : 'text-slate-300'
+                      }`}>
                         <span>💬 {petName}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Zap size={11} className="text-amber-500 fill-amber-500 animate-bounce" />
-                        <div className="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div className={`w-24 h-1.5 rounded-full overflow-hidden ${
+                          petTheme === 'light' ? 'bg-slate-200' : 'bg-slate-800'
+                        }`}>
                           <div className="bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${energyLevel}%` }} />
                         </div>
                         <span className="text-[10px] text-amber-600">{energyLevel}%</span>
@@ -1844,28 +3115,40 @@ export function DesktopRobot({
                     </div>
 
                     {isFocusing && (
-                      <div className="mb-2 px-2 py-1.5 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between animate-pulse">
+                      <div className={`mb-2 px-2 py-1.5 border rounded-lg flex items-center justify-between animate-pulse ${
+                        petTheme === 'light' 
+                          ? 'bg-blue-50 border-blue-100 text-blue-700' 
+                          : 'bg-blue-950/30 border-blue-900/40 text-blue-350'
+                      }`}>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                          <span className="text-[10px] font-bold text-blue-700">ODAKLANMA SEANSI</span>
+                          <span className="text-[10px] font-bold">ODAKLANMA SEANSI</span>
                         </div>
-                        <span className="text-xs font-mono font-bold text-blue-800">{formatTime(focusTimeLeft)}</span>
+                        <span className="text-xs font-mono font-bold">{formatTime(focusTimeLeft)}</span>
                       </div>
                     )}
 
-                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed whitespace-pre-line text-slate-800`}>
+                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed whitespace-pre-line ${
+                      petTheme === 'light' ? 'text-slate-800' : 'text-slate-100'
+                    }`}>
                       {bubbleText}
                     </p>
 
                     {/* İSM Daily Report Status Panel */}
-                    <div className="border-t border-b border-slate-100 py-2.5 my-0.5">
+                    <div className={`border-t border-b py-2.5 my-0.5 ${
+                      petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+                    }`}>
                       {ismStatus === 'pending' ? (
-                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3 flex flex-col gap-2">
+                        <div className={`border rounded-xl p-3 flex flex-col gap-2 ${
+                          petTheme === 'light' 
+                            ? 'bg-amber-50 border-amber-200 text-amber-900' 
+                            : 'bg-amber-950/30 border-amber-900/30 text-amber-100'
+                        }`}>
                           <div className="flex items-start gap-2">
                             <ShieldAlert size={15} className="text-amber-600 shrink-0 mt-0.5 animate-bounce" />
                             <div className="flex-1">
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Günlük İSM Görevi</p>
-                              <p className="text-[10px] text-amber-700 leading-tight">Günlük Personel Hareket Listesi'ni İl Sağlık Müdürlüğü'ne (İSM) göndermeyi unutmayın!</p>
+                              <p className={`text-[10px] font-bold uppercase tracking-wider ${petTheme === 'light' ? 'text-amber-800' : 'text-amber-300'}`}>Günlük İSM Görevi</p>
+                              <p className={`text-[10px] leading-tight ${petTheme === 'light' ? 'text-amber-700' : 'text-amber-200'}`}>Günlük Personel Hareket Listesi'ni İl Sağlık Müdürlüğü'ne (İSM) göndermeyi unutmayın!</p>
                             </div>
                           </div>
                           <button
@@ -1876,11 +3159,15 @@ export function DesktopRobot({
                           </button>
                         </div>
                       ) : (
-                        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-2.5 flex items-center gap-2">
+                        <div className={`border rounded-xl p-2.5 flex items-center gap-2 ${
+                          petTheme === 'light' 
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+                            : 'bg-emerald-950/30 border-emerald-900/30 text-emerald-100'
+                        }`}>
                           <CheckCircle size={14} className="text-emerald-600 shrink-0" />
                           <div className="flex-1">
-                            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">İSM Görevi Tamamlandı</p>
-                            <p className="text-[9px] text-emerald-700">Bugünkü Personel Hareket Listesi başarıyla iletildi.</p>
+                            <p className={`text-[10px] font-bold uppercase tracking-wide ${petTheme === 'light' ? 'text-emerald-800' : 'text-emerald-300'}`}>İSM Görevi Tamamlandı</p>
+                            <p className={`text-[9px] ${petTheme === 'light' ? 'text-emerald-700' : 'text-emerald-200'}`}>Bugünkü Personel Hareket Listesi başarıyla iletildi.</p>
                           </div>
                         </div>
                       )}
@@ -1892,7 +3179,11 @@ export function DesktopRobot({
                           setIsAssistantOpen(true);
                           handleInteract('happy', "Yapay zekâ asistanımızı açtım! Sağ panelden detaylı sorularını sorabilirsin. 💬");
                         }}
-                        className="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1"
+                        className={`border rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1 ${
+                          petTheme === 'light' 
+                            ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100/60' 
+                            : 'bg-blue-950/40 border-blue-900/40 text-blue-350 hover:bg-blue-900/40'
+                        }`}
                       >
                         <MessageSquare size={11} /> Sohbet Başlat
                       </button>
@@ -1901,13 +3192,21 @@ export function DesktopRobot({
                           openNewTemplateModal();
                           handleInteract('happy', "Harika! Yeni bir süreç tasarlama modülünü açtım. Kolay gelsin!");
                         }}
-                        className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1"
+                        className={`border rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1 ${
+                          petTheme === 'light' 
+                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/60' 
+                            : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800/60'
+                        }`}
                       >
                         <Plus size={11} /> Süreç Tasarla
                       </button>
                       <button
                         onClick={showNextTip}
-                        className="bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1"
+                        className={`border rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1 ${
+                          petTheme === 'light' 
+                            ? 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100/60' 
+                            : 'bg-orange-950/40 border-orange-900/40 text-orange-350 hover:bg-orange-900/40'
+                        }`}
                       >
                         <HelpCircle size={11} /> Bilgi Kartı
                       </button>
@@ -1915,17 +3214,23 @@ export function DesktopRobot({
                         onClick={() => {
                           handleInteract('happy', "Süreçler tıkır tıkır işliyor! Kahveni yudumlarken sakin kalmayı unutma. ☕");
                         }}
-                        className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1"
+                        className={`border rounded-lg py-1.5 px-2 text-[10px] font-bold transition-all flex items-center justify-center gap-1 ${
+                          petTheme === 'light' 
+                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100/60' 
+                            : 'bg-indigo-950/40 border-indigo-900/40 text-indigo-350 hover:bg-indigo-900/40'
+                        }`}
                       >
                         <Coffee size={11} /> Kahve Molası
                       </button>
                     </div>
 
-                    <div className="flex justify-between items-center text-[9px] text-slate-400 border-t border-slate-50 pt-2 mt-1">
+                    <div className={`flex justify-between items-center text-[9px] border-t pt-2 mt-1 ${
+                      petTheme === 'light' ? 'text-slate-400 border-slate-100' : 'text-slate-500 border-slate-850'
+                    }`}>
                       <span>🤖 Sürükleyip taşıyabilirsiniz</span>
                       <button 
                         onClick={() => setIsVisible(false)}
-                        className="hover:text-red-500 font-medium transition-colors"
+                        className={`${petTheme === 'light' ? 'text-slate-450 hover:text-red-500' : 'text-slate-500 hover:text-red-400'} font-medium transition-colors`}
                       >
                         Robotu Gizle
                       </button>
@@ -2127,47 +3432,65 @@ export function DesktopRobot({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.1 }}
-            className="fixed z-50 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 w-64 text-slate-800 text-xs font-medium pointer-events-auto select-none overflow-hidden flex flex-col"
+            className={`fixed z-50 backdrop-blur-md rounded-2xl shadow-2xl border w-64 text-xs font-medium pointer-events-auto select-none overflow-hidden flex flex-col transition-all duration-300 ${
+              petTheme === 'light' 
+                ? 'bg-white/95 border-slate-100 text-slate-800 shadow-slate-200/50' 
+                : 'bg-slate-950/95 border-slate-800 text-white shadow-black/85'
+            }`}
             style={{ top: contextMenu.y, left: contextMenu.x }}
             onContextMenu={(e) => e.preventDefault()}
             onPointerDown={(e) => e.stopPropagation()} // Stop propagation so it doesn't trigger drag
           >
             {/* Scrollable Container */}
             <div className="max-h-[350px] overflow-y-auto custom-scrollbar py-2.5">
-              <div className="px-3.5 py-1.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 sticky top-0 bg-white/95 z-20">
+              <div className={`px-3.5 py-1.5 border-b text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 sticky top-0 z-20 ${
+                petTheme === 'light' 
+                  ? 'bg-white/95 border-slate-100 text-slate-400' 
+                  : 'bg-slate-950/95 border-slate-800 text-slate-400'
+              }`}>
                 <Settings size={12} className="text-blue-500 animate-spin" style={{ animationDuration: '4s' }} />
                 <span>Asistan Seçenekleri</span>
               </div>
               
-              {/* Stats View inside Light Menu */}
-              <div className="grid grid-cols-3 gap-1 mx-3.5 my-2 p-2 bg-slate-50 rounded-xl border border-slate-100">
+              {/* Stats View inside Light/Dark Menu */}
+              <div className={`grid grid-cols-3 gap-1 mx-3.5 my-2 p-2 rounded-xl border ${
+                petTheme === 'light' 
+                  ? 'bg-slate-50 border-slate-100 text-slate-800' 
+                  : 'bg-slate-900/40 border-slate-800 text-slate-300'
+              }`}>
                 <div className="flex flex-col items-center">
                   <span className="text-[8px] text-slate-400 font-bold uppercase">Odak</span>
-                  <span className="text-[11px] text-blue-600 font-bold">{stats.focusMinutes}dk</span>
+                  <span className={`text-[11px] font-bold ${petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'}`}>{stats.focusMinutes}dk</span>
                 </div>
-                <div className="flex flex-col items-center border-x border-slate-200">
+                <div className={`flex flex-col items-center border-x ${petTheme === 'light' ? 'border-slate-200' : 'border-slate-800'}`}>
                   <span className="text-[8px] text-slate-400 font-bold uppercase">Quiz</span>
-                  <span className="text-[11px] text-amber-600 font-bold">{stats.quizzesSolved}</span>
+                  <span className={`text-[11px] font-bold ${petTheme === 'light' ? 'text-amber-600' : 'text-amber-400'}`}>{stats.quizzesSolved}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-[8px] text-slate-400 font-bold uppercase">İlgi</span>
-                  <span className="text-[11px] text-rose-600 font-bold">{stats.interactions}</span>
+                  <span className={`text-[11px] font-bold ${petTheme === 'light' ? 'text-rose-600' : 'text-rose-400'}`}>{stats.interactions}</span>
                 </div>
               </div>
 
-              {/* Weather Info in Light Menu */}
+              {/* Weather Info in Light/Dark Menu */}
               {weather && (
-                <div className="mx-3.5 mb-2 p-2 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center justify-between">
+                <div className={`mx-3.5 mb-2 p-2 rounded-xl border flex items-center justify-between ${
+                  petTheme === 'light' 
+                    ? 'bg-blue-50/50 border-blue-100 text-blue-700' 
+                    : 'bg-blue-900/20 border-blue-800/30 text-blue-200'
+                }`}>
                   <div className="flex items-center gap-2">
-                    <Cloud size={14} className="text-blue-500" />
-                    <span className="text-[10px] text-blue-700 font-bold uppercase">Hava Durumu</span>
+                    <Cloud size={14} className={petTheme === 'light' ? 'text-blue-500 animate-pulse' : 'text-blue-400'} />
+                    <span className="text-[10px] font-bold uppercase">Hava Durumu</span>
                   </div>
-                  <span className="text-[11px] text-blue-800 font-bold">{weather.temp}°C</span>
+                  <span className="text-[11px] font-bold">{weather.temp}°C</span>
                 </div>
               )}
             
             {/* Inline Name Editor for Main View */}
-            <div className="px-3.5 py-2 flex flex-col gap-1 text-[10px] border-b border-slate-50 bg-slate-50/50">
+            <div className={`px-3.5 py-2 flex flex-col gap-1 text-[10px] border-b ${
+              petTheme === 'light' ? 'border-slate-50 bg-slate-50/50' : 'border-slate-850 bg-slate-900/20'
+            }`}>
               <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🏷️ Asistan İsmi</span>
               <div className="flex gap-1">
                 <input
@@ -2175,7 +3498,11 @@ export function DesktopRobot({
                   value={petName}
                   onChange={(e) => setPetName(e.target.value)}
                   placeholder="Asistan ismi..."
-                  className="bg-white text-slate-800 text-[10.5px] px-2 py-1 rounded border border-slate-200 flex-1 outline-none focus:border-blue-500 font-bold shadow-sm"
+                  className={`text-[10.5px] px-2 py-1 rounded border flex-1 outline-none font-bold shadow-sm ${
+                    petTheme === 'light' 
+                      ? 'bg-white text-slate-800 border-slate-200 focus:border-blue-500' 
+                      : 'bg-slate-900 text-white border-slate-800 focus:border-blue-500'
+                  }`}
                 />
               </div>
             </div>
@@ -2186,7 +3513,9 @@ export function DesktopRobot({
                 handleInteract('happy', "Yapay zekâ asistanımızı açtım! Sağ panelden detaylı sorularını sorabilirsin. 💬");
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-colors flex items-center gap-2"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
             >
               <MessageSquare size={14} className="text-blue-500" />
               <span>Sohbet Asistanını Aç</span>
@@ -2198,10 +3527,91 @@ export function DesktopRobot({
                 handleInteract('happy', "Harika! Yeni bir süreç tasarlama modülünü açtım. Kolay gelsin!");
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-colors flex items-center gap-2"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
             >
               <Plus size={14} className="text-emerald-500" />
               <span>Yeni Süreç / Şablon Tasarla</span>
+            </button>
+
+             <button
+              onClick={() => {
+                setIsSearchView(true);
+                setIsVisible(true);
+                setShowBubble(true);
+                setShowStepAnalysis(false);
+                setContextMenu(null);
+                playBeep(520, 100);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
+            >
+              <Search size={14} className="text-blue-500" />
+              <span>Mevzuat Hızlı Arama 🔍</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowStepAnalysis(true);
+                setIsVisible(true);
+                setShowBubble(true);
+                setIsSearchView(false);
+                setContextMenu(null);
+                playBeep(520, 100);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
+            >
+              <BookOpen size={14} className="text-emerald-500" />
+              <span>Canlı Adım Analizi 📋</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowRegulatoryFeed(true);
+                setIsVisible(true);
+                setShowBubble(true);
+                setIsSearchView(false);
+                setShowStepAnalysis(false);
+                setShowWellbeing(false);
+                setCurrentQuizIndex(null);
+                setContextMenu(null);
+                playBeep(520, 100);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' 
+                  ? 'hover:bg-amber-50 text-amber-700' 
+                  : 'hover:bg-amber-950 text-amber-400'
+              }`}
+            >
+              <Newspaper size={14} className="text-amber-500" />
+              <span>Resmi Gazete Takibi 📰</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowWellbeing(true);
+                setIsVisible(true);
+                setShowBubble(true);
+                setIsSearchView(false);
+                setShowStepAnalysis(false);
+                setShowRegulatoryFeed(false);
+                setCurrentQuizIndex(null);
+                setContextMenu(null);
+                setWellbeingStage('menu');
+                playBeep(520, 100);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' 
+                  ? 'hover:bg-rose-50 text-rose-700' 
+                  : 'hover:bg-rose-950 text-rose-400'
+              }`}
+            >
+              <Activity size={14} className="text-rose-500" />
+              <span>İSG ve Sağlık Rutini ⏱️</span>
             </button>
 
             <button
@@ -2209,7 +3619,9 @@ export function DesktopRobot({
                 showNextTip();
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-colors flex items-center gap-2"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
             >
               <HelpCircle size={14} className="text-amber-500" />
               <span>Faydalı Mevzuat İpucu Ver</span>
@@ -2220,13 +3632,15 @@ export function DesktopRobot({
                 resetIsmStatus();
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-colors flex items-center gap-2"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
             >
               <ShieldAlert size={14} className="text-red-500 animate-pulse" />
               <span>Günlük İSM Görevi Sıfırla</span>
             </button>
 
-            <div className="h-px bg-slate-100 my-1"></div>
+            <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
 
             {/* Mascot Mood selection */}
             <div className="px-3.5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -2250,7 +3664,7 @@ export function DesktopRobot({
                   className={`text-[9px] font-bold py-1 rounded-md transition-all ${
                     robotState === state 
                       ? 'bg-blue-600 text-white shadow-sm' 
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : petTheme === 'light' ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
                   }`}
                 >
                   {state === 'idle' ? 'Sakin' : state === 'happy' ? 'Mutlu' : state === 'thinking' ? 'Düşün' : 'Selam'}
@@ -2258,7 +3672,7 @@ export function DesktopRobot({
               ))}
             </div>
 
-            <div className="h-px bg-slate-100 my-1"></div>
+            <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
 
             {/* Quiz Game Trigger */}
             <button
@@ -2266,13 +3680,15 @@ export function DesktopRobot({
                 handleStartQuiz();
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-amber-50 text-amber-950 hover:text-amber-800 transition-colors flex items-center gap-2 font-bold"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 font-bold ${
+                petTheme === 'light' ? 'hover:bg-amber-50 text-amber-950 hover:text-amber-800' : 'hover:bg-amber-955/15 text-amber-300 hover:text-amber-200'
+              }`}
             >
               <Award size={14} className="text-amber-500 animate-bounce" />
               <span>Mevzuat Bilgi Sınavı 🏆</span>
             </button>
 
-            <div className="h-px bg-slate-100 my-1"></div>
+            <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
 
             {/* Custom Interactive Selectors inside Context Menu */}
             <div className="px-3.5 py-1.5 flex flex-col gap-1 text-[10px]">
@@ -2288,7 +3704,13 @@ export function DesktopRobot({
                     key={item.id}
                     type="button"
                     onClick={() => { setCostume(item.id as any); playBeep(520, 80); }}
-                    className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${costume === item.id ? 'bg-blue-600 text-white border-blue-500 shadow-sm' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                    className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${
+                      costume === item.id 
+                        ? 'bg-blue-600 text-white border-blue-500 shadow-sm' 
+                        : petTheme === 'light' 
+                          ? 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100' 
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                    }`}
                   >
                     {item.label}
                   </button>
@@ -2308,7 +3730,13 @@ export function DesktopRobot({
                     key={item.id}
                     type="button"
                     onClick={() => { setFontSizeMode(item.id as any); playBeep(520, 80); }}
-                    className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${fontSizeMode === item.id ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                    className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${
+                      fontSizeMode === item.id 
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm' 
+                        : petTheme === 'light' 
+                          ? 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100' 
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                    }`}
                   >
                     {item.label}
                   </button>
@@ -2328,7 +3756,13 @@ export function DesktopRobot({
                     key={item.id}
                     type="button"
                     onClick={() => { setSoundTheme(item.id as any); setTimeout(() => playBeep(520, 100), 50); }}
-                    className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${soundTheme === item.id ? 'bg-sky-600 text-white border-sky-500 shadow-sm' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                    className={`px-1 py-1 rounded text-center text-[9px] font-bold border transition-all ${
+                      soundTheme === item.id 
+                        ? 'bg-sky-600 text-white border-sky-500 shadow-sm' 
+                        : petTheme === 'light' 
+                          ? 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100' 
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                    }`}
                   >
                     {item.label}
                   </button>
@@ -2337,21 +3771,23 @@ export function DesktopRobot({
             </div>
 
                 {/* Stats Section in Main UI */}
-                <div className="px-3.5 py-1.5 flex flex-col gap-1 text-[10px] bg-slate-50/50 border-y border-slate-100">
+                <div className={`px-3.5 py-1.5 flex flex-col gap-1 text-[10px] border-y ${
+                  petTheme === 'light' ? 'bg-slate-50/50 border-slate-100' : 'bg-slate-900/20 border-slate-800'
+                }`}>
                   <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5">
                     <Award size={12} className="text-amber-500" /> Başarıların
                   </span>
                   <div className="grid grid-cols-3 gap-2 py-1">
                     <div className="flex flex-col">
-                      <span className="text-[16px] font-mono font-bold text-slate-800 leading-none">{stats.focusMinutes}</span>
+                      <span className={`text-[16px] font-mono font-bold leading-none ${petTheme === 'light' ? 'text-slate-800' : 'text-slate-100'}`}>{stats.focusMinutes}</span>
                       <span className="text-[8px] text-slate-500 uppercase mt-0.5">Odak dk</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[16px] font-mono font-bold text-slate-800 leading-none">{stats.quizzesSolved}</span>
+                      <span className={`text-[16px] font-mono font-bold leading-none ${petTheme === 'light' ? 'text-slate-800' : 'text-slate-100'}`}>{stats.quizzesSolved}</span>
                       <span className="text-[8px] text-slate-500 uppercase mt-0.5">Soru</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[16px] font-mono font-bold text-slate-800 leading-none">{stats.interactions}</span>
+                      <span className={`text-[16px] font-mono font-bold leading-none ${petTheme === 'light' ? 'text-slate-800' : 'text-slate-100'}`}>{stats.interactions}</span>
                       <span className="text-[8px] text-slate-500 uppercase mt-0.5">İlgi</span>
                     </div>
                   </div>
@@ -2364,14 +3800,22 @@ export function DesktopRobot({
                 {!isFocusing ? (
                   <button
                     onClick={() => startFocusSession(25)}
-                    className="flex-1 px-2 py-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5"
+                    className={`flex-1 px-2 py-2 border rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      petTheme === 'light' 
+                        ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100' 
+                        : 'bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30'
+                    }`}
                   >
                     <Zap size={12} /> 25 Dakika Odaklan
                   </button>
                 ) : (
                   <button
                     onClick={() => { setIsFocusing(false); setFocusTimeLeft(0); }}
-                    className="flex-1 px-2 py-2 bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5"
+                    className={`flex-1 px-2 py-2 border rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      petTheme === 'light' 
+                        ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100' 
+                        : 'bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600/30'
+                    }`}
                   >
                     <X size={12} /> Odaklanmayı Durdur ({formatTime(focusTimeLeft)})
                   </button>
@@ -2385,94 +3829,128 @@ export function DesktopRobot({
                     setBreakRemindersEnabled(e.target.checked);
                     localStorage.setItem('pet_break_reminders', e.target.checked.toString());
                   }}
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className={`w-3.5 h-3.5 rounded focus:ring-blue-500 ${
+                    petTheme === 'light' ? 'border-slate-300 text-blue-600' : 'border-slate-700 bg-slate-900 text-blue-600'
+                  }`}
                 />
-                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Mola Hatırlatıcılarını Aktif Et</span>
+                <span className={`text-[10px] font-bold group-hover:text-slate-700 transition-colors ${
+                  petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'
+                }`}>Mola Hatırlatıcılarını Aktif Et</span>
               </label>
             </div>
 
-            <div className="px-3.5 py-1.5 flex flex-col gap-2.5 text-[10px] border-t border-slate-100">
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🖥️ Sistem ve Pencere Ayarları</span>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
-                  checked={minimizeOnClose} 
-                  onChange={(e) => setMinimizeOnClose(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Çarpıya Basınca Tepsiye Küçült</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
-                  checked={isRoaming} 
-                  onChange={(e) => {
-                    setIsRoaming(e.target.checked);
-                    if (e.target.checked) {
-                      handleInteract('happy', "Süper! Masaüstünde gezinmeye başlıyorum! 🚶‍♂️✨");
-                    } else {
-                      handleInteract('idle', "Yürüyüşü durdurdum, sakince bekliyorum. 🛋️");
-                    }
-                  }}
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Otonom Gezinme (Ekran Yürüyüşü)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
-                  checked={teleportEnabled} 
-                  onChange={(e) => {
-                    setTeleportEnabled(e.target.checked);
-                    if (e.target.checked) {
-                      handleInteract('happy', "Harika! Rastgele aralıklarla ışınlanacağım! 🚀✨");
-                    } else {
-                      handleInteract('idle', "Zıplamayı durdurdum, sabit duruyorum. ⚓");
-                    }
-                  }}
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Rastgele Işınlanma Modu 🔮</span>
-              </label>
-            </div>
+             <div className={`px-3.5 py-1.5 flex flex-col gap-2.5 text-[10px] border-t ${
+               petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+             }`}>
+               <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🖥️ Sistem ve Pencere Ayarları</span>
+               <label className="flex items-center gap-2 cursor-pointer group">
+                 <input 
+                   type="checkbox" 
+                   checked={minimizeOnClose} 
+                   onChange={(e) => setMinimizeOnClose(e.target.checked)}
+                   className={`w-3.5 h-3.5 rounded focus:ring-blue-500 ${
+                     petTheme === 'light' ? 'border-slate-300 text-blue-600' : 'border-slate-700 bg-slate-900 text-blue-600'
+                   }`}
+                 />
+                 <span className={`text-[10px] font-bold group-hover:text-slate-750 transition-colors ${
+                   petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'
+                 }`}>Çarpıya Basınca Tepsiye Küçült</span>
+               </label>
+               <label className="flex items-center gap-2 cursor-pointer group">
+                 <input 
+                   type="checkbox" 
+                   checked={isRoaming} 
+                   onChange={(e) => {
+                     setIsRoaming(e.target.checked);
+                     if (e.target.checked) {
+                       handleInteract('happy', "Süper! Masaüstünde gezinmeye başlıyorum! 🚶‍♂️✨");
+                     } else {
+                       handleInteract('idle', "Yürüyüşü durdurdum, sakince bekliyorum. 🛋️");
+                     }
+                   }}
+                   className={`w-3.5 h-3.5 rounded focus:ring-blue-500 ${
+                     petTheme === 'light' ? 'border-slate-300 text-blue-600' : 'border-slate-700 bg-slate-900 text-blue-600'
+                   }`}
+                 />
+                 <span className={`text-[10px] font-bold group-hover:text-slate-750 transition-colors ${
+                   petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'
+                 }`}>Otonom Gezinme (Ekran Yürüyüşü)</span>
+               </label>
+               <label className="flex items-center gap-2 cursor-pointer group">
+                 <input 
+                   type="checkbox" 
+                   checked={teleportEnabled} 
+                   onChange={(e) => {
+                     setTeleportEnabled(e.target.checked);
+                     if (e.target.checked) {
+                       handleInteract('happy', "Harika! Rastgele aralıklarla ışınlanacağım! 🚀✨");
+                     } else {
+                       handleInteract('idle', "Zıplamayı durdurdum, sabit duruyorum. ⚓");
+                     }
+                   }}
+                   className={`w-3.5 h-3.5 rounded focus:ring-blue-500 ${
+                     petTheme === 'light' ? 'border-slate-300 text-blue-600' : 'border-slate-700 bg-slate-900 text-blue-600'
+                   }`}
+                 />
+                 <span className={`text-[10px] font-bold group-hover:text-slate-750 transition-colors ${
+                   petTheme === 'light' ? 'text-slate-500' : 'text-slate-400'
+                 }`}>Rastgele Işınlanma Modu 🔮</span>
+               </label>
+             </div>
 
-            <div className="px-3.5 py-1.5 flex flex-col gap-1 text-[10px]">
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🔋 Pet Bakımı (Besleme & Sevme)</span>
-              <div className="grid grid-cols-2 gap-1 mb-1">
-                <button
-                  type="button"
-                  onClick={() => handlePetAction('stroke')}
-                  className="px-1 py-1.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                >
-                  <span>Okşa 👋</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePetAction('clean')}
-                  className="px-1 py-1.5 bg-sky-50 border border-sky-200 hover:bg-sky-100 text-sky-700 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                >
-                  <span>Temizle ✨</span>
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-1">
-                <button
-                  type="button"
-                  onClick={() => handlePetAction('feed_doc')}
-                  className="px-1 py-1.5 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                >
-                  <span>Genelge 📑</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePetAction('give_coffee')}
-                  className="px-1 py-1.5 bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-700 rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5"
-                >
-                  <span>Kahve ☕</span>
-                </button>
-              </div>
-            </div>
+             <div className="px-3.5 py-1.5 flex flex-col gap-1 text-[10px]">
+               <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🔋 Pet Bakımı (Besleme & Sevme)</span>
+               <div className="grid grid-cols-2 gap-1 mb-1">
+                 <button
+                   type="button"
+                   onClick={() => handlePetAction('stroke')}
+                   className={`px-1 py-1.5 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                     petTheme === 'light' 
+                       ? 'bg-rose-50 border-rose-200 hover:bg-rose-100 text-rose-700' 
+                       : 'bg-rose-955/20 border border-rose-900/35 hover:bg-rose-900/40 text-rose-300'
+                   }`}
+                 >
+                   <span>Okşa 👋</span>
+                 </button>
+                 <button
+                   type="button"
+                   onClick={() => handlePetAction('clean')}
+                   className={`px-1 py-1.5 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                     petTheme === 'light' 
+                       ? 'bg-sky-50 border-sky-200 hover:bg-sky-100 text-sky-700' 
+                       : 'bg-sky-955/20 border border-sky-900/35 hover:bg-sky-900/40 text-sky-300'
+                   }`}
+                 >
+                   <span>Temizle ✨</span>
+                 </button>
+               </div>
+               <div className="grid grid-cols-2 gap-1">
+                 <button
+                   type="button"
+                   onClick={() => handlePetAction('feed_doc')}
+                   className={`px-1 py-1.5 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                     petTheme === 'light' 
+                       ? 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100 text-emerald-700' 
+                       : 'bg-emerald-955/15 border border-emerald-900/35 hover:bg-emerald-900/40 text-emerald-300'
+                   }`}
+                 >
+                   <span>Genelge 📑</span>
+                 </button>
+                 <button
+                   type="button"
+                   onClick={() => handlePetAction('give_coffee')}
+                   className={`px-1 py-1.5 border rounded text-center text-[9px] font-bold transition-all flex items-center justify-center gap-0.5 ${
+                     petTheme === 'light' 
+                       ? 'bg-amber-50 border-amber-200 hover:bg-amber-100 text-amber-700' 
+                       : 'bg-amber-955/20 border border-amber-900/35 hover:bg-amber-900/40 text-amber-300'
+                   }`}
+                 >
+                   <span>Kahve ☕</span>
+                 </button>
+               </div>
+             </div>
 
-            <div className="h-px bg-slate-100 my-1"></div>
+            <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
 
             <button
               onClick={() => {
@@ -2495,7 +3973,9 @@ export function DesktopRobot({
                 }
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-colors flex items-center justify-between"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center justify-between ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
             >
               <div className="flex items-center gap-2">
                 {soundEnabled ? <Volume2 size={14} className="text-blue-500" /> : <VolumeX size={14} className="text-slate-400" />}
@@ -2512,7 +3992,9 @@ export function DesktopRobot({
                 setContextMenu(null);
                 playBeep(400, 80);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-colors flex items-center gap-2"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
             >
               {isMinimized ? <Maximize2 size={14} className="text-slate-500" /> : <Minimize2 size={14} className="text-slate-500" />}
               <span>{isMinimized ? "Asistanı Büyüt" : "Asistanı Simge Durumuna Getir"}</span>
@@ -2523,15 +4005,43 @@ export function DesktopRobot({
                 setIsVisible(false);
                 setContextMenu(null);
               }}
-              className="w-full text-left px-3.5 py-2.5 hover:bg-red-50 text-red-600 transition-colors flex items-center gap-2"
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-red-50 text-red-600' : 'hover:bg-red-955/35 text-red-400'
+              }`}
             >
               <EyeOff size={14} />
               <span>Asistanı Gizle (Kapat)</span>
             </button>
 
-            <div className="h-px bg-slate-100 my-1"></div>
+            <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
+
+            {/* Dynamic Theme Changer Button */}
+            <button
+              onClick={() => {
+                const newTheme = petTheme === 'light' ? 'dark' : 'light';
+                setPetTheme(newTheme);
+                playBeep(520, 80);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center justify-between ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-blue-600' : 'hover:bg-slate-900 text-slate-300 hover:text-blue-400'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-amber-500 animate-pulse" />
+                <span>Asistan Teması</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                petTheme === 'light' ? 'bg-amber-50 text-amber-800 border border-amber-100' : 'bg-slate-800 text-slate-300 border border-slate-700'
+              }`}>
+                {petTheme === 'light' ? 'Açık ☀️' : 'Koyu 🌙'}
+              </span>
+            </button>
+
+            <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
             
-            <div className="px-3.5 py-1.5 flex flex-col gap-1 text-[10px] text-center italic text-slate-400 bg-slate-50/30">
+            <div className={`px-3.5 py-1.5 flex flex-col gap-1 text-[10px] text-center italic ${
+              petTheme === 'light' ? 'text-slate-400 bg-slate-50/30' : 'text-slate-500 bg-slate-900/10'
+            }`}>
               {currentHour >= 22 || currentHour < 6 ? "🌙 Gece Modu: Pet biraz uykulu..." : "☀️ Gündüz Modu: Pet enerjik!"}
             </div>
           </div>
