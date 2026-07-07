@@ -29,7 +29,11 @@ import {
   Newspaper,
   Mail,
   StickyNote,
-  Trash2
+  Trash2,
+  Star,
+  FileText,
+  PenTool,
+  Copy
 } from 'lucide-react';
 import { WorkflowTemplate, ActiveStep } from '../types';
 
@@ -227,7 +231,37 @@ interface DesktopRobotProps {
   activeStep?: ActiveStep | null;
 }
 
-type RobotState = 'idle' | 'happy' | 'thinking' | 'waving' | 'sleepy';
+type RobotState = 'idle' | 'happy' | 'thinking' | 'waving' | 'sleepy' | 'surprised';
+
+const JoyParticles = ({ active }: { active: boolean }) => {
+  if (!active) return null;
+  return (
+    <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden rounded-full">
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, scale: 0, x: "50%", y: "50%" }}
+          animate={{
+            opacity: [0, 1, 1, 0],
+            scale: [0, 1.5, 1, 0],
+            x: [`${50}%`, `${50 + (Math.random() * 120 - 60)}%`],
+            y: [`${50}%`, `${50 + (Math.random() * 120 - 60)}%`],
+            rotate: [0, 180, 360]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            delay: i * 0.3,
+            ease: "easeInOut"
+          }}
+          className="absolute w-3 h-3 text-yellow-400"
+        >
+          <Sparkles size={12} fill="currentColor" className="drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 export function DesktopRobot({ 
   setIsAssistantOpen, 
@@ -253,6 +287,7 @@ export function DesktopRobot({
     }
     return fontSizeMode === 'normal' ? 'text-[10px]' : fontSizeMode === 'large' ? 'text-xs' : 'text-sm';
   };
+
   const [isMinimized, setIsMinimized] = useState(false);
   const [robotState, setRobotState] = useState<RobotState>('idle');
   const [bubbleText, setBubbleText] = useState<string>(() => {
@@ -355,6 +390,13 @@ export function DesktopRobot({
       window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_name', value: next } }));
       return next;
     });
+  };
+
+  const handleDropText = (text: string) => {
+    setDroppedText(text);
+    setShowBubble(true);
+    setRobotState('surprised');
+    setBubbleText(`Ooo! Yeni bir şey mi yakaladık? 🎣\n"${text.length > 30 ? text.substring(0, 30) + '...' : text}" metniyle ne yapalım?`);
   };
 
   // --- NEW FEATURES STATES ---
@@ -498,6 +540,25 @@ export function DesktopRobot({
     });
   };
 
+  const getRobotColors = () => {
+    if (isSleeping) return { body: "#f1f5f9", border: "#94a3b8" };
+    
+    let bodyColor = "#eff6ff";
+    let borderColor = "#2563eb";
+    
+    if (energyLevel < 30) {
+      bodyColor = "#f8fafc";
+      borderColor = "#cbd5e1";
+    } else if (energyLevel > 80 && robotState === 'happy') {
+      bodyColor = "#dbeafe";
+      borderColor = "#3b82f6";
+    }
+    
+    return { body: bodyColor, border: borderColor };
+  };
+
+  const robotColors = getRobotColors();
+
   // Desktop Pet specific state variables
   const [isRoaming, setIsRoamingState] = useState<boolean>(() => {
     try {
@@ -534,6 +595,63 @@ export function DesktopRobot({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const dragStartRef = useRef({ x: 0, y: 0 });
   const isMovedRef = useRef(false);
+
+  // Screen Edge Interactions Effect
+  useEffect(() => {
+    if (isDragging || isRoaming || isMinimized) {
+      setEdgeInteraction('none');
+      return;
+    }
+
+    const checkEdges = () => {
+      const robotWidth = 80;
+      const robotHeight = 80;
+      // Start position is bottom-6, left-6 (24px offset)
+      const absX = 24 + position.x;
+      const absY = window.innerHeight - (24 + robotHeight) - position.y;
+
+      const threshold = 15;
+      const cornerThreshold = 40;
+
+      // Bottom edge
+      if (absY > window.innerHeight - robotHeight - threshold) {
+        setEdgeInteraction('peeking_bottom');
+      } 
+      // Top edge
+      else if (absY < threshold) {
+        setEdgeInteraction('peeking_top');
+      }
+      // Left edge
+      else if (absX < threshold) {
+        setEdgeInteraction('clinging_left');
+      }
+      // Right edge
+      else if (absX > window.innerWidth - robotWidth - threshold) {
+        setEdgeInteraction('clinging_right');
+      }
+      // Corner detection for sleeping
+      else if (
+        (absX < cornerThreshold && absY < cornerThreshold) || // Top-left
+        (absX > window.innerWidth - robotWidth - cornerThreshold && absY < cornerThreshold) || // Top-right
+        (absX < cornerThreshold && absY > window.innerHeight - robotHeight - cornerThreshold) || // Bottom-left
+        (absX > window.innerWidth - robotWidth - cornerThreshold && absY > window.innerHeight - robotHeight - cornerThreshold) // Bottom-right
+      ) {
+        if (!isSleeping && !isDragging) {
+          setIsSleeping(true);
+          handleInteract('idle', "Ah, bu köşe çok rahatmış... Biraz kestireyim. 💤💤");
+        }
+        setEdgeInteraction('sleeping_corner');
+      }
+      else {
+        setEdgeInteraction('none');
+      }
+    };
+
+    checkEdges();
+    const handleResize = () => checkEdges();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [position, isDragging, isRoaming, isMinimized, isSleeping]);
 
   // Focus Timer & Reminders State
   const [focusTimeLeft, setFocusTimeLeft] = useState<number>(0); // in seconds
@@ -592,6 +710,16 @@ export function DesktopRobot({
   // Nudge State for proactive behaviors
   const [nudgeState, setNudgeState] = useState<'none' | 'jumping' | 'shaking' | 'stretching'>('none');
 
+  // Advanced Interaction States
+  const [isNearDrop, setIsNearDrop] = useState(false);
+  const [droppedText, setDroppedText] = useState<string | null>(null);
+  const [isDraftingView, setIsDraftingView] = useState(false);
+  const [draftType, setDraftType] = useState<'petition' | 'official_letter' | 'notification'>('petition');
+  const [draftSubject, setDraftSubject] = useState('');
+  const [draftResult, setDraftResult] = useState('');
+  const [isGeneratingDraft, setIsGeneratingDraft] = useState(false);
+  const [edgeInteraction, setEdgeInteraction] = useState<'none' | 'clinging_left' | 'clinging_right' | 'peeking_bottom' | 'peeking_top' | 'sleeping_corner'>('none');
+
   // Sticky Notes & Delivery States
   const [stickyTasks, setStickyTasks] = useState<StickyTask[]>(() => {
     try {
@@ -612,6 +740,200 @@ export function DesktopRobot({
     try {
       localStorage.setItem('pet_sticky_tasks', JSON.stringify(tasks));
     } catch (e) {}
+  };
+
+  const handleGenerateDraft = async (customSubject?: string) => {
+    const subject = customSubject || draftSubject;
+    if (!subject.trim()) {
+      handleInteract('surprised', "Lütfen ne hakkında bir yazı hazırlamamı istediğinizi belirtin! ✍️");
+      return;
+    }
+
+    setIsGeneratingDraft(true);
+    setRobotState('thinking');
+    setBubbleText("Taslağınız üzerinde çalışıyorum... Lütfen bekleyin. ✍️✨");
+
+    const typeLabels = {
+      petition: 'Dilekçe',
+      official_letter: 'Resmi Yazı',
+      notification: 'Tebligat Yazısı'
+    };
+
+    const prompt = `Lütfen aşağıdaki konu hakkında kurallara uygun, profesyonel bir ${typeLabels[draftType]} taslağı hazırla. 
+Konu: ${subject}
+Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapma.`;
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt, context: 'Yazım Asistanı Modu' }),
+      });
+
+      if (!response.ok) throw new Error('API Error');
+      const data = await response.json();
+      
+      setDraftResult(data.reply);
+      setRobotState('happy');
+      setBubbleText("İşte hazırladığım taslak! Beğendiniz mi? 📑✨");
+    } catch (error) {
+      console.error(error);
+      handleInteract('surprised', "Taslak hazırlarken bir sorun oluştu. Lütfen tekrar deneyin.");
+    } finally {
+      setIsGeneratingDraft(false);
+    }
+  };
+
+  const renderDraftingView = () => (
+    <div className="flex flex-col gap-3 animate-in fade-in zoom-in duration-300">
+      <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+        petTheme === 'light' ? 'text-indigo-600 border-slate-100' : 'text-indigo-400 border-slate-800'
+      }`}>
+        <PenTool size={13} className="shrink-0" />
+        <span className="text-[11px]">Resmi Yazı & Dilekçe Asistanı</span>
+        <button 
+          onClick={() => { setIsDraftingView(false); setDraftResult(''); setDraftSubject(''); }}
+          className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
+        >
+          <ArrowLeft size={11} /> Kapat
+        </button>
+      </div>
+
+      {!draftResult ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Yazı Türü</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: 'petition', label: 'Dilekçe', icon: <FileText size={12} /> },
+                { id: 'official_letter', label: 'Resmi Yazı', icon: <Pencil size={12} /> },
+                { id: 'notification', label: 'Tebligat', icon: <Mail size={12} /> }
+              ].map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => setDraftType(type.id as any)}
+                  className={`flex flex-col items-center gap-1 py-2 px-1 rounded-xl border text-[10px] font-bold transition-all ${
+                    draftType === type.id 
+                      ? 'bg-indigo-500 border-indigo-500 text-white shadow-lg shadow-indigo-200/40' 
+                      : petTheme === 'light' ? 'bg-white border-slate-100 text-slate-500 hover:border-indigo-200' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  }`}
+                >
+                  {type.icon}
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Konu / İçerik</label>
+            <textarea
+              placeholder="Yazının ne hakkında olacağını kısaca belirtin..."
+              value={draftSubject}
+              onChange={(e) => setDraftSubject(e.target.value)}
+              className={`w-full text-[11px] px-3 py-2 rounded-xl border outline-none font-medium h-20 resize-none ${
+                petTheme === 'light' 
+                  ? 'bg-white text-slate-800 border-slate-200 focus:border-indigo-500' 
+                  : 'bg-slate-900 text-white border-slate-800 focus:border-indigo-500'
+              }`}
+            />
+          </div>
+
+          <button
+            disabled={isGeneratingDraft || !draftSubject.trim()}
+            onClick={() => handleGenerateDraft()}
+            className={`w-full py-2.5 rounded-xl text-white text-[11px] font-bold flex items-center justify-center gap-2 transition-all ${
+              isGeneratingDraft || !draftSubject.trim()
+                ? 'bg-slate-300 cursor-not-allowed'
+                : 'bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 shadow-lg shadow-indigo-100/50'
+            }`}
+          >
+            {isGeneratingDraft ? (
+              <>
+                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Hazırlanıyor...
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} />
+                Taslak Oluştur
+              </>
+            )}
+          </button>
+        </>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className={`p-4 rounded-2xl border max-h-[220px] overflow-y-auto custom-scrollbar whitespace-pre-wrap text-[11px] leading-relaxed relative group ${
+            petTheme === 'light' ? 'bg-indigo-50/30 border-indigo-100 text-slate-700' : 'bg-indigo-900/10 border-indigo-900/30 text-indigo-100'
+          }`}>
+            {draftResult}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(draftResult);
+                handleInteract('happy', "Taslak başarıyla kopyalandı! 📋✨");
+              }}
+              className="absolute top-2 right-2 p-2 rounded-lg bg-white/80 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Kopyala"
+            >
+              <Copy size={12} className="text-indigo-500" />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setDraftResult('')}
+              className={`py-2 text-[10px] font-bold rounded-xl border transition-all ${
+                petTheme === 'light' ? 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50' : 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800'
+              }`}
+            >
+              Yeniden Düzenle
+            </button>
+            <button
+              onClick={() => { setIsDraftingView(false); setDraftResult(''); setDraftSubject(''); }}
+              className="py-2 text-[10px] font-bold rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-sm"
+            >
+              Bitti
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const addStickyTaskDirectly = (text: string, carryType: 'mouth_envelope' | 'head_postit' = 'head_postit', timeMins: number = 0) => {
+    const activeTasks = stickyTasks.filter(t => !t.completed);
+    const currentOfSameType = activeTasks.filter(t => t.carryType === carryType);
+    
+    if (currentOfSameType.length >= 1) {
+      handleInteract('happy', carryType === 'mouth_envelope' 
+        ? "Ağzımda zaten bir mektup taşıyorum! ✉️ Lütfen önce onu tamamlayın." 
+        : "Başımda zaten bir yapışkan not taşıyorum! 📌 Lütfen önce onu tamamlayın."
+      );
+      return false;
+    }
+
+    const now = Date.now();
+    const remindAt = timeMins > 0 ? now + (timeMins * 60 * 1000) : null;
+    
+    const newTask: StickyTask = {
+      id: Math.random().toString(36).substr(2, 9),
+      text: text.trim(),
+      carryType,
+      durationMins: timeMins,
+      createdAt: now,
+      remindAt,
+      notified: false,
+      completed: false
+    };
+    
+    const nextTasks = [...stickyTasks, newTask];
+    saveStickyTasks(nextTasks);
+    
+    setRobotState('happy');
+    setNudgeState('jumping');
+    
+    setTimeout(() => setNudgeState('none'), 1200);
+    return true;
   };
 
   const setQuizScore = (val: number | ((prev: number) => number)) => {
@@ -1610,15 +1932,15 @@ export function DesktopRobot({
     };
 
     return (
-      <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
-        <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+      <div className="flex flex-col gap-2 w-full animate-fade-in text-xs pt-0.5">
+        <div className={`flex items-center gap-1.5 font-bold border-b pb-1 ${
           petTheme === 'light' ? 'text-indigo-600 border-slate-100' : 'text-indigo-400 border-slate-800'
         }`}>
           <StickyNote size={13} className="shrink-0 text-indigo-500" />
-          <span className="text-[11px]">Görev Yapışkanları & Teslimat</span>
+          <span className="text-[10px] truncate">Görevler & Teslimat</span>
           <button 
             onClick={() => { setShowStickyForm(false); }}
-            className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+            className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
           >
             <ArrowLeft size={10} /> Geri
           </button>
@@ -2234,28 +2556,29 @@ export function DesktopRobot({
                 initial={{ opacity: 0, y: 15, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className={`relative w-[245px] rounded-2xl p-3.5 shadow-2xl border flex flex-col gap-2 mb-2.5 transition-all duration-300 ${
+                className={`relative w-[245px] rounded-2xl p-3 shadow-2xl border flex flex-col gap-2 mb-2 transition-all duration-300 ${
                   petTheme === 'light' 
                     ? 'bg-white border-slate-200/95 text-slate-800 shadow-slate-200/40' 
                     : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
                 }`}
               >
-                {showStickyForm ? (
-                  renderStickyTasksView()
-                ) : isSearchView ? (
-                  <div className="flex flex-col gap-2 w-full animate-fade-in">
-                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
-                      petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
-                    }`}>
-                      <Search size={13} className="shrink-0" />
-                      <span className="text-[11px]">Mevzuat Hızlı Arama</span>
-                      <button 
-                        onClick={() => { setIsSearchView(false); setSearchQuery(''); }}
-                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1"
-                      >
-                        <ArrowLeft size={10} /> Geri
-                      </button>
-                    </div>
+                <div className="max-h-[280px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10">
+                  {showStickyForm ? (
+                    renderStickyTasksView()
+                  ) : isSearchView ? (
+                    <div className="flex flex-col gap-2 w-full animate-fade-in pt-0.5">
+                      <div className={`flex items-center gap-1.5 font-bold border-b pb-1 ${
+                        petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
+                      }`}>
+                        <Search size={13} className="shrink-0" />
+                        <span className="text-[10px]">Mevzuat Arama</span>
+                        <button 
+                          onClick={() => { setIsSearchView(false); setSearchQuery(''); }}
+                          className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
+                        >
+                          <ArrowLeft size={10} /> Geri
+                        </button>
+                      </div>
                     
                     <div className="relative">
                       <input
@@ -2788,6 +3111,7 @@ export function DesktopRobot({
                     </div>
                   </>
                 )}
+                </div>
 
                 {/* Speech Bubble Tail */}
                 <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 border-r border-b rotate-45 ${
@@ -2799,7 +3123,13 @@ export function DesktopRobot({
 
           {/* Mascot Drawing */}
           <div 
-            className="flex flex-col items-center cursor-grab active:cursor-grabbing relative"
+            className={`flex flex-col items-center cursor-grab active:cursor-grabbing relative transition-all duration-500 ${
+              edgeInteraction === 'peeking_bottom' ? 'translate-y-8 opacity-70' : 
+              edgeInteraction === 'peeking_top' ? '-translate-y-8 opacity-70' :
+              edgeInteraction === 'clinging_left' ? '-translate-x-6 -rotate-6' :
+              edgeInteraction === 'clinging_right' ? 'translate-x-6 rotate-6' :
+              edgeInteraction === 'sleeping_corner' ? 'scale-90 grayscale-[0.3]' : 'scale-100'
+            }`}
             onMouseDown={(e) => {
               if (e.button !== 0) return; // Left-click only
               setIsDragging(true);
@@ -2867,18 +3197,19 @@ export function DesktopRobot({
                 <motion.div
                   animate={getMascotAnimation()}
                   transition={getMascotTransition()}
-                  className="w-14 h-14"
+                  className="w-14 h-14 relative"
                 >
+                  <JoyParticles active={robotState === 'happy' && energyLevel > 80} />
                   <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
                     <circle cx="50" cy="50" r="42" fill="none" stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4 8" className="animate-spin" style={{ animationDuration: '20s' }} />
-                    <line x1="50" y1="20" x2="50" y2="12" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
+                    <line x1="50" y1="20" x2="50" y2="12" stroke={robotColors.border} strokeWidth="4" strokeLinecap="round" />
                     <motion.circle 
                       cx="50" cy="12" r="5" 
-                      fill={robotState === 'thinking' || isDragging ? '#f97316' : '#3b82f6'} 
+                      fill={robotState === 'thinking' || isDragging ? '#f97316' : robotColors.border} 
                       animate={robotState === 'thinking' || isDragging ? { scale: [1, 1.4, 1] } : {}}
                       transition={{ repeat: Infinity, duration: 1 }}
                     />
-                    <rect x="22" y="20" width="56" height="52" rx="18" fill={isSleeping ? "#f1f5f9" : "#eff6ff"} stroke={isSleeping ? "#94a3b8" : "#2563eb"} strokeWidth="4" />
+                    <rect x="22" y="20" width="56" height="52" rx="18" fill={robotColors.body} stroke={robotColors.border} strokeWidth="4" />
                     <rect x="28" y="26" width="44" height="34" rx="10" fill="#1e293b" />
                     
                     {/* Dynamic Eyes for Advanced States */}
@@ -2891,6 +3222,13 @@ export function DesktopRobot({
                       <>
                         <text x="33" y="48" fill="#fbbf24" fontSize="16" fontWeight="bold">X</text>
                         <text x="55" y="48" fill="#fbbf24" fontSize="16" fontWeight="bold">X</text>
+                      </>
+                    ) : robotState === 'surprised' ? (
+                      <>
+                        <circle cx="39" cy="43" r="7" fill="#fbbf24" stroke="#f59e0b" strokeWidth="1" />
+                        <circle cx="61" cy="43" r="7" fill="#fbbf24" stroke="#f59e0b" strokeWidth="1" />
+                        <circle cx="39" cy="43" r="2" fill="#000" />
+                        <circle cx="61" cy="43" r="2" fill="#000" />
                       </>
                     ) : robotState === 'happy' ? (
                       <>
@@ -3015,7 +3353,22 @@ export function DesktopRobot({
             // Show dizzy message after dragging
             handleInteract('happy', "Vay canına, ne yolculuktu ama! Başım biraz döndü... 😵💫✨");
           }}
-          className="absolute bottom-6 left-6 pointer-events-auto cursor-grab active:cursor-grabbing flex flex-col items-center z-40"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsNearDrop(true);
+          }}
+          onDragLeave={() => setIsNearDrop(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsNearDrop(false);
+            const text = e.dataTransfer.getData('text');
+            if (text) {
+              handleDropText(text);
+            }
+          }}
+          className={`absolute bottom-6 left-6 pointer-events-auto cursor-grab active:cursor-grabbing flex flex-col items-center z-40 transition-all duration-300 ${
+            isNearDrop ? 'scale-110' : 'scale-100'
+          }`}
           onContextMenu={handleContextMenu}
         >
           {/* Custom right click indicator */}
@@ -3043,8 +3396,8 @@ export function DesktopRobot({
                   petTheme === 'light' ? 'bg-white border-slate-100' : 'bg-slate-950 border-slate-800'
                 }`}></div>
                 
-                <div className={`flex items-center justify-between border-b pb-2 ${
-                  petTheme === 'light' ? 'border-slate-100' : 'border-slate-800'
+                <div className={`flex items-center justify-between border-b pb-2 sticky top-0 z-20 ${
+                  petTheme === 'light' ? 'bg-white border-slate-100' : 'bg-slate-950 border-slate-800'
                 }`}>
                   <span className={`text-[11px] font-bold flex items-center gap-1 uppercase tracking-wider ${
                     petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'
@@ -3069,22 +3422,76 @@ export function DesktopRobot({
                   </div>
                 </div>
 
-                {showStickyForm ? (
-                  renderStickyTasksView()
-                ) : isSearchView ? (
-                  <div className="flex flex-col gap-2 w-full animate-fade-in">
-                    <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
-                      petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
-                    }`}>
-                      <Search size={13} className="shrink-0" />
-                      <span className="text-[11px]">Mevzuat Hızlı Arama</span>
-                      <button 
-                        onClick={() => { setIsSearchView(false); setSearchQuery(''); }}
-                        className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1"
+                <div className="max-h-[350px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10 pt-1">
+                  <div className="flex flex-col gap-3">
+                  {droppedText ? (
+                    <div className="flex flex-col gap-3 animate-in fade-in zoom-in duration-300">
+                      <div className="flex items-center gap-2 text-amber-500 font-bold text-[10px] uppercase tracking-wider">
+                        <Sparkles size={12} /> Yakalanan Metin
+                      </div>
+                      <div className={`p-3 rounded-xl border text-[11px] leading-relaxed italic ${
+                        petTheme === 'light' ? 'bg-amber-50/50 border-amber-100 text-slate-600' : 'bg-amber-900/10 border-amber-900/30 text-amber-200/70'
+                      }`}>
+                        "{droppedText.length > 100 ? droppedText.substring(0, 100) + '...' : droppedText}"
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => {
+                            addStickyTaskDirectly(droppedText);
+                            setDroppedText(null);
+                          }}
+                          className="flex items-center justify-center gap-1.5 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-bold transition-all shadow-sm"
+                        >
+                          <StickyNote size={12} /> Görev Yap
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSearchQuery(droppedText);
+                            setIsSearchView(true);
+                            setDroppedText(null);
+                          }}
+                          className="flex items-center justify-center gap-1.5 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-bold transition-all shadow-sm"
+                        >
+                          <Search size={12} /> Mevzuatta Ara
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setDraftSubject(droppedText || '');
+                          setIsDraftingView(true);
+                          setDroppedText(null);
+                        }}
+                        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-[11px] font-bold transition-all shadow-lg shadow-indigo-100/50"
                       >
-                        <ArrowLeft size={11} /> Geri
+                        <PenTool size={14} /> AI ile Taslak Hazırla
+                      </button>
+                      <button
+                        onClick={() => setDroppedText(null)}
+                        className={`py-1.5 text-[10px] font-medium border rounded-lg transition-all ${
+                          petTheme === 'light' ? 'hover:bg-slate-50 text-slate-400 border-slate-100' : 'hover:bg-slate-900 text-slate-500 border-slate-800'
+                        }`}
+                      >
+                        Vazgeç
                       </button>
                     </div>
+                  ) : isDraftingView ? (
+                    renderDraftingView()
+                  ) : showStickyForm ? (
+                    renderStickyTasksView()
+                  ) : isSearchView ? (
+                    <div className="flex flex-col gap-2 w-full animate-fade-in pt-0.5">
+                      <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+                        petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
+                      }`}>
+                        <Search size={13} className="shrink-0" />
+                        <span className="text-[11px]">Mevzuat Hızlı Arama</span>
+                        <button 
+                          onClick={() => { setIsSearchView(false); setSearchQuery(''); }}
+                          className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
+                        >
+                          <ArrowLeft size={11} /> Geri
+                        </button>
+                      </div>
                     
                     <div className="relative">
                       <input
@@ -3698,6 +4105,12 @@ export function DesktopRobot({
                     </div>
                   </>
                 )}
+                  </div>
+                </div>
+
+                <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 border-b border-r rotate-45 ${
+                  petTheme === 'light' ? 'bg-white border-slate-100' : 'bg-slate-950 border-slate-800'
+                }`}></div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -3731,6 +4144,7 @@ export function DesktopRobot({
                   transition={getMascotTransition()}
                   className="w-16 h-16 relative"
                 >
+                  <JoyParticles active={robotState === 'happy' && energyLevel > 80} />
                   {/* Floating Mood Effects */}
                   <AnimatePresence>
                     {floatingEffects.map(effect => (
@@ -3753,18 +4167,18 @@ export function DesktopRobot({
                     <circle cx="50" cy="50" r="42" fill="none" stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4 8" className="animate-spin" style={{ animationDuration: '20s' }} />
                     
                     {/* Antenna */}
-                    <line x1="50" y1="20" x2="50" y2="12" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
+                    <line x1="50" y1="20" x2="50" y2="12" stroke={robotColors.border} strokeWidth="4" strokeLinecap="round" />
                     <motion.circle 
                       cx="50" 
                       cy="12" 
                       r="5" 
-                      fill={robotState === 'thinking' ? '#f97316' : '#3b82f6'} 
+                      fill={robotState === 'thinking' ? '#f97316' : robotColors.border} 
                       animate={robotState === 'thinking' ? { scale: [1, 1.4, 1] } : {}}
                       transition={{ repeat: Infinity, duration: 1 }}
                     />
 
                     {/* Head Outline */}
-                    <rect x="22" y="20" width="56" height="52" rx="18" fill="#eff6ff" stroke="#2563eb" strokeWidth="4" />
+                    <rect x="22" y="20" width="56" height="52" rx="18" fill={robotColors.body} stroke={robotColors.border} strokeWidth="4" />
                     
                     {/* Face Screen */}
                     <rect x="28" y="26" width="44" height="34" rx="10" fill="#1e293b" />
@@ -3777,6 +4191,13 @@ export function DesktopRobot({
                         <ellipse cx="61" cy="45" rx="5" ry="2.5" fill="#60a5fa" />
                         <path d="M 33 40 Q 39 42 45 40" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
                         <path d="M 55 40 Q 61 42 67 40" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+                      </>
+                    ) : robotState === 'surprised' ? (
+                      <>
+                        <circle cx="39" cy="43" r="7" fill="#fbbf24" stroke="#f59e0b" strokeWidth="1" />
+                        <circle cx="61" cy="43" r="7" fill="#fbbf24" stroke="#f59e0b" strokeWidth="1" />
+                        <circle cx="39" cy="43" r="2" fill="#000" />
+                        <circle cx="61" cy="43" r="2" fill="#000" />
                       </>
                     ) : robotState === 'happy' ? (
                       <>
@@ -4141,7 +4562,8 @@ export function DesktopRobot({
                       happy: "Harika hissediyorum! Bugün çok verimli bir gün olacak! 🎉",
                       thinking: "Mevzuatı inceliyorum, verileri analiz ediyorum... 🧠",
                       waving: "Sana el sallıyorum! Kolay gelsin mesai arkadaşım! 👋",
-                      sleepy: "Esniyorum... Biraz dinlensem fena olmazdı. 💤"
+                      sleepy: "Esniyorum... Biraz dinlensem fena olmazdı. 💤",
+                      surprised: "Ooo! Bu neymiş böyle? Çok şaşırdım! 😮"
                     };
                     handleInteract(state, textMap[state]);
                     setContextMenu(null);
