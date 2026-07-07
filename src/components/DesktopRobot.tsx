@@ -26,9 +26,23 @@ import {
   Search,
   ArrowLeft,
   Activity,
-  Newspaper
+  Newspaper,
+  Mail,
+  StickyNote,
+  Trash2
 } from 'lucide-react';
 import { WorkflowTemplate, ActiveStep } from '../types';
+
+export interface StickyTask {
+  id: string;
+  text: string;
+  carryType: 'mouth_envelope' | 'head_postit';
+  durationMins: number;
+  createdAt: number;
+  remindAt: number | null;
+  notified: boolean;
+  completed: boolean;
+}
 
 interface QuizQuestion {
   question: string;
@@ -575,6 +589,31 @@ export function DesktopRobot({
   const [wellbeingTimer, setWellbeingTimer] = useState(5);
   const [wellbeingActive, setWellbeingActive] = useState(false);
 
+  // Nudge State for proactive behaviors
+  const [nudgeState, setNudgeState] = useState<'none' | 'jumping' | 'shaking' | 'stretching'>('none');
+
+  // Sticky Notes & Delivery States
+  const [stickyTasks, setStickyTasks] = useState<StickyTask[]>(() => {
+    try {
+      const saved = localStorage.getItem('pet_sticky_tasks');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [showStickyForm, setShowStickyForm] = useState(false);
+  const [stickyFormText, setStickyFormText] = useState('');
+  const [stickyFormCarryType, setStickyFormCarryType] = useState<'mouth_envelope' | 'head_postit'>('mouth_envelope');
+  const [stickyFormTime, setStickyFormTime] = useState<number>(0);
+  const [activeNotificationTask, setActiveNotificationTask] = useState<StickyTask | null>(null);
+
+  const saveStickyTasks = (tasks: StickyTask[]) => {
+    setStickyTasks(tasks);
+    try {
+      localStorage.setItem('pet_sticky_tasks', JSON.stringify(tasks));
+    } catch (e) {}
+  };
+
   const setQuizScore = (val: number | ((prev: number) => number)) => {
     setQuizScoreState(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
@@ -818,18 +857,33 @@ export function DesktopRobot({
       // If worked for 45 mins cumulatively
       if (cumulativeWorkTimeRef.current >= 2700000 && !isFocusing) {
         cumulativeWorkTimeRef.current = 0; // Reset
-        const reminders = [
-          "Hey! 45 dakikadır aralıksız çalışıyorsun. Bir bardak su içmeye ne dersin? 💧",
-          "Gözlerin yorulmuş olmalı. 20 saniye boyunca uzağa bakarak onları dinlendirebilirsin! 👀✨",
-          "Kısa bir esneme molası vermek odaklanmanı %20 artıracaktır. Hadi bir tur at gel! 🚶‍♂️⚡",
-          "Beynin bir mola hak etti! Birkaç dakika derin nefes alıp vermeye ne dersin? 🧘‍♂️"
-        ];
-        handleInteract('happy', reminders[Math.floor(Math.random() * reminders.length)]);
+        triggerProactiveNudge();
       }
     }, 60000);
 
     return () => clearInterval(checkInterval);
   }, [breakRemindersEnabled, isFocusing]);
+
+  // Sticky Notes Reminder checking timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = Date.now();
+      let hasUpdated = false;
+      const nextTasks = stickyTasks.map(task => {
+        if (!task.completed && task.remindAt && now >= task.remindAt && !task.notified) {
+          hasUpdated = true;
+          triggerStickyNotification(task);
+          return { ...task, notified: true };
+        }
+        return task;
+      });
+      if (hasUpdated) {
+        saveStickyTasks(nextTasks);
+      }
+    }, 4000); // Check every 4 seconds
+
+    return () => clearInterval(timer);
+  }, [stickyTasks]);
 
   // Well-being Routine Timer Logic
   useEffect(() => {
@@ -1404,6 +1458,356 @@ export function DesktopRobot({
     }
   };
 
+  const triggerProactiveNudge = (type?: 'cough' | 'jump' | 'stretch') => {
+    const chosenType = type || (['cough', 'jump', 'stretch'][Math.floor(Math.random() * 3)] as 'cough' | 'jump' | 'stretch');
+    
+    // Deactivate previous active screens to focus on the nudge/wellbeing options
+    setIsSearchView(false);
+    setShowStepAnalysis(false);
+    setShowRegulatoryFeed(false);
+    setCurrentQuizIndex(null);
+
+    if (chosenType === 'cough') {
+      setNudgeState('shaking');
+      setRobotState('idle');
+      setBubbleText("Öhö öhö! 🤖💨 Çok mu uzun süredir ekrana bakıyorsun acaba? Gözlerini 2 dakika dinlendirsek mi? 🥺");
+      playBeep(220, 100);
+      setTimeout(() => playBeep(220, 100), 120);
+      
+      setTimeout(() => {
+        setNudgeState('none');
+      }, 1000);
+    } else if (chosenType === 'jump') {
+      setNudgeState('jumping');
+      setRobotState('happy');
+      setBubbleText("Hoppa! 🚀 Kendimi tazelemek için zıpladım! Sen de biraz ayağa kalkıp esnemek ister misin? Hadi bir 'Sağlık Rutini' yapalım! 🧘‍♂️");
+      playBeep(440, 100);
+      setTimeout(() => playBeep(554, 100), 120);
+      setTimeout(() => playBeep(659, 150), 240);
+
+      setTimeout(() => {
+        setNudgeState('none');
+      }, 1500);
+    } else {
+      setNudgeState('stretching');
+      setRobotState('happy');
+      setBubbleText("Oooooh! Şöyle iyice bir esneyelim! 🧘‍♀️ Masa başında dik oturmak omurga sağlığın için çok önemli. Duruşunu düzeltmeye ne dersin?");
+      playBeep(330, 150);
+      setTimeout(() => playBeep(440, 200), 200);
+
+      setTimeout(() => {
+        setNudgeState('none');
+      }, 1500);
+    }
+    
+    updateStats('interactions', 1);
+    setIsVisible(true);
+    setShowBubble(true);
+  };
+
+  const triggerStickyNotification = (task: StickyTask) => {
+    // Shaking / Alert animation
+    setNudgeState('shaking');
+    setRobotState('happy');
+    
+    // Deactivate previous active screens to focus on the nudge/wellbeing options
+    setIsSearchView(false);
+    setShowStepAnalysis(false);
+    setShowRegulatoryFeed(false);
+    setCurrentQuizIndex(null);
+    setShowWellbeing(false);
+
+    let msg = '';
+    if (task.carryType === 'mouth_envelope') {
+      msg = `📬 BİP BİP! Ağzımda taşıdığım çok önemli mektubun teslim edilme süresi geldi!\n\nGÖREV: "${task.text}" ✨\n\nHadi bu görevi hemen yapalım!`;
+    } else {
+      msg = `📌 DING DONG! Başımda taşıdığım yapışkan notun hatırlatma vakti!\n\nUNUTMA: "${task.text}" 🥺\n\nPlanladığın gibi tamamlayalım mı?`;
+    }
+    
+    setBubbleText(msg);
+    setIsVisible(true);
+    setShowBubble(true);
+    setActiveNotificationTask(task);
+    
+    playBeep(440, 150);
+    setTimeout(() => playBeep(554, 150), 180);
+    setTimeout(() => playBeep(659, 200), 360);
+    
+    setTimeout(() => {
+      setNudgeState('none');
+    }, 1200);
+  };
+
+  const renderStickyTasksView = () => {
+    const activeTasks = stickyTasks.filter(t => !t.completed);
+    
+    const handleAddTask = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!stickyFormText.trim()) return;
+      
+      const currentOfSameType = activeTasks.filter(t => t.carryType === stickyFormCarryType);
+      if (currentOfSameType.length >= 1) {
+        alert(stickyFormCarryType === 'mouth_envelope' 
+          ? "Ağzımda zaten bir mektup taşıyorum! ✉️ Lütfen önce onu tamamlayın." 
+          : "Başımda zaten bir yapışkan not taşıyorum! 📌 Lütfen önce onu tamamlayın."
+        );
+        return;
+      }
+      
+      const now = Date.now();
+      const remindAt = stickyFormTime > 0 ? now + (stickyFormTime * 60 * 1000) : null;
+      
+      const newTask: StickyTask = {
+        id: Math.random().toString(36).substr(2, 9),
+        text: stickyFormText.trim(),
+        carryType: stickyFormCarryType,
+        durationMins: stickyFormTime,
+        createdAt: now,
+        remindAt,
+        notified: false,
+        completed: false
+      };
+      
+      const nextTasks = [...stickyTasks, newTask];
+      saveStickyTasks(nextTasks);
+      
+      setRobotState('happy');
+      setNudgeState('jumping');
+      
+      const responseText = stickyFormCarryType === 'mouth_envelope'
+        ? `Mektubunuzu aldım! ✉️ Ağzımda güvenle taşıyacağım. ${stickyFormTime > 0 ? `${stickyFormTime} dakika sonra teslim edeceğim!` : 'Her an yanınızda!'}`
+        : `Yapışkan notu başıma iliştirdim! 📌 Gözümün önünde olacaksın. ${stickyFormTime > 0 ? `${stickyFormTime} dakika sonra hatırlatacağım!` : 'Unutulmayacak!'}`;
+      
+      setBubbleText(responseText);
+      setStickyFormText('');
+      setStickyFormTime(0);
+      
+      setTimeout(() => {
+        setNudgeState('none');
+      }, 1200);
+    };
+
+    const handleCompleteTask = (id: string) => {
+      const nextTasks = stickyTasks.map(t => t.id === id ? { ...t, completed: true } : t);
+      saveStickyTasks(nextTasks);
+      setRobotState('happy');
+      playBeep(600, 100);
+      setTimeout(() => playBeep(880, 120), 120);
+      setBubbleText("Tebrikler! Bir önemli görevi daha başarıyla tamamladık! Harikasın! 🌟🥳");
+      if (activeNotificationTask?.id === id) {
+        setActiveNotificationTask(null);
+      }
+    };
+
+    const handleDeleteTask = (id: string) => {
+      const nextTasks = stickyTasks.filter(t => t.id !== id);
+      saveStickyTasks(nextTasks);
+      setRobotState('idle');
+      setBubbleText("Notu iptal ettim ve kaldırdım. Başka bir görev var mı? 📝");
+      if (activeNotificationTask?.id === id) {
+        setActiveNotificationTask(null);
+      }
+    };
+
+    return (
+      <div className="flex flex-col gap-2 w-full animate-fade-in text-xs">
+        <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
+          petTheme === 'light' ? 'text-indigo-600 border-slate-100' : 'text-indigo-400 border-slate-800'
+        }`}>
+          <StickyNote size={13} className="shrink-0 text-indigo-500" />
+          <span className="text-[11px]">Görev Yapışkanları & Teslimat</span>
+          <button 
+            onClick={() => { setShowStickyForm(false); }}
+            className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+          >
+            <ArrowLeft size={10} /> Geri
+          </button>
+        </div>
+
+        {/* Existing Tasks List */}
+        {activeTasks.length > 0 && (
+          <div className="flex flex-col gap-1.5 mb-1 max-h-32 overflow-y-auto custom-scrollbar">
+            <span className="text-[8.5px] text-slate-400 font-extrabold uppercase tracking-wider">Taşınan Görevler ({activeTasks.length}/2):</span>
+            {activeTasks.map(task => (
+              <div 
+                key={task.id} 
+                className={`p-2 border rounded-xl flex flex-col gap-1 transition-all ${
+                  petTheme === 'light' ? 'bg-indigo-50/40 border-indigo-100' : 'bg-indigo-950/20 border-indigo-900/30'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="flex items-center gap-1 text-[9px] font-black text-indigo-500">
+                    {task.carryType === 'mouth_envelope' ? '✉️ Ağızda Mektup' : '📌 Başta Post-it'}
+                  </span>
+                  {task.remindAt && (
+                    <span className="text-[8px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-1 py-0.5 rounded font-mono font-bold">
+                      {task.notified ? '⏰ Süresi Doldu' : `⏰ ${task.durationMins} dk`}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] font-bold leading-tight text-slate-700 dark:text-slate-200">{task.text}</p>
+                
+                <div className="flex gap-1.5 mt-1 justify-end">
+                  <button
+                    onClick={() => handleCompleteTask(task.id)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[8.5px] px-2 py-0.5 rounded transition-all flex items-center gap-0.5 shadow-sm"
+                  >
+                    <Check size={8} /> Yapıldı
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="bg-rose-100 dark:bg-rose-950 hover:bg-rose-200 text-rose-700 dark:text-rose-300 font-bold text-[8.5px] px-2 py-0.5 rounded transition-all flex items-center gap-0.5"
+                  >
+                    <Trash2 size={8} /> Sil
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Form to add a task if we have space (< 2 tasks) */}
+        {activeTasks.length < 2 ? (
+          <form onSubmit={handleAddTask} className="flex flex-col gap-2 border-t pt-1.5 border-slate-100 dark:border-slate-800">
+            <span className="text-[8.5px] text-slate-400 font-extrabold uppercase tracking-wider">Yeni Görev Teslim Et:</span>
+            
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Önemli görevi yazın... (örn: Rapor hazırla)"
+                value={stickyFormText}
+                onChange={(e) => setStickyFormText(e.target.value.substring(0, 50))}
+                className={`w-full text-[10.5px] px-2 py-1.5 rounded-lg border outline-none font-medium shadow-sm ${
+                  petTheme === 'light' 
+                    ? 'bg-white text-slate-800 border-slate-200 focus:border-indigo-500' 
+                    : 'bg-slate-900 text-white border-slate-800 focus:border-indigo-500'
+                }`}
+                required
+              />
+            </div>
+
+            {/* Carry style selector */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => setStickyFormCarryType('mouth_envelope')}
+                className={`py-1 px-1.5 border rounded-lg text-left transition-all font-semibold flex items-center gap-1 text-[9.5px] ${
+                  stickyFormCarryType === 'mouth_envelope'
+                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950 dark:border-indigo-800 dark:text-indigo-300'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40'
+                }`}
+              >
+                <span>✉️ Mektup Zarfı</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStickyFormCarryType('head_postit')}
+                className={`py-1 px-1.5 border rounded-lg text-left transition-all font-semibold flex items-center gap-1 text-[9.5px] ${
+                  stickyFormCarryType === 'head_postit'
+                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950 dark:border-indigo-800 dark:text-indigo-300'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40'
+                }`}
+              >
+                <span>📌 Yapışkan Not</span>
+              </button>
+            </div>
+
+            {/* Reminder Time selector */}
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[8px] text-slate-400 font-bold uppercase">Hatırlatma Süresi:</label>
+              <select
+                value={stickyFormTime}
+                onChange={(e) => setStickyFormTime(parseInt(e.target.value, 10))}
+                className={`text-[9.5px] font-semibold px-2 py-1 rounded-lg border outline-none cursor-pointer w-full ${
+                  petTheme === 'light' 
+                    ? 'bg-white text-slate-750 border-slate-200' 
+                    : 'bg-slate-900 text-slate-200 border-slate-800'
+                }`}
+              >
+                <option value={0}>⏰ Süresiz (Sadece Ağızda/Başta Taşır)</option>
+                <option value={1}>⏰ 1 Dakika Sonra (Hızlı Test)</option>
+                <option value={5}>⏰ 5 Dakika Sonra</option>
+                <option value={15}>⏰ 15 Dakika Sonra</option>
+                <option value={30}>⏰ 30 Dakika Sonra</option>
+                <option value={60}>⏰ 1 Saat Sonra</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 shadow-md mt-1"
+            >
+              <Plus size={11} /> Görevi Evcil Hayvana Teslim Et
+            </button>
+          </form>
+        ) : (
+          <div className="text-[10px] text-slate-400 text-center py-2 border-t border-slate-100 dark:border-slate-800">
+            <p className="font-extrabold text-amber-500 mb-0.5">Kapasite Dolu! 🤖🔒</p>
+            Mevcut 2 aktif görevi de sırtlandım (1 Mektup, 1 Yapışkan Not). Yenisini eklemek için lütfen listelenen görevleri tamamlayın!
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const getMascotAnimation = () => {
+    switch (nudgeState) {
+      case 'jumping':
+        return {
+          y: [0, -25, 0, -20, 0],
+          scaleY: [1, 0.85, 1.1, 0.95, 1],
+          rotate: [0, -3, 3, 0]
+        };
+      case 'shaking':
+        return {
+          x: [0, -6, 6, -6, 6, -4, 4, 0],
+          rotate: [0, -4, 4, -4, 4, 0]
+        };
+      case 'stretching':
+        return {
+          scaleY: [1, 1.25, 0.95, 1],
+          scaleX: [1, 0.9, 1.05, 1],
+          y: [0, -5, 0]
+        };
+      case 'none':
+      default:
+        return {
+          y: [0, -8, 0],
+          scaleY: 1,
+          scaleX: 1,
+          rotate: 0,
+          x: 0
+        };
+    }
+  };
+
+  const getMascotTransition = () => {
+    switch (nudgeState) {
+      case 'jumping':
+        return {
+          duration: 1.2,
+          ease: "easeInOut"
+        };
+      case 'shaking':
+        return {
+          duration: 0.5,
+          ease: "linear"
+        };
+      case 'stretching':
+        return {
+          duration: 1.5,
+          ease: "easeInOut"
+        };
+      case 'none':
+      default:
+        return {
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        };
+    }
+  };
+
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1567,6 +1971,21 @@ export function DesktopRobot({
 
                   <button
                     onClick={() => {
+                      triggerProactiveNudge();
+                      setContextMenu(null);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-indigo-50 text-indigo-700' 
+                        : 'hover:bg-indigo-950 text-indigo-400'
+                    }`}
+                  >
+                    <Sparkles size={13} className="text-indigo-500 animate-pulse" />
+                    <span>Akıllı Dürtme Simüle Et 💡</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       handleStartQuiz();
                       setContextMenu(null);
                     }}
@@ -1578,6 +1997,29 @@ export function DesktopRobot({
                   >
                     <Award size={13} className="text-amber-500 animate-bounce" />
                     <span>Mevzuat Bilgi Sınavı 🏆</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowStickyForm(true);
+                      setIsVisible(true);
+                      setShowBubble(true);
+                      setIsSearchView(false);
+                      setShowStepAnalysis(false);
+                      setShowRegulatoryFeed(false);
+                      setShowWellbeing(false);
+                      setCurrentQuizIndex(null);
+                      setContextMenu(null);
+                      playBeep(520, 100);
+                    }}
+                    className={`w-full text-left px-2 py-2 rounded-lg transition-colors flex items-center gap-2 text-xs font-bold ${
+                      petTheme === 'light' 
+                        ? 'hover:bg-indigo-50 text-indigo-700' 
+                        : 'hover:bg-indigo-950 text-indigo-400'
+                    }`}
+                  >
+                    <StickyNote size={13} className="text-indigo-500 animate-pulse" />
+                    <span>Görev Yapışkanı Teslim Et 📝</span>
                   </button>
 
                   <div className={`h-px my-0.5 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
@@ -1798,7 +2240,9 @@ export function DesktopRobot({
                     : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
                 }`}
               >
-                {isSearchView ? (
+                {showStickyForm ? (
+                  renderStickyTasksView()
+                ) : isSearchView ? (
                   <div className="flex flex-col gap-2 w-full animate-fade-in">
                     <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
                       petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
@@ -2421,8 +2865,8 @@ export function DesktopRobot({
                 </AnimatePresence>
 
                 <motion.div
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  animate={getMascotAnimation()}
+                  transition={getMascotTransition()}
                   className="w-14 h-14"
                 >
                   <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
@@ -2506,6 +2950,21 @@ export function DesktopRobot({
                         <line x1="29" y1="43" x2="22" y2="40" stroke="#eab308" strokeWidth="2" />
                         <line x1="71" y1="43" x2="78" y2="40" stroke="#eab308" strokeWidth="2" />
                       </>
+                    )}
+
+                    {/* Carried Task Visuals */}
+                    {stickyTasks.some(t => !t.completed && t.carryType === 'mouth_envelope') && (
+                      <g transform="translate(42, 58)">
+                        <rect x="0" y="0" width="16" height="10" rx="1.5" fill="#fef9c3" stroke="#eab308" strokeWidth="1" />
+                        <path d="M 0 0 L 8 5 L 16 0" fill="none" stroke="#eab308" strokeWidth="1" />
+                      </g>
+                    )}
+                    {stickyTasks.some(t => !t.completed && t.carryType === 'head_postit') && (
+                      <g transform="translate(62, 10)">
+                        <rect x="0" y="0" width="12" height="12" rx="1" fill="#fbbf24" stroke="#d97706" strokeWidth="1" />
+                        <line x1="2" y1="3" x2="10" y2="3" stroke="#d97706" strokeWidth="0.8" />
+                        <line x1="2" y1="6" x2="10" y2="6" stroke="#d97706" strokeWidth="0.8" />
+                      </g>
                     )}
                   </svg>
                 </motion.div>
@@ -2610,7 +3069,9 @@ export function DesktopRobot({
                   </div>
                 </div>
 
-                {isSearchView ? (
+                {showStickyForm ? (
+                  renderStickyTasksView()
+                ) : isSearchView ? (
                   <div className="flex flex-col gap-2 w-full animate-fade-in">
                     <div className={`flex items-center gap-1.5 font-bold border-b pb-1.5 ${
                       petTheme === 'light' ? 'text-blue-600 border-slate-100' : 'text-blue-400 border-slate-800'
@@ -3266,14 +3727,8 @@ export function DesktopRobot({
               <div className="relative">
                 {/* Floating Container */}
                 <motion.div
-                  animate={{
-                    y: [0, -8, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  animate={getMascotAnimation()}
+                  transition={getMascotTransition()}
                   className="w-16 h-16 relative"
                 >
                   {/* Floating Mood Effects */}
@@ -3401,6 +3856,21 @@ export function DesktopRobot({
                         <line x1="29" y1="43" x2="22" y2="40" stroke="#eab308" strokeWidth="2" />
                         <line x1="71" y1="43" x2="78" y2="40" stroke="#eab308" strokeWidth="2" />
                       </>
+                    )}
+
+                    {/* Carried Task Visuals */}
+                    {stickyTasks.some(t => !t.completed && t.carryType === 'mouth_envelope') && (
+                      <g transform="translate(42, 58)">
+                        <rect x="0" y="0" width="16" height="10" rx="1.5" fill="#fef9c3" stroke="#eab308" strokeWidth="1" />
+                        <path d="M 0 0 L 8 5 L 16 0" fill="none" stroke="#eab308" strokeWidth="1" />
+                      </g>
+                    )}
+                    {stickyTasks.some(t => !t.completed && t.carryType === 'head_postit') && (
+                      <g transform="translate(62, 10)">
+                        <rect x="0" y="0" width="12" height="12" rx="1" fill="#fbbf24" stroke="#d97706" strokeWidth="1" />
+                        <line x1="2" y1="3" x2="10" y2="3" stroke="#d97706" strokeWidth="0.8" />
+                        <line x1="2" y1="6" x2="10" y2="6" stroke="#d97706" strokeWidth="0.8" />
+                      </g>
                     )}
                   </svg>
 
@@ -3616,6 +4086,21 @@ export function DesktopRobot({
 
             <button
               onClick={() => {
+                triggerProactiveNudge();
+                setContextMenu(null);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' 
+                  ? 'hover:bg-indigo-50 text-indigo-700' 
+                  : 'hover:bg-indigo-950 text-indigo-400'
+              }`}
+            >
+              <Sparkles size={14} className="text-indigo-500 animate-pulse" />
+              <span>Akıllı Dürtme Simüle Et 💡</span>
+            </button>
+
+            <button
+              onClick={() => {
                 showNextTip();
                 setContextMenu(null);
               }}
@@ -3686,6 +4171,27 @@ export function DesktopRobot({
             >
               <Award size={14} className="text-amber-500 animate-bounce" />
               <span>Mevzuat Bilgi Sınavı 🏆</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowStickyForm(true);
+                setIsVisible(true);
+                setShowBubble(true);
+                setIsSearchView(false);
+                setShowStepAnalysis(false);
+                setShowRegulatoryFeed(false);
+                setShowWellbeing(false);
+                setCurrentQuizIndex(null);
+                setContextMenu(null);
+                playBeep(520, 100);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 font-bold ${
+                petTheme === 'light' ? 'hover:bg-indigo-50 text-indigo-950 hover:text-indigo-800' : 'hover:bg-indigo-950/15 text-indigo-300 hover:text-indigo-200'
+              }`}
+            >
+              <StickyNote size={14} className="text-indigo-500 animate-pulse" />
+              <span>Görev Yapışkanı Teslim Et 📝</span>
             </button>
 
             <div className={`h-px my-1 ${petTheme === 'light' ? 'bg-slate-100' : 'bg-slate-800'}`}></div>
