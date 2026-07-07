@@ -604,43 +604,49 @@ export function DesktopRobot({
     }
 
     const checkEdges = () => {
-      const robotWidth = 80;
-      const robotHeight = 80;
-      // Start position is bottom-6, left-6 (24px offset)
-      const absX = 24 + position.x;
-      const absY = window.innerHeight - (24 + robotHeight) - position.y;
+      const robotWidth = 70;
+      const robotHeight = 70;
+      
+      // Calculate current coordinates relative to screen
+      // Robot is anchored at bottom-6 (24px) and left-6 (24px)
+      const currentX = 24 + position.x;
+      const currentY = window.innerHeight - 24 - robotHeight - position.y;
 
-      const threshold = 15;
+      const threshold = 10;
       const cornerThreshold = 40;
 
-      // Bottom edge
-      if (absY > window.innerHeight - robotHeight - threshold) {
-        setEdgeInteraction('peeking_bottom');
-      } 
-      // Top edge
-      else if (absY < threshold) {
-        setEdgeInteraction('peeking_top');
+      // Reset sleeping if we moved away from corners
+      const isInCorner = (
+        (currentX < cornerThreshold && currentY < cornerThreshold) || // Top-left
+        (currentX > window.innerWidth - robotWidth - cornerThreshold && currentY < cornerThreshold) || // Top-right
+        (currentX < cornerThreshold && currentY > window.innerHeight - robotHeight - cornerThreshold) || // Bottom-left
+        (currentX > window.innerWidth - robotWidth - cornerThreshold && currentY > window.innerHeight - robotHeight - cornerThreshold) // Bottom-right
+      );
+
+      if (!isInCorner && isSleeping) {
+        setIsSleeping(false);
       }
-      // Left edge
-      else if (absX < threshold) {
-        setEdgeInteraction('clinging_left');
-      }
-      // Right edge
-      else if (absX > window.innerWidth - robotWidth - threshold) {
-        setEdgeInteraction('clinging_right');
-      }
-      // Corner detection for sleeping
-      else if (
-        (absX < cornerThreshold && absY < cornerThreshold) || // Top-left
-        (absX > window.innerWidth - robotWidth - cornerThreshold && absY < cornerThreshold) || // Top-right
-        (absX < cornerThreshold && absY > window.innerHeight - robotHeight - cornerThreshold) || // Bottom-left
-        (absX > window.innerWidth - robotWidth - cornerThreshold && absY > window.innerHeight - robotHeight - cornerThreshold) // Bottom-right
-      ) {
+
+      // Priority 1: Corners for sleeping
+      if (isInCorner) {
         if (!isSleeping && !isDragging) {
           setIsSleeping(true);
           handleInteract('idle', "Ah, bu köşe çok rahatmış... Biraz kestireyim. 💤💤");
         }
         setEdgeInteraction('sleeping_corner');
+      }
+      // Priority 2: Edges
+      else if (currentY > window.innerHeight - robotHeight - threshold) {
+        setEdgeInteraction('peeking_bottom');
+      } 
+      else if (currentY < threshold) {
+        setEdgeInteraction('peeking_top');
+      }
+      else if (currentX < threshold) {
+        setEdgeInteraction('clinging_left');
+      }
+      else if (currentX > window.innerWidth - robotWidth - threshold) {
+        setEdgeInteraction('clinging_right');
       }
       else {
         setEdgeInteraction('none');
@@ -3123,12 +3129,12 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
 
           {/* Mascot Drawing */}
           <div 
-            className={`flex flex-col items-center cursor-grab active:cursor-grabbing relative transition-all duration-500 ${
-              edgeInteraction === 'peeking_bottom' ? 'translate-y-8 opacity-70' : 
-              edgeInteraction === 'peeking_top' ? '-translate-y-8 opacity-70' :
-              edgeInteraction === 'clinging_left' ? '-translate-x-6 -rotate-6' :
-              edgeInteraction === 'clinging_right' ? 'translate-x-6 rotate-6' :
-              edgeInteraction === 'sleeping_corner' ? 'scale-90 grayscale-[0.3]' : 'scale-100'
+            className={`flex flex-col items-center cursor-grab active:cursor-grabbing relative ${isDragging ? '' : 'transition-all duration-500'} ${
+              edgeInteraction === 'peeking_bottom' ? 'translate-y-2 opacity-95' : 
+              edgeInteraction === 'peeking_top' ? '-translate-y-2 opacity-95' :
+              edgeInteraction === 'clinging_left' ? '-translate-x-2 -rotate-3' :
+              edgeInteraction === 'clinging_right' ? 'translate-x-2 rotate-3' :
+              edgeInteraction === 'sleeping_corner' ? 'scale-95 grayscale-[0.2]' : 'scale-100'
             }`}
             onMouseDown={(e) => {
               if (e.button !== 0) return; // Left-click only
@@ -3337,20 +3343,21 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
       {/* Viewport boundary container for dragging */}
       <div 
         ref={constraintsRef} 
-        className="fixed inset-0 pointer-events-none z-40 select-none overflow-hidden"
+        className="fixed inset-0 pointer-events-none z-40 select-none"
       >
         {/* Draggable Mascot + Bubble Group */}
         <motion.div
           drag
-          dragMomentum={false}
+          dragMomentum={true}
           dragElastic={0.05}
+          dragTransition={{ bounceStiffness: 400, bounceDamping: 30 }}
           dragConstraints={constraintsRef}
           animate={{ x: position.x, y: position.y }}
           onDragStart={() => setIsDragging(true)}
           onDragEnd={(_, info) => {
             setIsDragging(false);
             setPosition({ x: position.x + info.offset.x, y: position.y + info.offset.y });
-            // Show dizzy message after dragging
+            // The useEffect will handle edge interactions after state update
             handleInteract('happy', "Vay canına, ne yolculuktu ama! Başım biraz döndü... 😵💫✨");
           }}
           onDragOver={(e) => {
@@ -3366,7 +3373,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
               handleDropText(text);
             }
           }}
-          className={`absolute bottom-6 left-6 pointer-events-auto cursor-grab active:cursor-grabbing flex flex-col items-center z-40 transition-all duration-300 ${
+          className={`absolute bottom-6 left-6 pointer-events-auto cursor-grab active:cursor-grabbing flex flex-col items-center z-40 ${isDragging ? '' : 'transition-all duration-300'} ${
             isNearDrop ? 'scale-110' : 'scale-100'
           }`}
           onContextMenu={handleContextMenu}
@@ -4410,6 +4417,22 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
             >
               <MessageSquare size={14} className="text-blue-500" />
               <span>Sohbet Asistanını Aç</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsDraftingView(true);
+                setIsVisible(true);
+                setShowBubble(true);
+                setContextMenu(null);
+                handleInteract('happy', "Yazım asistanını hazırladım! Nasıl bir metin hazırlamamı istersin? ✍️✨");
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 hover:text-indigo-600' : 'hover:bg-slate-900 text-slate-300 hover:text-indigo-400'
+              }`}
+            >
+              <PenTool size={14} className="text-indigo-500" />
+              <span>AI Yazım Asistanı (Dilekçe/Yazı) ✍️</span>
             </button>
 
             <button
