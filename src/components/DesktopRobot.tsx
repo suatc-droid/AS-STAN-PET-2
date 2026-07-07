@@ -336,7 +336,36 @@ export function DesktopRobot({
   const [isSleeping, setIsSleeping] = useState(false);
 
   // Desktop Pet specific state variables
-  const [isRoaming, setIsRoaming] = useState(false);
+  const [isRoaming, setIsRoamingState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('pet_is_roaming');
+      return saved === 'true';
+    } catch (e) { return false; }
+  });
+
+  const setIsRoaming = (next: boolean) => {
+    setIsRoamingState(next);
+    try {
+      localStorage.setItem('pet_is_roaming', next.toString());
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_is_roaming', value: next.toString() } }));
+  };
+
+  const [teleportEnabled, setTeleportEnabledState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('pet_teleport_enabled');
+      return saved !== 'false';
+    } catch (e) { return true; }
+  });
+
+  const setTeleportEnabled = (next: boolean) => {
+    setTeleportEnabledState(next);
+    try {
+      localStorage.setItem('pet_teleport_enabled', next.toString());
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_teleport_enabled', value: next.toString() } }));
+  };
+
   const [walkDirection, setWalkDirection] = useState<'left' | 'right'>('right');
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -352,6 +381,21 @@ export function DesktopRobot({
       return localStorage.getItem('pet_break_reminders') !== 'false';
     } catch (e) { return true; }
   });
+
+  const [minimizeOnClose, setMinimizeOnCloseState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('pet_minimize_on_close');
+      return saved !== 'false';
+    } catch (e) { return true; }
+  });
+
+  const setMinimizeOnClose = (next: boolean) => {
+    setMinimizeOnCloseState(next);
+    try {
+      localStorage.setItem('pet_minimize_on_close', next.toString());
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_minimize_on_close', value: next.toString() } }));
+  };
   const lastInteractionRef = useRef<number>(Date.now());
   const cumulativeWorkTimeRef = useRef<number>(0);
 
@@ -403,6 +447,15 @@ export function DesktopRobot({
         if (key === 'pet_sound_theme') {
           setSoundThemeState(newValue as any);
         }
+        if (key === 'pet_minimize_on_close') {
+          setMinimizeOnCloseState(newValue === 'true');
+        }
+        if (key === 'pet_is_roaming') {
+          setIsRoamingState(newValue === 'true');
+        }
+        if (key === 'pet_teleport_enabled') {
+          setTeleportEnabledState(newValue === 'true');
+        }
       } catch (err) {
         console.error("Sync error:", err);
       }
@@ -443,19 +496,37 @@ export function DesktopRobot({
         setRobotState('idle');
       }
 
-      // Random Jump (10% chance every 30 seconds if not focusing/sleeping/dragging)
-      if (Math.random() < 0.1 && !isFocusing && !isSleeping && !isDragging && !isRoaming) {
-        // Calculate bounds relative to bottom-6 left-6
-        const maxX = window.innerWidth - 150;
-        const maxY = window.innerHeight - 150;
-        
-        const randomX = Math.random() * maxX;
-        const randomY = Math.random() * -maxY; // Negative because it's absolute bottom
-        
-        setPosition({ x: randomX, y: randomY });
-        handleInteract('happy', "Hop! Bir köşeden diğerine ışınlandım! 🚀✨");
-        playBeep(660, 150);
-        setTimeout(() => playBeep(880, 150), 150);
+      // Random Jump (10% chance every 30 seconds if enabled and not focusing/sleeping/dragging)
+      if (teleportEnabled && Math.random() < 0.1 && !isFocusing && !isSleeping && !isDragging) {
+        const isElectron = typeof window !== 'undefined' && (
+          navigator.userAgent.toLowerCase().includes('electron') ||
+          !!(window as any).ipcRenderer ||
+          typeof (window as any).require === 'function'
+        );
+
+        if (isStandalone && isElectron) {
+          try {
+            const { ipcRenderer } = (window as any).require('electron');
+            ipcRenderer.send('teleport-mascot-window');
+            handleInteract('happy', "Hop! Masaüstünün başka bir köşesine ışınlandım! 🚀✨");
+            playBeep(660, 150);
+            setTimeout(() => playBeep(880, 150), 150);
+          } catch (err) {
+            console.error('Failed to teleport window via IPC:', err);
+          }
+        } else if (!isRoaming) {
+          // Calculate bounds relative to bottom-6 left-6
+          const maxX = window.innerWidth - 150;
+          const maxY = window.innerHeight - 150;
+          
+          const randomX = Math.random() * maxX;
+          const randomY = Math.random() * -maxY; // Negative because it's absolute bottom
+          
+          setPosition({ x: randomX, y: randomY });
+          handleInteract('happy', "Hop! Bir köşeden diğerine ışınlandım! 🚀✨");
+          playBeep(660, 150);
+          setTimeout(() => playBeep(880, 150), 150);
+        }
       }
     }, 30000);
 
@@ -466,7 +537,67 @@ export function DesktopRobot({
       window.removeEventListener('keydown', trackInteraction);
       clearInterval(behaviorInterval);
     };
-  }, [isFocusing, isSleeping, isDragging, isRoaming]);
+  }, [isFocusing, isSleeping, isDragging, isRoaming, teleportEnabled, isStandalone]);
+
+  // Sync minimizeOnClose option to Electron via IPC
+  useEffect(() => {
+    const isElectron = typeof window !== 'undefined' && (
+      navigator.userAgent.toLowerCase().includes('electron') ||
+      !!(window as any).ipcRenderer ||
+      typeof (window as any).require === 'function'
+    );
+
+    if (isElectron) {
+      try {
+        const { ipcRenderer } = (window as any).require('electron');
+        ipcRenderer.send('set-minimize-on-close', minimizeOnClose);
+      } catch (err) {
+        console.error('Failed to send minimize-on-close to Electron:', err);
+      }
+    }
+  }, [minimizeOnClose]);
+
+  // Standalone window dragging mechanism using client-side delta coordinates (avoids WebkitAppRegion click-intercept bugs)
+  useEffect(() => {
+    if (!isDragging || !isStandalone) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const dx = e.screenX - dragStartRef.current.x;
+      const dy = e.screenY - dragStartRef.current.y;
+      
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+        isMovedRef.current = true;
+      }
+      
+      if (dx !== 0 || dy !== 0) {
+        dragStartRef.current = { x: e.screenX, y: e.screenY };
+        const isElectron = typeof window !== 'undefined' && (
+          navigator.userAgent.toLowerCase().includes('electron') ||
+          !!(window as any).ipcRenderer ||
+          typeof (window as any).require === 'function'
+        );
+        if (isElectron) {
+          try {
+            const { ipcRenderer } = (window as any).require('electron');
+            ipcRenderer.send('drag-mascot-window', { dx, dy });
+          } catch (err) {
+            console.error('Failed to drag window:', err);
+          }
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, isStandalone]);
 
   // Focus Timer Logic
   useEffect(() => {
@@ -1046,6 +1177,45 @@ export function DesktopRobot({
 
                 <div className="h-px bg-slate-800 my-0.5"></div>
 
+                {/* Roaming & Teleport Controls */}
+                <div className="px-2 py-1 flex flex-col gap-1.5 text-[10px]">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🚀 Gezinme ve Işınlanma</span>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      checked={isRoaming} 
+                      onChange={(e) => {
+                        setIsRoaming(e.target.checked);
+                        if (e.target.checked) {
+                          handleInteract('happy', "Süper! Masaüstünde gezinmeye başlıyorum! 🚶‍♂️✨");
+                        } else {
+                          handleInteract('idle', "Yürüyüşü durdurdum, sakince bekliyorum. 🛋️");
+                        }
+                      }}
+                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors">Otonom Gezinme (Ekran Yürüyüşü)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      checked={teleportEnabled} 
+                      onChange={(e) => {
+                        setTeleportEnabled(e.target.checked);
+                        if (e.target.checked) {
+                          handleInteract('happy', "Harika! Rastgele aralıklarla ışınlanacağım! 🚀✨");
+                        } else {
+                          handleInteract('idle', "Zıplamayı durdurdum, sabit duruyorum. ⚓");
+                        }
+                      }}
+                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors">Rastgele Işınlanma Modu 🔮</span>
+                  </label>
+                </div>
+
+                <div className="h-px bg-slate-800 my-0.5"></div>
+
                 {/* Inline Name Editor */}
                 <div className="px-2 py-1 flex flex-col gap-1 text-[10px]">
                   <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🏷️ Asistan İsmi</span>
@@ -1356,13 +1526,18 @@ export function DesktopRobot({
           {/* Mascot Drawing */}
           <div 
             className="flex flex-col items-center cursor-grab active:cursor-grabbing relative"
-            onMouseDown={() => {
+            onMouseDown={(e) => {
+              if (e.button !== 0) return; // Left-click only
+              setIsDragging(true);
               isMovedRef.current = false;
+              dragStartRef.current = { x: e.screenX, y: e.screenY };
+              e.preventDefault();
             }}
             onMouseUp={() => {
               if (isDragging) {
                 handleInteract('happy', "Vay canına, ne yolculuktu ama! Başım biraz döndü... 😵💫✨");
               }
+              setIsDragging(false);
             }}
             onClick={() => {
               if (isMovedRef.current) return; // Prevent clicks during drags
@@ -2213,6 +2388,51 @@ export function DesktopRobot({
                   className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Mola Hatırlatıcılarını Aktif Et</span>
+              </label>
+            </div>
+
+            <div className="px-3.5 py-1.5 flex flex-col gap-2.5 text-[10px] border-t border-slate-100">
+              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-0.5">🖥️ Sistem ve Pencere Ayarları</span>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={minimizeOnClose} 
+                  onChange={(e) => setMinimizeOnClose(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Çarpıya Basınca Tepsiye Küçült</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={isRoaming} 
+                  onChange={(e) => {
+                    setIsRoaming(e.target.checked);
+                    if (e.target.checked) {
+                      handleInteract('happy', "Süper! Masaüstünde gezinmeye başlıyorum! 🚶‍♂️✨");
+                    } else {
+                      handleInteract('idle', "Yürüyüşü durdurdum, sakince bekliyorum. 🛋️");
+                    }
+                  }}
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Otonom Gezinme (Ekran Yürüyüşü)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={teleportEnabled} 
+                  onChange={(e) => {
+                    setTeleportEnabled(e.target.checked);
+                    if (e.target.checked) {
+                      handleInteract('happy', "Harika! Rastgele aralıklarla ışınlanacağım! 🚀✨");
+                    } else {
+                      handleInteract('idle', "Zıplamayı durdurdum, sabit duruyorum. ⚓");
+                    }
+                  }}
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors">Rastgele Işınlanma Modu 🔮</span>
               </label>
             </div>
 

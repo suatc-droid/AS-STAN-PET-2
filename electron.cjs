@@ -4,6 +4,7 @@ const path = require('path');
 let mainWindow;
 let mascotWindow;
 let tray;
+let minimizeOnClose = true; // Default to true as requested
 
 function startExpressServer() {
   try {
@@ -60,9 +61,17 @@ function createMainWindow() {
     }
   });
 
+  mainWindow.on('close', (event) => {
+    if (minimizeOnClose && !app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    } else {
+      if (mascotWindow) mascotWindow.close();
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
-    if (mascotWindow) mascotWindow.close();
   });
 }
 
@@ -185,6 +194,11 @@ ipcMain.on('open-mascot-widget', () => {
   createMascotWindow();
 });
 
+ipcMain.on('set-minimize-on-close', (event, value) => {
+  minimizeOnClose = value;
+  console.log('Minimize on close updated to:', minimizeOnClose);
+});
+
 ipcMain.on('resize-mascot-window', (event, { width, height }) => {
   if (mascotWindow) {
     try {
@@ -236,6 +250,26 @@ ipcMain.on('walk-mascot-window', (event, { dx, dy }) => {
       mascotWindow.setPosition(Math.round(newX), Math.round(newY));
     } catch (err) {
       console.error('Failed to walk mascot window:', err);
+    }
+  }
+});
+
+ipcMain.on('teleport-mascot-window', (event) => {
+  if (mascotWindow) {
+    try {
+      const primaryDisplay = screen.getPrimaryDisplay();
+      const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+      const bounds = mascotWindow.getBounds();
+      
+      const maxX = screenWidth - bounds.width - 20;
+      const maxY = screenHeight - bounds.height - 30;
+      
+      const randomX = Math.round(20 + Math.random() * (maxX - 20));
+      const randomY = Math.round(20 + Math.random() * (maxY - 20));
+      
+      mascotWindow.setPosition(randomX, randomY);
+    } catch (err) {
+      console.error('Failed to teleport mascot window:', err);
     }
   }
 });
