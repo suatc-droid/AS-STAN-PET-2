@@ -2763,13 +2763,13 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                 initial={{ opacity: 0, y: 15, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className={`relative w-[245px] rounded-2xl p-3 shadow-2xl border flex flex-col gap-2 mb-2 transition-all duration-300 ${
+                className={`relative w-72 rounded-2xl p-3 shadow-2xl border flex flex-col gap-2 mb-2 transition-all duration-300 ${
                   petTheme === 'light' 
                     ? 'bg-white border-slate-200/95 text-slate-800 shadow-slate-200/40' 
                     : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
                 }`}
               >
-                <div className="max-h-[280px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10">
+                <div className="max-h-[420px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10">
                   {showStickyForm ? (
                     renderStickyTasksView()
                   ) : isSearchView ? (
@@ -3195,7 +3195,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       </div>
                     </div>
                     
-                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed max-h-24 overflow-y-auto pr-1 ${
+                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed pr-1 ${
                       petTheme === 'light' ? 'text-slate-800' : 'text-slate-200'
                     }`}>
                       {quizQuestions[currentQuizIndex].question}
@@ -3636,7 +3636,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                   </div>
                 </div>
 
-                <div className="max-h-[350px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10 pt-1">
+                <div className="max-h-[420px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10 pt-1">
                   <div className="flex flex-col gap-3">
                   {droppedText ? (
                     <div className="flex flex-col gap-3 animate-in fade-in zoom-in duration-300">
@@ -4115,7 +4115,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       </div>
                     </div>
                     
-                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed max-h-24 overflow-y-auto pr-1 ${
+                    <p className={`${getFontClass('bubble')} font-semibold leading-relaxed pr-1 ${
                       petTheme === 'light' ? 'text-slate-800' : 'text-slate-200'
                     }`}>
                       {quizQuestions[currentQuizIndex].question}
