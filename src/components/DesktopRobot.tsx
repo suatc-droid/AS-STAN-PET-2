@@ -55,8 +55,85 @@ interface QuizQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
-  category: 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı';
+  category: 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı' | 'Disiplin Mevzuatı' | 'Mali Haklar' | 'Emeklilik İşlemleri';
 }
+
+interface LegislationTopic {
+  id: string;
+  title: string;
+  summary: string;
+  details: string[];
+  lawNo?: string;
+  tags: string[];
+}
+
+const legislationLibrary: LegislationTopic[] = [
+  {
+    id: 'dmk-temel',
+    title: '657 DMK Temel İlkeler',
+    summary: 'Devlet memurlarının hizmet şartlarını, niteliklerini, atanma ve yetiştirilmelerini, ilerleme ve yükselmelerini düzenleyen temel kanun.',
+    details: [
+      'Sınıflandırma: Devlet kamu hizmetleri görevlerini ve bu görevlerde çalışan devlet memurlarını, görevlerin gerektirdiği niteliklere ve mesleklere göre sınıflara ayırmaktır.',
+      'Kariyer: Devlet memurlarına, yaptıkları hizmetler için lüzumlu bilgilere ve yetişme şartlarına uygun şekilde, sınıfları içinde en yüksek derecelere kadar ilerleme imkanını sağlamaktır.',
+      'Liyakat: Devlet kamu hizmetleri görevlerine girmeyi, sınıflar içinde ilerleme ve yükselmeyi, görevi sona erdirmeyi liyakat sistemine dayandırmak ve bu sistemin güvenli bir şekilde uygulanmasını sağlamaktır.'
+    ],
+    lawNo: '657 Sayılı Kanun',
+    tags: ['Genel', 'Kariyer', 'Liyakat']
+  },
+  {
+    id: 'yillik-izin',
+    title: 'Yıllık İzin Hakları',
+    summary: 'Hizmet süresine göre memurların kullanabileceği dinlenme süreleri.',
+    details: [
+      '1 yıldan 10 yıla kadar hizmeti olanlar: 20 gün.',
+      '10 yıldan fazla hizmeti olanlar: 30 gün.',
+      'Yıllık izinler, amirin uygun bulacağı zamanlarda, toptan veya ihtiyaca göre kısım kısım kullanılabilir.',
+      'Birbirini izleyen iki yılın izni bir arada kullanılabilir. Cari yıl ile bir önceki yıl hariç, önceki yıllara ait kullanılmayan izin hakları düşer.'
+    ],
+    lawNo: '657 DMK Md. 102-103',
+    tags: ['İzin', 'Sosyal Haklar']
+  },
+  {
+    id: 'disiplin-cezalari',
+    title: 'Disiplin Cezaları Türleri',
+    summary: 'Kamu hizmetinin gereği gibi yürütülmesini sağlamak amacıyla kanunların emrettiği ödevleri yapmayanlara uygulanan yaptırımlar.',
+    details: [
+      'Uyarma: Memura, görevinde ve davranışlarında daha dikkatli olması gerektiğinin yazı ile bildirilmesidir.',
+      'Kınama: Memura, görevinde ve davranışlarında kusurlu olduğunun yazı ile bildirilmesidir.',
+      'Aylıktan Kesme: Memurun, brüt aylığından 1/30 - 1/8 arasında kesinti yapılmasıdır.',
+      'Kademe İlerlemesinin Durdurulması: Fiilin ağırlık derecesine göre memurun bulunduğu kademede ilerlemesinin 1 - 3 yıl durdurulmasıdır.',
+      'Devlet Memurluğundan Çıkarma: Bir daha Devlet memurluğuna atanmamak üzere memurluktan çıkarmaktır.'
+    ],
+    lawNo: '657 DMK Md. 125',
+    tags: ['Disiplin', 'Soruşturma']
+  },
+  {
+    id: '4b-esaslar',
+    title: '4/B Sözleşmeli Personel Esasları',
+    summary: 'Kamu kurum ve kuruluşlarında sözleşme ile çalıştırılan personelin temel hak ve yükümlülükleri.',
+    details: [
+      'Sözleşmeli personelin yıllık izinleri sonraki yıla devretmez.',
+      'Mali yıl ile sınırlı olarak sözleşme imzalanır.',
+      'Yurtdışı teşkilatında çalıştırılanlar hariç, sözleşmeli personele iş sonu tazminatı ödenir (belirli şartlarla).',
+      'Eş durumu tayini için en az 1 yıl çalışma şartı ve kurumlar arası koordinasyon gereklidir.'
+    ],
+    lawNo: '06.06.1978 Tarihli Bakanlar Kurulu Kararı',
+    tags: ['Sözleşmeli', '4/B']
+  },
+  {
+    id: 'mali-haklar-maas',
+    title: 'Mali Haklar ve Maaş Yapısı',
+    summary: 'Memurların aylık, yan ödeme, tazminat ve diğer mali haklarının genel çerçevesi.',
+    details: [
+      'Gösterge Sistemi: Derece ve kademeye göre belirlenen aylık gösterge rakamının memur aylık katsayısı ile çarpımı sonucu temel aylık bulunur.',
+      'Ek Gösterge: Memurların hiyerarşik konumlarına, eğitim durumlarına ve hizmet sınıflarına göre belirlenen ek unsurdur; emekli keseneğini doğrudan etkiler.',
+      'Sosyal Yardımlar: Aile yardımı ödeneği, çocuk yardımı ödeneği ve ölüm yardımı ödeneği gibi ödemeleri kapsar.',
+      'Özel Hizmet Tazminatı: Görevin niteliği, önemi ve sorumluluğu dikkate alınarak ödenen tazminattır.'
+    ],
+    lawNo: '657 DMK Md. 146-213',
+    tags: ['Mali', 'Maaş', 'Tazminat']
+  }
+];
 
 const quizQuestions: QuizQuestion[] = [
   {
@@ -142,6 +219,48 @@ const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation: "657 DMK Md. 97 uyarınca usulüne uygun istifa edenler 6 ay, usulüne uymadan görevden ayrılanlar ise 1 yıl geçmeden memurluğa geri dönemez.",
     category: "Genel Mevzuat"
+  },
+  {
+    question: "Hangisi memurlara verilen disiplin cezalarından biri değildir?",
+    options: ["Uyarma", "Görevden Uzaklaştırma", "Kınama", "Aylıktan Kesme"],
+    correctIndex: 1,
+    explanation: "Görevden uzaklaştırma bir disiplin cezası değil, bir ihtiyati tedbirdir. Disiplin cezaları: Uyarma, kınama, aylıktan kesme, kademe ilerlemesinin durdurulması ve ihraçtır.",
+    category: "Disiplin Mevzuatı"
+  },
+  {
+    question: "Kademe ilerlemesinin durdurulması cezası alan bir memurun, bulunduğu kademede ilerlemesi en az kaç yıl durdurulur?",
+    options: ["6 ay", "1 yıl", "2 yıl", "3 yıl"],
+    correctIndex: 1,
+    explanation: "657 DMK Md. 125 uyarınca kademe ilerlemesinin durdurulması cezası fiilin ağırlığına göre 1 yıldan 3 yıla kadar uygulanır.",
+    category: "Disiplin Mevzuatı"
+  },
+  {
+    question: "Aşağıdakilerden hangisi memurların mali haklarından biri olan 'Ek Gösterge'nin temel işlevidir?",
+    options: ["Günlük harcırahı belirlemek", "Maaşın %50'sini oluşturmak", "Emekli aylığı ve ikramiyesini belirlemek", "Yıllık izin süresini artırmak"],
+    correctIndex: 2,
+    explanation: "Ek gösterge, memurların özellikle emekli aylığı ve emekli ikramiyesi tutarlarını doğrudan ve önemli ölçüde etkileyen bir unsurdur.",
+    category: "Mali Haklar"
+  },
+  {
+    question: "Emekli sandığına tabi bir memurun emekliliğe hak kazanabilmesi için gerekli olan 'Fiili Hizmet Süresi' asgari ne kadardır (Genel kural)?",
+    options: ["15 yıl", "20 yıl", "25 yıl", "30 yıl"],
+    correctIndex: 2,
+    explanation: "Genel olarak memurların emeklilik hak aylığına kavuşabilmeleri için 25 fiili hizmet yılını (kadınlarda eskiden 20 idi, güncelde genel şart 25'tir) tamamlamaları esastır.",
+    category: "Emeklilik İşlemleri"
+  },
+  {
+    question: "Disiplin cezalarına karşı yapılacak itirazlarda süre, kararın ilgiliye tebliğinden itibaren kaç gündür?",
+    options: ["7 gün", "15 gün", "30 gün", "60 gün"],
+    correctIndex: 0,
+    explanation: "657 DMK Md. 135 uyarınca disiplin cezalarına karşı tebliğ tarihinden itibaren 7 gün içinde itiraz edilebilir.",
+    category: "Disiplin Mevzuatı"
+  },
+  {
+    question: "Aylıktan kesme cezası, memurun brüt aylığından hangi oranlar arasında yapılır?",
+    options: ["1/10 - 1/5", "1/20 - 1/10", "1/30 - 1/8", "1/50 - 1/25"],
+    correctIndex: 2,
+    explanation: "657 DMK Md. 125/C uyarınca aylıktan kesme cezası memurun brüt aylığından 1/30 - 1/8 arasında yapılır.",
+    category: "Disiplin Mevzuatı"
   }
 ];
 
@@ -758,7 +877,9 @@ export function DesktopRobot({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchView, setIsSearchView] = useState(false);
   const [showStepAnalysis, setShowStepAnalysis] = useState(false);
-  const [quizCategory, setQuizCategory] = useState<'Tümü' | 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı'>('Tümü');
+  const [quizCategory, setQuizCategory] = useState<'Tümü' | 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı' | 'Disiplin Mevzuatı' | 'Mali Haklar' | 'Emeklilik İşlemleri'>('Tümü');
+  const [isLibraryView, setIsLibraryView] = useState<boolean>(false);
+  const [selectedTopic, setSelectedTopic] = useState<LegislationTopic | null>(null);
 
   // Smart Regulatory Feed and Well-being states
   const [showRegulatoryFeed, setShowRegulatoryFeed] = useState(false);
@@ -1510,6 +1631,16 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
       return `🎯 ADAYLIK VE ORYANTASYON SÜRECİ (DMK Madde 54):\n\nAday memurluk süresi 1 yıldan az 2 yıldan çok olamaz. Bu süreçte adayın temel eğitim, hazırlayıcı eğitim ve staj eğitimlerini başarıyla tamamlaması şarttır. Oryantasyon programı süreci kolaylaştırır.`;
     }
     
+    if (title.includes('emekli') || title.includes('emeklilik') || title.includes('yaş haddi')) {
+      return `👴 EMEKLİLİK İŞLEMLERİ (Mevzuat Hatırlatması):\n\n5510 Sayılı Kanun gereği, emeklilik talebinde bulunan personelin hizmet birleştirmeleri ve askerlik borçlanmaları önceden kontrol edilmelidir. Emeklilik onayı gelmeden personelin ilişiği kesilmemeli ve SGK çıkışı yapılmamalıdır.`;
+    }
+    if (title.includes('disiplin') || title.includes('soruşturma') || title.includes('savunma')) {
+      return `⚖️ DİSİPLİN SORUŞTURMASI (657 DMK Md. 130):\n\nDevlet memuru hakkında savunması alınmadan disiplin cezası verilemez. Savunma için en az 7 gün süre verilmesi şarttır. Bu süreye uyulmaması, işlemin usulden iptal edilmesine neden olur!`;
+    }
+    if (title.includes('istifa') || title.includes('ayrılış') || title.includes('çekilme')) {
+      return `👋 GÖREVDEN AYRILMA (Mevzuat Hatırlatması):\n\n657 DMK Md. 94 uyarınca devlet memuru bağlı olduğu kuruma yazılı olarak müracaat etmek suretiyle memurluktan çekilme isteğinde bulunabilir. Yerine atanan kimsenin gelmesine kadar görevine devam etmesi esastır.`;
+    }
+    
     return `💡 ADIM İPUCU [${step.title}]:\n\n${step.description}\n\nYasal Mevzuat: ${step.helpText}`;
   };
 
@@ -1618,6 +1749,99 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
       ],
       kvkkWarning: "Personel verileri KVKK kurallarına uygun olarak şifreli ve güvenli ortamlarda muhafaza edilmelidir."
     };
+  };
+
+  const renderLegislationLibraryView = () => {
+    if (selectedTopic) {
+      return (
+        <div className="flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300">
+          <button 
+            onClick={() => setSelectedTopic(null)}
+            className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 hover:text-blue-700 mb-1 transition-colors group"
+          >
+            <ChevronLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
+            KİTAPLIĞA DÖN
+          </button>
+          
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h4 className="font-bold text-sm leading-tight text-slate-800 dark:text-white">
+                {selectedTopic.title}
+              </h4>
+              {selectedTopic.lawNo && (
+                <span className="text-[10px] font-mono text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded-md w-fit">
+                  {selectedTopic.lawNo}
+                </span>
+              )}
+            </div>
+            
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed italic">
+              {selectedTopic.summary}
+            </p>
+            
+            <div className="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+              {selectedTopic.details.map((detail, idx) => (
+                <div key={idx} className="flex gap-2">
+                  <span className="text-blue-500 mt-1 flex-shrink-0">•</span>
+                  <span className="text-[11px] text-slate-700 dark:text-slate-300 leading-normal">
+                    {detail}
+                  </span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {selectedTopic.tags.map(tag => (
+                <span key={tag} className="text-[9px] px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-3 animate-in fade-in duration-300">
+        <div className="flex items-center justify-between mb-1">
+          <h4 className="font-bold text-xs text-slate-400 uppercase tracking-wider">Mevzuat Bilgi Bankası</h4>
+          <BookOpen size={14} className="text-blue-500" />
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2.5">
+          {legislationLibrary.map(topic => (
+            <button
+              key={topic.id}
+              onClick={() => setSelectedTopic(topic)}
+              className="flex flex-col gap-1.5 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/30 hover:border-blue-200 dark:hover:border-blue-900/50 hover:shadow-md transition-all text-left group"
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className="font-bold text-[11px] text-slate-800 dark:text-slate-200 group-hover:text-blue-600 transition-colors">
+                  {topic.title}
+                </span>
+                <ChevronRight size={12} className="text-slate-300 group-hover:text-blue-400 transform group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                {topic.summary}
+              </p>
+            </button>
+          ))}
+        </div>
+        
+        <div className="mt-2 p-3 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100/50 dark:border-blue-800/30 flex items-start gap-2.5">
+          <div className="p-1.5 bg-white dark:bg-slate-800 rounded-lg shadow-sm text-blue-500">
+            <Info size={14} />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-bold text-[10px] text-blue-800 dark:text-blue-300">Biliyor muydunuz?</span>
+            <p className="text-[10px] text-blue-600/80 dark:text-blue-400/80 leading-snug">
+              657 DMK Md. 102'ye göre yıllık izinler cari yıl ile bir önceki yıl için kullanılabilir.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const activeStepId = activeStep?.id;
@@ -1934,7 +2158,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
     }
   };
 
-  const handleStartQuiz = (category?: 'Tümü' | 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı') => {
+  const handleStartQuiz = (category?: 'Tümü' | 'Genel Mevzuat' | 'İzin Hakları' | 'Sözleşmeli Personel' | 'Sağlık Mevzuatı' | 'Disiplin Mevzuatı' | 'Mali Haklar' | 'Emeklilik İşlemleri') => {
     const activeCat = category !== undefined ? category : quizCategory;
     if (category !== undefined) {
       setQuizCategory(category);
@@ -2530,6 +2754,24 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
 
                   <button
                     onClick={() => {
+                      setIsLibraryView(true);
+                      setIsSearchView(false);
+                      setShowStickyForm(false);
+                      setCurrentQuizIndex(null);
+                      handleInteract('happy', "Tüm mevzuat bilgilerini senin için kategorize ettim! 📚");
+                    }}
+                    className={`flex items-center gap-2 w-full p-2.5 rounded-xl border transition-all text-[11px] font-bold ${
+                      isLibraryView
+                        ? 'bg-blue-600 border-blue-400 text-white shadow-lg' 
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-200 dark:hover:border-blue-800'
+                    }`}
+                  >
+                    <BookOpen size={16} className={isLibraryView ? "text-white" : "text-blue-500"} />
+                    <span>Mevzuat Bilgi Bankası 📚</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setShowStickyForm(true);
                       setIsVisible(true);
                       setShowBubble(true);
@@ -2769,9 +3011,11 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                     : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
                 }`}
               >
-                <div className="max-h-[420px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10">
+                <div className="max-h-[350px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10">
                   {showStickyForm ? (
                     renderStickyTasksView()
+                  ) : isLibraryView ? (
+                    renderLegislationLibraryView()
                   ) : isSearchView ? (
                     <div className="flex flex-col gap-2 w-full animate-fade-in pt-0.5">
                       <div className={`flex items-center gap-1.5 font-bold border-b pb-1 ${
@@ -3169,7 +3413,11 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                         <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
                         <span className="ml-2 text-[9px] bg-blue-100 px-1.5 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
                         <button 
-                          onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); }}
+                          onClick={() => { 
+                            setCurrentQuizIndex(null); 
+                            setIsLibraryView(false);
+                            handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); 
+                          }}
                           className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
                         >
                           <ArrowLeft size={10} /> Geri
@@ -3186,11 +3434,14 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                               : 'bg-slate-900 text-slate-300 border-slate-800'
                           }`}
                         >
-                          <option value="Tümü">Tümü (12 Soru)</option>
+                          <option value="Tümü">Tümü ({quizQuestions.length} Soru)</option>
                           <option value="Genel Mevzuat">Genel Mevzuat</option>
                           <option value="İzin Hakları">İzin Hakları</option>
                           <option value="Sözleşmeli Personel">Sözleşmeli Personel</option>
                           <option value="Sağlık Mevzuatı">Sağlık Mevzuatı</option>
+                          <option value="Disiplin Mevzuatı">Disiplin Mevzuatı</option>
+                          <option value="Mali Haklar">Mali Haklar</option>
+                          <option value="Emeklilik İşlemleri">Emeklilik İşlemleri</option>
                         </select>
                       </div>
                     </div>
@@ -3247,7 +3498,11 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                           </button>
                           <button
                             type="button"
-                            onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); }}
+                            onClick={() => { 
+                              setCurrentQuizIndex(null); 
+                              setIsLibraryView(false);
+                              handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); 
+                            }}
                             className={`font-bold text-[9px] py-1 px-2.5 rounded transition-colors ${
                               petTheme === 'light' ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                             }`}
@@ -3600,7 +3855,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 onPointerDown={(e) => e.stopPropagation()} // Stop dragging when interacting with bubble
-                className={`absolute bottom-24 w-72 rounded-2xl p-4 shadow-2xl border flex flex-col gap-3 cursor-default transition-all duration-300 ${
+                className={`absolute bottom-20 w-72 rounded-2xl p-3.5 shadow-2xl border flex flex-col gap-2.5 cursor-default transition-all duration-300 ${
                   petTheme === 'light'
                     ? 'bg-white border-slate-100 text-slate-800 shadow-slate-200/40'
                     : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
@@ -3610,13 +3865,13 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                   petTheme === 'light' ? 'bg-white border-slate-100' : 'bg-slate-950 border-slate-800'
                 }`}></div>
                 
-                <div className={`flex items-center justify-between border-b pb-2 sticky top-0 z-20 ${
+                <div className={`flex items-center justify-between border-b pb-1.5 sticky top-0 z-20 ${
                   petTheme === 'light' ? 'bg-white border-slate-100' : 'bg-slate-950 border-slate-800'
                 }`}>
-                  <span className={`text-[11px] font-bold flex items-center gap-1 uppercase tracking-wider ${
+                  <span className={`text-[10px] font-extrabold flex items-center gap-1 uppercase tracking-wider ${
                     petTheme === 'light' ? 'text-blue-600' : 'text-blue-400'
                   }`}>
-                    <Zap size={12} className="text-amber-500 animate-pulse" />
+                    <Zap size={11} className="text-amber-500 animate-pulse" />
                     Asistan Pet & Yapay Zekâ
                   </span>
                   <div className="flex items-center gap-1.5">
@@ -3625,18 +3880,18 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       className={`${petTheme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'} transition-colors`}
                       title={soundEnabled ? "Sesi Kapat" : "Sesi Aç"}
                     >
-                      {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+                      {soundEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
                     </button>
                     <button 
                       onClick={() => setShowBubble(false)}
                       className={`${petTheme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'} transition-colors`}
                     >
-                      <X size={13} />
+                      <X size={12} />
                     </button>
                   </div>
                 </div>
 
-                <div className="max-h-[420px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10 pt-1">
+                <div className="max-h-[350px] overflow-y-auto custom-scrollbar pr-0.5 relative z-10 pt-1">
                   <div className="flex flex-col gap-3">
                   {droppedText ? (
                     <div className="flex flex-col gap-3 animate-in fade-in zoom-in duration-300">
@@ -4089,7 +4344,11 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                         <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
                         <span className="ml-2 text-[10px] bg-blue-100 px-2 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
                         <button 
-                          onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); }}
+                          onClick={() => { 
+                            setCurrentQuizIndex(null); 
+                            setIsLibraryView(false);
+                            handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); 
+                          }}
                           className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
                         >
                           <ArrowLeft size={11} /> Geri
@@ -4106,11 +4365,14 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                               : 'bg-slate-900 text-slate-300 border-slate-800'
                           }`}
                         >
-                          <option value="Tümü">Tümü (12 Soru)</option>
+                          <option value="Tümü">Tümü ({quizQuestions.length} Soru)</option>
                           <option value="Genel Mevzuat">Genel Mevzuat</option>
                           <option value="İzin Hakları">İzin Hakları</option>
                           <option value="Sözleşmeli Personel">Sözleşmeli Personel</option>
                           <option value="Sağlık Mevzuatı">Sağlık Mevzuatı</option>
+                          <option value="Disiplin Mevzuatı">Disiplin Mevzuatı</option>
+                          <option value="Mali Haklar">Mali Haklar</option>
+                          <option value="Emeklilik İşlemleri">Emeklilik İşlemleri</option>
                         </select>
                       </div>
                     </div>
@@ -4167,7 +4429,11 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                           </button>
                           <button
                             type="button"
-                            onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Sınavı başarıyla bitirdin! Harika bir beyin jimnastiğiydi. 😊"); }}
+                            onClick={() => { 
+                              setCurrentQuizIndex(null); 
+                              setIsLibraryView(false);
+                              handleInteract('happy', "Sınavı başarıyla bitirdin! Harika bir beyin jimnastiğiydi. 😊"); 
+                            }}
                             className={`font-bold text-xs py-1.5 px-3 rounded-xl transition-colors ${
                               petTheme === 'light' ? 'bg-slate-200 hover:bg-slate-300 text-slate-705' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                             }`}
