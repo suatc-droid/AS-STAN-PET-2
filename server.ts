@@ -1,6 +1,30 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
+import crypto from "crypto";
 import { GoogleGenAI } from "@google/genai";
+
+const STORAGE_PATH = path.join(process.cwd(), ".offline_data.bin");
+const ENCRYPTION_KEY = Buffer.from("4f666c696e6550657273697374656e6365313233343536373839303132333435", "hex"); // 32-byte key
+const IV_LENGTH = 16;
+
+function encrypt(text: string) {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
+}
+
+function decrypt(text: string) {
+  const textParts = text.split(":");
+  const iv = Buffer.from(textParts.shift()!, "hex");
+  const encryptedText = Buffer.from(textParts.join(":"), "hex");
+  const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
 
 async function startServer() {
   const app = express();
@@ -40,7 +64,7 @@ ${context || 'Genel Soru'}
       `;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-2.0-flash-exp",
         contents: message,
         config: {
           systemInstruction: systemInstruction,
@@ -52,6 +76,33 @@ ${context || 'Genel Soru'}
     } catch (error: any) {
       console.error("Gemini API Error:", error);
       res.status(500).json({ error: "İşlem sırasında bir hata oluştu." });
+    }
+  });
+
+  // Local Storage Endpoints
+  app.get("/api/storage/load", (req, res) => {
+    try {
+      if (!fs.existsSync(STORAGE_PATH)) {
+        return res.json({ data: null });
+      }
+      const encryptedData = fs.readFileSync(STORAGE_PATH, "utf8");
+      const decryptedData = decrypt(encryptedData);
+      res.json({ data: JSON.parse(decryptedData) });
+    } catch (error) {
+      console.error("Storage Load Error:", error);
+      res.status(500).json({ error: "Veri yüklenemedi." });
+    }
+  });
+
+  app.post("/api/storage/save", (req, res) => {
+    try {
+      const { data } = req.body;
+      const encryptedData = encrypt(JSON.stringify(data));
+      fs.writeFileSync(STORAGE_PATH, encryptedData, "utf8");
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Storage Save Error:", error);
+      res.status(500).json({ error: "Veri kaydedilemedi." });
     }
   });
 

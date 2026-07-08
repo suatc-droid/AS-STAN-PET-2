@@ -10,7 +10,9 @@ import {
   Coffee, 
   Volume2, 
   VolumeX, 
-  Settings, 
+  Settings,
+  Mic,
+  MicOff,
   Minimize2, 
   Maximize2, 
   EyeOff,
@@ -291,12 +293,18 @@ export function DesktopRobot({
   const [isMinimized, setIsMinimized] = useState(false);
   const [robotState, setRobotState] = useState<RobotState>('idle');
   const [bubbleText, setBubbleText] = useState<string>(() => {
+    let savedName = '';
+    try {
+      const saved = localStorage.getItem('pet_user_memory');
+      if (saved) savedName = JSON.parse(saved).userName;
+    } catch(e) {}
+
     const hour = new Date().getHours();
-    let greeting = "Merhaba!";
-    if (hour >= 5 && hour < 12) greeting = "Günaydın! ☀️ Güne harika bir başlangıç yapmaya ne dersin?";
-    else if (hour >= 12 && hour < 18) greeting = "Tünaydın! 🌤️ Öğleden sonraki süreçleri tıkır tıkır işletelim mi?";
-    else if (hour >= 18 && hour < 22) greeting = "İyi akşamlar! 🌙 Günün yorgunluğunu birlikte atalım.";
-    else greeting = "İyi geceler! 😴 Ben biraz uykuluyum ama istersen hala buradayım.";
+    let greeting = savedName ? `Merhaba ${savedName}!` : "Merhaba!";
+    if (hour >= 5 && hour < 12) greeting = savedName ? `Günaydın ${savedName}! ☀️` : "Günaydın! ☀️ Güne harika bir başlangıç yapmaya ne dersin?";
+    else if (hour >= 12 && hour < 18) greeting = savedName ? `Tünaydın ${savedName}! 🌤️` : "Tünaydın! 🌤️ Öğleden sonraki süreçleri tıkır tıkır işletelim mi?";
+    else if (hour >= 18 && hour < 22) greeting = savedName ? `İyi akşamlar ${savedName}! 🌙` : "İyi akşamlar! 🌙 Günün yorgunluğunu birlikte atalım.";
+    else greeting = savedName ? `İyi geceler ${savedName}! 😴` : "İyi geceler! 😴 Ben biraz uykuluyum ama istersen hala buradayım.";
     
     return `${greeting}\n\nBen senin Kurumsal Süreç Asistanınım. Bugün hangi süreci takip ediyoruz? 🤖\n\n💡 İpucu: Üzerime sağ tıklayarak özel menümü açabilirsin!`;
   });
@@ -317,6 +325,35 @@ export function DesktopRobot({
       window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_sound_enabled', value: next.toString() } }));
       return next;
     });
+  };
+
+  const [ttsEnabled, setTtsEnabledState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('pet_tts_enabled');
+      return saved === 'true';
+    } catch (e) { return false; }
+  });
+
+  const setTtsEnabled = (next: boolean) => {
+    setTtsEnabledState(next);
+    try {
+      localStorage.setItem('pet_tts_enabled', next.toString());
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_tts_enabled', value: next.toString() } }));
+  };
+
+  const speak = (text: string) => {
+    if (!ttsEnabled || !window.speechSynthesis) return;
+    
+    // Stop any current speaking
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'tr-TR';
+    utterance.rate = 1.1;
+    utterance.pitch = 1.2; // Slightly higher pitch for a "robot" feel
+    
+    window.speechSynthesis.speak(utterance);
   };
 
   const [tipIndex, setTipIndex] = useState(0);
@@ -371,6 +408,24 @@ export function DesktopRobot({
       const next = typeof val === 'function' ? val(prev) : val;
       try { localStorage.setItem('pet_font_size', next); } catch (e) {}
       window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_font_size', value: next } }));
+      return next;
+    });
+  };
+
+  const [userMemory, setUserMemoryState] = useState<{ userName: string; favoriteActivities: string; goals: string }>(() => {
+    try {
+      const saved = localStorage.getItem('pet_user_memory');
+      return saved ? JSON.parse(saved) : { userName: '', favoriteActivities: '', goals: '' };
+    } catch (e) {
+      return { userName: '', favoriteActivities: '', goals: '' };
+    }
+  });
+
+  const setUserMemory = (val: any) => {
+    setUserMemoryState(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      try { localStorage.setItem('pet_user_memory', JSON.stringify(next)); } catch (e) {}
+      window.dispatchEvent(new CustomEvent('pet_sync_event', { detail: { key: 'pet_user_memory', value: JSON.stringify(next) } }));
       return next;
     });
   };
@@ -712,6 +767,7 @@ export function DesktopRobot({
   const [wellbeingStep, setWellbeingStep] = useState(0);
   const [wellbeingTimer, setWellbeingTimer] = useState(5);
   const [wellbeingActive, setWellbeingActive] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Nudge State for proactive behaviors
   const [nudgeState, setNudgeState] = useState<'none' | 'jumping' | 'shaking' | 'stretching'>('none');
@@ -747,6 +803,110 @@ export function DesktopRobot({
       localStorage.setItem('pet_sticky_tasks', JSON.stringify(tasks));
     } catch (e) {}
   };
+
+  // --- START OFFLINE PERSISTENCE LOGIC ---
+  
+  // Load data from disk on mount
+  useEffect(() => {
+    const loadFromDisk = async () => {
+      try {
+        const response = await fetch('/api/storage/load');
+        if (response.ok) {
+          const { data } = await response.json();
+          if (data) {
+            // Update all local states and localStorage from disk data
+            Object.entries(data).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                
+                // Dispatch events to update state variables that use localStorage initializers
+                if (key === 'pet_quiz_score') setQuizScoreState(Number(value));
+                if (key === 'pet_sticky_tasks') setStickyTasks(value as StickyTask[]);
+                if (key === 'pet_sound_theme') setSoundThemeState(value as any);
+                if (key === 'pet_theme') setPetThemeState(value as any);
+                if (key === 'pet_is_roaming') setIsRoamingState(value === 'true' || value === true);
+                if (key === 'pet_teleport_enabled') setTeleportEnabledState(value !== 'false' && value !== false);
+                if (key === 'pet_minimize_on_close') setMinimizeOnCloseState(value !== 'false' && value !== false);
+                if (key === 'pet_break_reminders') setBreakRemindersEnabled(value !== 'false' && value !== false);
+                if (key === 'pet_name') setPetNameState(value as string);
+                if (key === 'pet_costume') setCostumeState(value as any);
+                if (key === 'pet_energy') setEnergyLevelState(Number(value));
+                if (key === 'pet_stats') setStatsState(value as any);
+                if (key === 'pet_sound_enabled') setSoundEnabledState(value === 'true' || value === true);
+                if (key === 'pet_tts_enabled') setTtsEnabledState(value === 'true' || value === true);
+                if (key === 'pet_font_size') setFontSizeModeState(value as any);
+                if (key === 'pet_user_memory') setUserMemoryState(JSON.parse(value));
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Offline data load failed:", e);
+      } finally {
+        setIsDataLoaded(true);
+      }
+    };
+
+    loadFromDisk();
+  }, []);
+
+  // Save to disk whenever relevant states change
+  useEffect(() => {
+    if (!isDataLoaded) return;
+
+    const syncToDisk = async () => {
+      try {
+        const dataToSave: Record<string, any> = {
+          pet_quiz_score: quizScore,
+          pet_sticky_tasks: stickyTasks,
+          pet_sound_theme: soundTheme,
+          pet_theme: petTheme,
+          pet_is_roaming: isRoaming,
+          pet_teleport_enabled: teleportEnabled,
+          pet_minimize_on_close: minimizeOnClose,
+          pet_break_reminders: breakRemindersEnabled,
+          pet_name: petName,
+          pet_costume: costume,
+          pet_energy: energyLevel,
+          pet_stats: stats,
+          pet_sound_enabled: soundEnabled,
+          pet_tts_enabled: ttsEnabled,
+          pet_font_size: fontSizeMode
+        };
+
+        await fetch('/api/storage/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: dataToSave })
+        });
+      } catch (e) {
+        console.error("Offline data save failed:", e);
+      }
+    };
+
+    const timeout = setTimeout(syncToDisk, 2000); // Debounce save
+    return () => clearTimeout(timeout);
+  }, [
+    isDataLoaded,
+    quizScore,
+    stickyTasks,
+    soundTheme,
+    petTheme,
+    isRoaming,
+    teleportEnabled,
+    minimizeOnClose,
+    breakRemindersEnabled,
+    petName,
+    costume,
+    energyLevel,
+    stats,
+    soundEnabled,
+    ttsEnabled,
+    userMemory,
+    fontSizeMode
+  ]);
+
+  // --- END OFFLINE PERSISTENCE LOGIC ---
 
   const handleGenerateDraft = async (customSubject?: string) => {
     const subject = customSubject || draftSubject;
@@ -801,7 +961,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
           onClick={() => { setIsDraftingView(false); setDraftResult(''); setDraftSubject(''); }}
           className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
         >
-          <ArrowLeft size={11} /> Kapat
+          <ArrowLeft size={11} /> Geri
         </button>
       </div>
 
@@ -1655,12 +1815,49 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
     if (state === 'thinking') pitch = 350;
     playBeep(pitch, 120);
 
+    // AI Voice Synthesis
+    speak(text);
+
     setTimeout(() => {
       setRobotState('idle');
     }, 4000);
   };
 
+  const getMemoryBasedResponse = () => {
+    const { userName, favoriteActivities, goals } = userMemory;
+    const items = [];
+    
+    if (userName) {
+      items.push(`${userName}, bugün harika görünüyorsun! Birlikte neler yapalım? 😊`);
+      items.push(`Nasılsın ${userName}? Her şey yolunda mı?`);
+    }
+    
+    if (favoriteActivities) {
+      items.push(`Biraz ara verip "${favoriteActivities}" ile ilgilenmeye ne dersin? Ruhuna iyi gelir! ✨`);
+      items.push(`Hey, "${favoriteActivities}" yapmayı özledin mi?`);
+    }
+    
+    if (goals) {
+      items.push(`Unutma, "${goals}" hedefine her geçen dakika daha da yaklaşıyorsun. Pes etmek yok! 🚀`);
+      items.push(`"${goals}" için bugün bir şeyler yaptık mı?`);
+    }
+    
+    if (userName && goals) {
+      items.push(`${userName}, "${goals}" hedefin için bugün küçük de olsa bir adım attın mı? Hadi yapalım! 💪`);
+    }
+
+    if (items.length === 0) return null;
+    return items[Math.floor(Math.random() * items.length)];
+  };
+
   const showNextTip = () => {
+    const memoryMsg = Math.random() > 0.4 ? getMemoryBasedResponse() : null;
+    
+    if (memoryMsg) {
+      handleInteract('happy', `❤️ Senin Hakkında Hatırladıklarım:\n${memoryMsg}`);
+      return;
+    }
+
     const nextIdx = (tipIndex + 1) % tips.length;
     setTipIndex(nextIdx);
     handleInteract('thinking', `💡 Önemli İpucu:\n${tips[nextIdx]}`);
@@ -1799,6 +1996,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
       setNudgeState('shaking');
       setRobotState('idle');
       setBubbleText("Öhö öhö! 🤖💨 Çok mu uzun süredir ekrana bakıyorsun acaba? Gözlerini 2 dakika dinlendirsek mi? 🥺");
+      speak("Öhö öhö! Çok mu uzun süredir ekrana bakıyorsun acaba? Gözlerini 2 dakika dinlendirsek mi?");
       playBeep(220, 100);
       setTimeout(() => playBeep(220, 100), 120);
       
@@ -1809,6 +2007,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
       setNudgeState('jumping');
       setRobotState('happy');
       setBubbleText("Hoppa! 🚀 Kendimi tazelemek için zıpladım! Sen de biraz ayağa kalkıp esnemek ister misin? Hadi bir 'Sağlık Rutini' yapalım! 🧘‍♂️");
+      speak("Hoppa! Kendimi tazelemek için zıpladım! Sen de biraz ayağa kalkıp esnemek ister misin? Hadi bir Sağlık Rutini yapalım!");
       playBeep(440, 100);
       setTimeout(() => playBeep(554, 100), 120);
       setTimeout(() => playBeep(659, 150), 240);
@@ -1820,6 +2019,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
       setNudgeState('stretching');
       setRobotState('happy');
       setBubbleText("Oooooh! Şöyle iyice bir esneyelim! 🧘‍♀️ Masa başında dik oturmak omurga sağlığın için çok önemli. Duruşunu düzeltmeye ne dersin?");
+      speak("Oooooh! Şöyle iyice bir esneyelim! Masa başında dik oturmak omurga sağlığın için çok önemli. Duruşunu düzeltmeye ne dersin?");
       playBeep(330, 150);
       setTimeout(() => playBeep(440, 200), 200);
 
@@ -1853,6 +2053,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
     }
     
     setBubbleText(msg);
+    speak(msg);
     setIsVisible(true);
     setShowBubble(true);
     setActiveNotificationTask(task);
@@ -2674,7 +2875,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       <span className="text-[11px] truncate">Canlı Adım Analizi</span>
                       <button 
                         onClick={() => { setShowStepAnalysis(false); }}
-                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                        className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
                       >
                         <ArrowLeft size={10} /> Geri
                       </button>
@@ -2966,7 +3167,13 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       }`}>
                         <Award size={13} className="animate-bounce shrink-0" />
                         <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
-                        <span className="ml-auto text-[9px] bg-blue-100 px-1.5 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                        <span className="ml-2 text-[9px] bg-blue-100 px-1.5 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                        <button 
+                          onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); }}
+                          className="ml-auto text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
+                        >
+                          <ArrowLeft size={10} /> Geri
+                        </button>
                       </div>
                       <div className="flex items-center gap-1 justify-between text-[8px] font-bold text-slate-400 mt-0.5">
                         <span>Konu Seçin:</span>
@@ -3588,7 +3795,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       <span className="text-[11px] truncate">Canlı Adım Analizi</span>
                       <button 
                         onClick={() => { setShowStepAnalysis(false); }}
-                        className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0"
+                        className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
                       >
                         <ArrowLeft size={11} /> Geri
                       </button>
@@ -3880,7 +4087,13 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                       }`}>
                         <Award size={13} className="animate-bounce shrink-0" />
                         <span className={`${getFontClass('title')} truncate`}>Mevzuat Sınavı ({currentQuizIndex + 1})</span>
-                        <span className="ml-auto text-[10px] bg-blue-100 px-2 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                        <span className="ml-2 text-[10px] bg-blue-100 px-2 py-0.5 rounded-full text-blue-800 font-black shrink-0">Skor: {quizScore}</span>
+                        <button 
+                          onClick={() => { setCurrentQuizIndex(null); handleInteract('happy', "Beyin jimnastiği harikaydı! 😊"); }}
+                          className="ml-auto text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 shrink-0 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
+                        >
+                          <ArrowLeft size={11} /> Geri
+                        </button>
                       </div>
                       <div className="flex items-center gap-1 justify-between text-[9px] font-bold text-slate-400 mt-0.5">
                         <span>Konu Seçin:</span>
@@ -4404,6 +4617,83 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                 />
               </div>
             </div>
+
+            {/* TTS Toggle */}
+            {/* User Memory Section */}
+            <div className={`px-3.5 py-3 flex flex-col gap-2 border-b ${
+              petTheme === 'light' ? 'border-slate-50 bg-white' : 'border-slate-850 bg-slate-900/40'
+            }`}>
+              <div className="flex items-center gap-2 mb-1">
+                <Heart size={13} className="text-pink-500" />
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Kişisel Hafıza (Beni Tanı)</span>
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] text-slate-400 font-medium ml-1">Senin İsmin</span>
+                  <input
+                    type="text"
+                    value={userMemory.userName}
+                    onChange={(e) => setUserMemory({...userMemory, userName: e.target.value})}
+                    placeholder="İsmini buraya yaz..."
+                    className={`text-[10px] px-2 py-1.5 rounded border outline-none font-medium ${
+                      petTheme === 'light' ? 'bg-slate-50 border-slate-200 focus:border-pink-300' : 'bg-slate-800 border-slate-700 focus:border-pink-500 text-white'
+                    }`}
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] text-slate-400 font-medium ml-1">Favori Aktivitelerin</span>
+                  <input
+                    type="text"
+                    value={userMemory.favoriteActivities}
+                    onChange={(e) => setUserMemory({...userMemory, favoriteActivities: e.target.value})}
+                    placeholder="Kod yazmak, kahve içmek vb."
+                    className={`text-[10px] px-2 py-1.5 rounded border outline-none font-medium ${
+                      petTheme === 'light' ? 'bg-slate-50 border-slate-200 focus:border-pink-300' : 'bg-slate-800 border-slate-700 focus:border-pink-500 text-white'
+                    }`}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] text-slate-400 font-medium ml-1">Ana Hedeflerin</span>
+                  <input
+                    type="text"
+                    value={userMemory.goals}
+                    onChange={(e) => setUserMemory({...userMemory, goals: e.target.value})}
+                    placeholder="Bu hafta projeyi bitir..."
+                    className={`text-[10px] px-2 py-1.5 rounded border outline-none font-medium ${
+                      petTheme === 'light' ? 'bg-slate-50 border-slate-200 focus:border-pink-300' : 'bg-slate-800 border-slate-700 focus:border-pink-500 text-white'
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setTtsEnabled(!ttsEnabled);
+                if (!ttsEnabled) {
+                  setTimeout(() => speak("Sesli bildirimler etkinleştirildi!"), 200);
+                }
+              }}
+              className={`w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-2 border-b ${
+                petTheme === 'light' ? 'hover:bg-slate-50 text-slate-700 border-slate-50' : 'hover:bg-slate-900 text-slate-300 border-slate-800'
+              }`}
+            >
+              <div className={`p-1.5 rounded-lg flex items-center justify-center transition-all ${ttsEnabled ? 'bg-blue-100 text-blue-600 shadow-sm' : 'bg-slate-100 text-slate-400'}`}>
+                {ttsEnabled ? <Mic size={14} className="animate-pulse" /> : <MicOff size={14} />}
+              </div>
+              <div className="flex flex-col flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[11px]">Sesli Yanıt (TTS)</span>
+                  <div className={`w-6 h-3 rounded-full relative transition-colors ${ttsEnabled ? 'bg-blue-500' : 'bg-slate-300'}`}>
+                    <div className={`absolute top-0.5 w-2 h-2 rounded-full bg-white transition-all ${ttsEnabled ? 'left-3.5' : 'left-0.5'}`} />
+                  </div>
+                </div>
+                <span className="text-[9px] text-slate-400 leading-none mt-0.5">{ttsEnabled ? "Robot önemli olayları seslendirir" : "Sadece metin balonları gösterilir"}</span>
+              </div>
+            </button>
 
             <button
               onClick={() => {
