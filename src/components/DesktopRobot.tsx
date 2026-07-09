@@ -1989,15 +1989,15 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
           // Calculate height based on active view in bubble
           width = 300;
           if (isLibraryView || currentQuizIndex !== null || showRegulatoryFeed || showStepAnalysis || isSearchView) {
-            height = 540; // Taller window for complex views (Library, Quiz, Feed, Analysis, Search)
+            height = 620; // Increased from 540 to 620 to prevent top clipping
           } else if (wellbeingStage !== 'menu') {
-            height = 380;
+            height = 420;
           } else {
-            height = 320; // Slightly taller than default to ensure no clipping
+            height = 360; 
           }
         } else {
           width = 180;
-          height = 160;
+          height = 180;
         }
         
         ipcRenderer.send('resize-mascot-window', { width, height });
@@ -3932,7 +3932,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
               handleDropText(text);
             }
           }}
-          className={`absolute bottom-6 left-6 pointer-events-auto cursor-grab active:cursor-grabbing flex flex-col items-center z-40 ${isDragging ? '' : 'transition-all duration-300'} ${
+          className={`absolute bottom-4 left-6 pointer-events-auto cursor-grab active:cursor-grabbing flex flex-col items-center z-40 ${isDragging ? '' : 'transition-all duration-300'} ${
             isNearDrop ? 'scale-110' : 'scale-100'
           }`}
           onContextMenu={handleContextMenu}
@@ -3952,7 +3952,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 onPointerDown={(e) => e.stopPropagation()} // Stop dragging when interacting with bubble
-                className={`absolute bottom-20 w-72 rounded-2xl p-3.5 shadow-2xl border flex flex-col gap-2.5 cursor-default transition-all duration-300 ${
+                className={`absolute bottom-16 w-72 rounded-2xl p-3.5 shadow-2xl border flex flex-col gap-2.5 cursor-default transition-all duration-300 ${
                   petTheme === 'light'
                     ? 'bg-white border-slate-100 text-slate-800 shadow-slate-200/40'
                     : 'bg-slate-950/95 border-slate-800 text-white shadow-black/80'
