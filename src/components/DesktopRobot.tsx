@@ -68,6 +68,8 @@ interface LegislationTopic {
   details: string[];
   lawNo?: string;
   tags: string[];
+  pdfUrl?: string;
+  additionalPdfs?: { label: string; url: string; }[];
 }
 
 const legislationLibrary: LegislationTopic[] = [
@@ -154,7 +156,8 @@ const legislationLibrary: LegislationTopic[] = [
       'Md. 26 - Becayiş: Aynı unvan ve branşta çalışanların karşılıklı yer değiştirme taleplerini düzenler.'
     ],
     lawNo: 'Sağlık Bakanlığı Atama ve Yer Değiştirme Yönetmeliği',
-    tags: ['Tayin', 'Atama', 'Sağlık']
+    tags: ['Tayin', 'Atama', 'Sağlık'],
+    pdfUrl: '/mevzuat/atama_yonetmelik.pdf'
   },
   {
     id: '4924-kanun',
@@ -167,7 +170,11 @@ const legislationLibrary: LegislationTopic[] = [
       'Ücret: 4924 sayılı Kanuna tabi personele, emsali devlet memurundan daha yüksek ek ödeme ve ücret verilebilir.'
     ],
     lawNo: '4924 Sayılı Kanun',
-    tags: ['4924', 'Sağlık', 'Sözleşmeli']
+    tags: ['4924', 'Sağlık', 'Sözleşmeli'],
+    pdfUrl: '/mevzuat/4924_yonetmelik.pdf',
+    additionalPdfs: [
+      { label: '4924 Genelge', url: '/mevzuat/4924_genelge.pdf' }
+    ]
   },
   {
     id: 'surekli-isci',
@@ -180,7 +187,8 @@ const legislationLibrary: LegislationTopic[] = [
       'Md. 20 - Mesai: Haftalık çalışma süresi 45 saattir. İşyerinin özelliğine göre 5 veya 6 gün olarak uygulanabilir.'
     ],
     lawNo: '2025-2026 Öz Sağlık-İş İşletme TİS',
-    tags: ['İşçi', 'TİS', '2025', 'İzin']
+    tags: ['İşçi', 'TİS', '2025', 'İzin'],
+    pdfUrl: '/mevzuat/isci_tis_2025.pdf'
   }
 ];
 
@@ -1838,8 +1846,33 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                 </div>
               ))}
             </div>
+
+            {/* PDF View Buttons */}
+            <div className="flex flex-col gap-2 mt-1">
+              {selectedTopic.pdfUrl && (
+                <a 
+                  href={selectedTopic.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold transition-all shadow-sm"
+                >
+                  <FileText size={14} /> Mevzuat PDF'ini Görüntüle
+                </a>
+              )}
+              {selectedTopic.additionalPdfs && selectedTopic.additionalPdfs.map((pdf, idx) => (
+                <a 
+                  key={idx}
+                  href={pdf.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold transition-all shadow-sm"
+                >
+                  <FileText size={14} /> {pdf.label} Görüntüle
+                </a>
+              ))}
+            </div>
             
-            <div className="flex flex-wrap gap-1.5 mt-2">
+            <div className="flex flex-wrap gap-1.5 mt-1">
               {selectedTopic.tags.map(tag => (
                 <span key={tag} className="text-[9px] px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full">
                   #{tag}
@@ -1953,11 +1986,18 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
           width = 120;
           height = 120;
         } else if (showBubble) {
-          width = 285;
-          height = 295;
+          // Calculate height based on active view in bubble
+          width = 300;
+          if (isLibraryView || currentQuizIndex !== null || showRegulatoryFeed || showStepAnalysis || isSearchView) {
+            height = 540; // Taller window for complex views (Library, Quiz, Feed, Analysis, Search)
+          } else if (wellbeingStage !== 'menu') {
+            height = 380;
+          } else {
+            height = 320; // Slightly taller than default to ensure no clipping
+          }
         } else {
           width = 180;
-          height = 150;
+          height = 160;
         }
         
         ipcRenderer.send('resize-mascot-window', { width, height });
@@ -1965,7 +2005,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
         console.error('Failed to send resize event:', err);
       }
     }
-  }, [isStandalone, showBubble, isMinimized, contextMenu]);
+  }, [isStandalone, showBubble, isMinimized, contextMenu, isLibraryView, currentQuizIndex, showRegulatoryFeed, showStepAnalysis, isSearchView, wellbeingStage]);
 
   // Autonomous Roaming / Screen Walking loop for the Desktop Pet
   useEffect(() => {

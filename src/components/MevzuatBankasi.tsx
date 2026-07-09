@@ -15,6 +15,7 @@ interface LegislationItem {
   importantArticles: { number: string; title: string; content: string; implication: string }[];
   fullArticles?: { number: string; title: string; content: string }[];
   pdfUrl?: string; // PDF dosyası için yol
+  additionalPdfs?: { label: string; url: string }[]; // Ek PDF dosyaları
   officialLink: string;
   lastUpdated: string;
 }
@@ -27,6 +28,7 @@ const LEGISLATION_DATA: LegislationItem[] = [
     category: 'atama',
     summary: 'Sağlık Bakanlığı bünyesindeki sağlık hizmetleri sınıfı personelinin atama, nakil, eş durumu, sağlık mazereti ve bölge hizmeti gruplarını düzenleyen temel yönetmeliktir.',
     lastUpdated: '15.02.2025',
+    pdfUrl: '/mevzuat/atama_yonetmelik.pdf',
     officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=19543&MevzuatTur=7&MevzuatTertip=5',
     fullText: 'Bu Yönetmelik; Sağlık Bakanlığı taşra teşkilatında görev yapan sağlık hizmetleri ve yardımcı sağlık hizmetleri sınıfı personelinin atama ve yer değiştirme işlemlerine dair usul ve esasları kapsar. Personelin unvan ve branşlarına göre hizmet bölgeleri (1. ila 6. bölge) ve bu bölgelerdeki asgari çalışma süreleri belirlenmiştir. Mazeret tayinleri, eş durumu mazereti, sağlık mazereti, can güvenliği mazereti ve olağanüstü durumlarda tayinler bu yönetmeliğin en çok işlem gören bölümleridir.',
     importantArticles: [
@@ -57,6 +59,7 @@ const LEGISLATION_DATA: LegislationItem[] = [
     category: 'izin',
     summary: 'Devlet memurlarının yıllık, mazeret, hastalık, refakat ve aylıksız izin haklarını, izinlerin sürelerini ve kullanım usullerini düzenleyen kanun hükümleridir.',
     lastUpdated: '01.01.2026',
+    pdfUrl: '/mevzuat/657_izinler.pdf',
     officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=657&MevzuatTur=1&MevzuatTertip=5',
     fullText: '657 Sayılı Devlet Memurları Kanunu kapsamında çalışan tüm kadrolu sağlık personelinin yıllık izin, mazeret izni, hastalık ve refakat izni ile aylıksız izin hakları bu kanunda güvence altına alınmıştır. İzinlerin idare tarafından onaylanması, bütçe ve nöbet planlaması açısından önem taşır. İzin süreleri hizmet yılına göre (1 yıldan 10 yıla kadar 20 gün, 10 yıldan fazla olanlar için 30 gün) değişir.',
     importantArticles: [
@@ -87,6 +90,7 @@ const LEGISLATION_DATA: LegislationItem[] = [
     category: 'sozlesmeli',
     summary: '663 sayılı KHK uyarınca KPSS puanıyla atanan sözleşmeli sağlık personelinin 3 yıl sözleşmeli, ardından kadroya geçerek 1 yıl da aday memur olarak çalışmasını öngören istihdam modelidir.',
     lastUpdated: '10.12.2025',
+    pdfUrl: '/mevzuat/sozlesmeli_3art1.pdf',
     officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=663&MevzuatTur=3&MevzuatTertip=5',
     fullText: 'Bu kanun maddesi uyarınca istihdam edilen sözleşmeli sağlık personeli, atandıkları yerlerde üç yıl süreyle fiilen görev yapmak zorundadır. Üç yıllık sürenin sonunda, yapılacak sınav veya performans değerlendirmesi ile başarılı olanlar talepleri halinde kadroya geçirilir. Kadroya geçirilen personel aynı yerde en az bir yıl daha görev yapmakla yükümlüdür.',
     importantArticles: [
@@ -111,6 +115,7 @@ const LEGISLATION_DATA: LegislationItem[] = [
     category: 'ekip',
     summary: 'ÇKYS (Çekirdek Kaynak Yönetim Sistemi) ve EKİP entegrasyonu ile personelin tüm özlük, hareket ve eğitim bilgilerinin dijital ortamda güncel tutulmasını sağlayan teknik uygulama yönergesidir.',
     lastUpdated: '01.03.2026',
+    pdfUrl: '/mevzuat/ekip_yonerge.pdf',
     officialLink: '#',
     fullText: 'Sağlık Bakanlığı personelinin tüm atama, ayrılış, başlama ve sertifika tescil işlemlerinin EKİP (Entegre Kurumsal İşlem Platformu) üzerinden yürütülmesine dair usul ve esasları belirler.',
     importantArticles: [
@@ -140,6 +145,7 @@ const LEGISLATION_DATA: LegislationItem[] = [
     category: 'disiplin',
     summary: 'Sağlık personeline uygulanabilecek disiplin cezalarını, cezayı gerektiren fiilleri, savunma hakkı ve zamanaşımı sürelerini belirleyen yasal çerçevedir.',
     lastUpdated: '10.01.2026',
+    pdfUrl: '/mevzuat/disiplin_hukumleri.pdf',
     officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=657&MevzuatTur=1&MevzuatTertip=5',
     fullText: 'Devlet memurlarının kamu hizmetlerini düzenli ve etkin bir şekilde yürütmesini sağlamak amacıyla, kanun, tüzük ve yönetmeliklerin emrettiği ödevleri yurt içinde veya yurt dışında yerine getirmeyenlere, uyulmasını zorunlu kıldığı hususları yapmayanlara uygulanacak disiplin cezaları belirlenmiştir. Cezalar; Uyarma, Kınama, Aylıktan Kesme, Kademe İlerlemesinin Durdurulması ve Devlet Memurluğundan Çıkarma şeklindedir.',
     importantArticles: [
@@ -253,12 +259,16 @@ const LEGISLATION_DATA: LegislationItem[] = [
       }
     ],
     pdfUrl: '/mevzuat/4924_yonetmelik.pdf',
+    additionalPdfs: [
+      { label: '4924 Genelge', url: '/mevzuat/4924_genelge.pdf' }
+    ],
     officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=4924&MevzuatTur=1&MevzuatTertip=5'
   },
   {
     id: 'atama-yer-degistirme-yonetmelik',
-    title: 'Sağlık Bakanlığı Atama ve Yer Değiştirme Yönetmeliği',
-    category: '657',
+    title: 'Sağlık Bakanlığı Atama ve Yer Değiştirme Yönetmeliği (Ayrıntılı)',
+    code: 'Yönetmelik / 17332',
+    category: 'atama',
     summary: 'Sağlık Bakanlığı bünyesindeki sağlık ve yardımcı sağlık hizmetleri personelinin atama, nakil ve yer değiştirme süreçlerini düzenleyen temel yönetmeliktir.',
     lastUpdated: '27.11.2024',
     fullText: 'Bu Yönetmelik; Sağlık Bakanlığı taşra teşkilatında görev yapan sağlık hizmetleri ve yardımcı sağlık hizmetleri sınıfı personelini kapsar. Atama dönemleri, hizmet puanı hesaplanması, mazeret tayinleri (eş durumu, sağlık, can güvenliği) ve isteğe bağlı yer değişiklikleri bu mevzuatın temelini oluşturur.',
@@ -303,6 +313,7 @@ const LEGISLATION_DATA: LegislationItem[] = [
     category: 'genel',
     summary: 'Sağlık Bakanlığı ile Öz Sağlık-İş arasında 28.08.2025 tarihinde imzalanan güncel Toplu İş Sözleşmesi.',
     lastUpdated: '28.08.2025',
+    pdfUrl: '/mevzuat/isci_tis_2025.pdf',
     officialLink: '#',
     fullText: '01.01.2025 - 31.12.2026 dönemini kapsayan işletme toplu iş sözleşmesidir. İşçilerin tüm mali, sosyal ve idari haklarını düzenler.',
     importantArticles: [
@@ -579,8 +590,13 @@ export function MevzuatBankasi() {
                           </span>
                           <span className="text-[10px] text-slate-400">Güncelleme: {item.lastUpdated}</span>
                         </div>
-                        <h4 className="font-extrabold text-slate-800 text-base group-hover:text-blue-600 transition-colors">
+                        <h4 className="font-extrabold text-slate-800 text-base group-hover:text-blue-600 transition-colors flex items-center gap-2">
                           {item.title}
+                          {(item.pdfUrl || (item.additionalPdfs && item.additionalPdfs.length > 0)) && (
+                            <span className="bg-red-50 text-red-600 text-[9px] font-black px-1.5 py-0.5 rounded border border-red-100 flex items-center gap-1 shrink-0">
+                              <FileText size={10} /> PDF
+                            </span>
+                          )}
                         </h4>
                       </div>
                       
@@ -915,15 +931,27 @@ export function MevzuatBankasi() {
                 </label>
 
                 {selectedItem.pdfUrl && (
+                    <a 
+                      href={selectedItem.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-red-200"
+                    >
+                      <FileText size={14} /> PDF'i Görüntüle
+                    </a>
+                )}
+
+                {selectedItem.additionalPdfs && selectedItem.additionalPdfs.map((pdf, idx) => (
                   <a 
-                    href={selectedItem.pdfUrl}
+                    key={idx}
+                    href={pdf.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-red-200"
+                    className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-amber-200"
                   >
-                    <FileText size={14} /> PDF'i Görüntüle
+                    <FileText size={14} /> {pdf.label}
                   </a>
-                )}
+                ))}
                 <a 
                   href={selectedItem.officialLink}
                   target="_blank"
