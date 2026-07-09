@@ -27,6 +27,9 @@ import {
   Cloud,
   Search,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Info,
   Activity,
   Newspaper,
   Mail,
@@ -73,36 +76,58 @@ const legislationLibrary: LegislationTopic[] = [
     title: '657 DMK Temel İlkeler',
     summary: 'Devlet memurlarının hizmet şartlarını, niteliklerini, atanma ve yetiştirilmelerini, ilerleme ve yükselmelerini düzenleyen temel kanun.',
     details: [
-      'Sınıflandırma: Devlet kamu hizmetleri görevlerini ve bu görevlerde çalışan devlet memurlarını, görevlerin gerektirdiği niteliklere ve mesleklere göre sınıflara ayırmaktır.',
-      'Kariyer: Devlet memurlarına, yaptıkları hizmetler için lüzumlu bilgilere ve yetişme şartlarına uygun şekilde, sınıfları içinde en yüksek derecelere kadar ilerleme imkanını sağlamaktır.',
-      'Liyakat: Devlet kamu hizmetleri görevlerine girmeyi, sınıflar içinde ilerleme ve yükselmeyi, görevi sona erdirmeyi liyakat sistemine dayandırmak ve bu sistemin güvenli bir şekilde uygulanmasını sağlamaktır.'
+      'Md. 3/A - Sınıflandırma: Görevlerin gerektirdiği niteliklere göre memurları sınıflara ayırmaktır.',
+      'Md. 3/B - Kariyer: Memurlara, sınıfları içinde en yüksek derecelere kadar ilerleme imkanı sağlamaktır.',
+      'Md. 3/C - Liyakat: Kamu hizmetine girmeyi ve yükselmeyi yetenek ve başarı esasına dayandırmaktır.'
     ],
-    lawNo: '657 Sayılı Kanun',
+    lawNo: '657 Sayılı Kanun Madde 3',
     tags: ['Genel', 'Kariyer', 'Liyakat']
   },
   {
     id: 'yillik-izin',
-    title: 'Yıllık İzin Hakları',
-    summary: 'Hizmet süresine göre memurların kullanabileceği dinlenme süreleri.',
+    title: 'Yıllık İzin Hakları (Genel)',
+    summary: 'Hizmet süresine göre memurların kullanabileceği dinlenme süreleri ve kullanım usulleri.',
     details: [
-      '1 yıldan 10 yıla kadar hizmeti olanlar: 20 gün.',
-      '10 yıldan fazla hizmeti olanlar: 30 gün.',
-      'Yıllık izinler, amirin uygun bulacağı zamanlarda, toptan veya ihtiyaca göre kısım kısım kullanılabilir.',
-      'Birbirini izleyen iki yılın izni bir arada kullanılabilir. Cari yıl ile bir önceki yıl hariç, önceki yıllara ait kullanılmayan izin hakları düşer.'
+      'Md. 102 - Süre: Hizmeti 1-10 yıl olanlara 20 gün, 10 yıldan fazla olanlara 30 gün izin verilir.',
+      'Md. 103 - Kullanım: İzinler amirin uygun bulacağı zamanlarda kullanılır. İki yılın izni birleştirilebilir.',
+      'Önemli: Cari yıl ile bir önceki yıl hariç, önceki yıllara ait izinler devretmez ve yanar.'
     ],
     lawNo: '657 DMK Md. 102-103',
     tags: ['İzin', 'Sosyal Haklar']
   },
   {
+    id: 'mazeret-izinleri',
+    title: 'Mazeret İzinleri',
+    summary: 'Doğum, evlenme, ölüm ve diğer özel durumlarda verilen ücretli izin hakları.',
+    details: [
+      'Md. 104/A - Doğum: Kadın memura doğum öncesi 8, sonrası 8 hafta (toplam 16 hafta) izin verilir.',
+      'Md. 104/B - Babalık/Evlilik/Ölüm: Eşi doğum yapan memura, kendisinin veya çocuğunun evlenmesi, yakın ölümü hallerinde 7 gün izin verilir.',
+      'Md. 104/D - Süt İzni: İlk 6 ay günde 3 saat, ikinci 6 ay günde 1.5 saat süt izni verilir.'
+    ],
+    lawNo: '657 DMK Md. 104',
+    tags: ['Mazeret', 'İzin', 'Aile']
+  },
+  {
+    id: 'hastalik-refakat',
+    title: 'Hastalık ve Refakat İzni',
+    summary: 'Memurun kendisinin veya bakmakla yükümlü olduğu kişilerin hastalık durumlarındaki hakları.',
+    details: [
+      'Md. 105 - Refakat: Bakmakla yükümlü olunan kişinin ağır kaza/hastalığı halinde 3 aya kadar izin verilir.',
+      'Md. 105 - Hastalık: On yıla kadar hizmeti olanlara 6 aya kadar, on yıldan fazla olanlara 12 aya kadar rapor verilebilir.',
+      'Kanser, verem, akıl hastalığı gibi uzun süreli tedavilerde izin süresi 18 aya kadar çıkabilir.'
+    ],
+    lawNo: '657 DMK Md. 105',
+    tags: ['Sağlık', 'Rapor', 'İzin']
+  },
+  {
     id: 'disiplin-cezalari',
     title: 'Disiplin Cezaları Türleri',
-    summary: 'Kamu hizmetinin gereği gibi yürütülmesini sağlamak amacıyla kanunların emrettiği ödevleri yapmayanlara uygulanan yaptırımlar.',
+    summary: 'Hizmetin işleyişini bozan fiillere karşı uygulanan yasal yaptırımlar.',
     details: [
-      'Uyarma: Memura, görevinde ve davranışlarında daha dikkatli olması gerektiğinin yazı ile bildirilmesidir.',
-      'Kınama: Memura, görevinde ve davranışlarında kusurlu olduğunun yazı ile bildirilmesidir.',
-      'Aylıktan Kesme: Memurun, brüt aylığından 1/30 - 1/8 arasında kesinti yapılmasıdır.',
-      'Kademe İlerlemesinin Durdurulması: Fiilin ağırlık derecesine göre memurun bulunduğu kademede ilerlemesinin 1 - 3 yıl durdurulmasıdır.',
-      'Devlet Memurluğundan Çıkarma: Bir daha Devlet memurluğuna atanmamak üzere memurluktan çıkarmaktır.'
+      'Md. 125/A - Uyarma: Görevde daha dikkatli olunması gerektiğinin yazı ile bildirilmesidir.',
+      'Md. 125/B - Kınama: Görevde kusurlu olduğunun yazı ile bildirilmesidir.',
+      'Md. 125/C - Aylıktan Kesme: Brüt aylıktan 1/30 - 1/8 oranında kesinti yapılmasıdır.',
+      'Md. 125/D - Kademe İlerlemesinin Durdurulması: İlerlemenin 1 - 3 yıl süreyle durdurulmasıdır.'
     ],
     lawNo: '657 DMK Md. 125',
     tags: ['Disiplin', 'Soruşturma']
@@ -110,28 +135,52 @@ const legislationLibrary: LegislationTopic[] = [
   {
     id: '4b-esaslar',
     title: '4/B Sözleşmeli Personel Esasları',
-    summary: 'Kamu kurum ve kuruluşlarında sözleşme ile çalıştırılan personelin temel hak ve yükümlülükleri.',
+    summary: 'Sözleşmeli personelin çalışma şartlarını belirleyen Bakanlar Kurulu Kararı hükümleri.',
     details: [
-      'Sözleşmeli personelin yıllık izinleri sonraki yıla devretmez.',
-      'Mali yıl ile sınırlı olarak sözleşme imzalanır.',
-      'Yurtdışı teşkilatında çalıştırılanlar hariç, sözleşmeli personele iş sonu tazminatı ödenir (belirli şartlarla).',
-      'Eş durumu tayini için en az 1 yıl çalışma şartı ve kurumlar arası koordinasyon gereklidir.'
+      'Ek Madde 3 - İzin Devri: Sözleşmeli personelin yıllık izinleri, bir sonraki yıla devredilebilir (Güncel düzenleme).',
+      'Md. 9 - Fesih: Sözleşme hükümlerine aykırı davranılması halinde kurumca tek taraflı fesih yapılabilir.',
+      'Hizmet Sözleşmesi: Personel her yıl mali yıl başında yeniden hizmet sözleşmesi imzalar.'
     ],
-    lawNo: '06.06.1978 Tarihli Bakanlar Kurulu Kararı',
+    lawNo: 'BKK 7/15754 Sayılı Esaslar',
     tags: ['Sözleşmeli', '4/B']
   },
   {
-    id: 'mali-haklar-maas',
-    title: 'Mali Haklar ve Maaş Yapısı',
-    summary: 'Memurların aylık, yan ödeme, tazminat ve diğer mali haklarının genel çerçevesi.',
+    id: 'saglik-atama',
+    title: 'Sağlık Personeli Atama Yönetmeliği',
+    summary: 'Sağlık Bakanlığı bünyesinde görev yapan personelin yer değiştirme ve tayin kriterleri.',
     details: [
-      'Gösterge Sistemi: Derece ve kademeye göre belirlenen aylık gösterge rakamının memur aylık katsayısı ile çarpımı sonucu temel aylık bulunur.',
-      'Ek Gösterge: Memurların hiyerarşik konumlarına, eğitim durumlarına ve hizmet sınıflarına göre belirlenen ek unsurdur; emekli keseneğini doğrudan etkiler.',
-      'Sosyal Yardımlar: Aile yardımı ödeneği, çocuk yardımı ödeneği ve ölüm yardımı ödeneği gibi ödemeleri kapsar.',
-      'Özel Hizmet Tazminatı: Görevin niteliği, önemi ve sorumluluğu dikkate alınarak ödenen tazminattır.'
+      'Md. 16 - Stratejik Personel: Uzman tabip, tabip gibi unvanlar Bakanlıkça stratejik personel olarak tanımlanır.',
+      'Md. 19 - Eş Durumu: Eşi kamu görevlisi olanların atama talepleri, hizmet puanı ve kadro uygunluğuna göre değerlendirilir.',
+      'Md. 26 - Becayiş: Aynı unvan ve branşta çalışanların karşılıklı yer değiştirme taleplerini düzenler.'
     ],
-    lawNo: '657 DMK Md. 146-213',
-    tags: ['Mali', 'Maaş', 'Tazminat']
+    lawNo: 'Sağlık Bakanlığı Atama ve Yer Değiştirme Yönetmeliği',
+    tags: ['Tayin', 'Atama', 'Sağlık']
+  },
+  {
+    id: '4924-kanun',
+    title: '4924 Sayılı Kanun (Sözleşmeli Sağlık Personeli)',
+    summary: 'Eleman temininde güçlük çekilen yerlerde sözleşmeli sağlık personeli istihdamını düzenleyen kanun.',
+    details: [
+      'Md. 1 - Amaç: Sağlık hizmetlerinin sürekliliğini sağlamak için belirli bölgelerde sözleşmeli personel istihdamıdır.',
+      'Md. 3 - Sözleşme: Personel ile her yıl mali yıl itibarıyla hizmet sözleşmesi yapılır.',
+      'Tayin Kısıtı: Bu kanun kapsamındaki personel, eş durumu ve sağlık mazereti hariç sözleşme süresince tayin isteyemez.',
+      'Ücret: 4924 sayılı Kanuna tabi personele, emsali devlet memurundan daha yüksek ek ödeme ve ücret verilebilir.'
+    ],
+    lawNo: '4924 Sayılı Kanun',
+    tags: ['4924', 'Sağlık', 'Sözleşmeli']
+  },
+  {
+    id: 'surekli-isci',
+    title: 'Sürekli İşçi Mevzuatı (2025-2026 TİS)',
+    summary: 'Sağlık Bakanlığı ve Öz Sağlık-İş arasında 28.08.2025 tarihinde imzalanan güncel Toplu İş Sözleşmesi hükümleri.',
+    details: [
+      'Md. 30/a - Yıllık İzin: Hizmeti 1-10 yıl olanlara 20 gün, 10 yıldan fazla olanlara 30 gün ücretli izin verilir.',
+      'Md. 30/d - Mazeret İzni: Evlilik, doğum (eşin) ve yakın ölümü hallerinde 5 iş günü; tabii afetlerde 7 iş günü izin verilir.',
+      'Md. 33 - Ücret: 01.01.2025 itibarıyla taban ücret 1.400 TL/Gün + 40 TL/Gün seyyanen zam uygulanır.',
+      'Md. 20 - Mesai: Haftalık çalışma süresi 45 saattir. İşyerinin özelliğine göre 5 veya 6 gün olarak uygulanabilir.'
+    ],
+    lawNo: '2025-2026 Öz Sağlık-İş İşletme TİS',
+    tags: ['İşçi', 'TİS', '2025', 'İzin']
   }
 ];
 
@@ -956,7 +1005,7 @@ export function DesktopRobot({
                 if (key === 'pet_sound_enabled') setSoundEnabledState(value === 'true' || value === true);
                 if (key === 'pet_tts_enabled') setTtsEnabledState(value === 'true' || value === true);
                 if (key === 'pet_font_size') setFontSizeModeState(value as any);
-                if (key === 'pet_user_memory') setUserMemoryState(JSON.parse(value));
+                if (key === 'pet_user_memory' && typeof value === 'string') setUserMemoryState(JSON.parse(value));
               }
             });
           }
@@ -1805,9 +1854,17 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
     return (
       <div className="flex flex-col gap-3 animate-in fade-in duration-300">
         <div className="flex items-center justify-between mb-1">
-          <h4 className="font-bold text-xs text-slate-400 uppercase tracking-wider">Mevzuat Bilgi Bankası</h4>
+          <button 
+            onClick={() => setIsLibraryView(false)}
+            className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-blue-600 transition-colors group"
+          >
+            <ArrowLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
+            MENÜYE DÖN
+          </button>
           <BookOpen size={14} className="text-blue-500" />
         </div>
+        
+        <h4 className="font-bold text-xs text-slate-400 uppercase tracking-wider mb-1">Mevzuat Bilgi Bankası</h4>
         
         <div className="grid grid-cols-1 gap-2.5">
           {legislationLibrary.map(topic => (

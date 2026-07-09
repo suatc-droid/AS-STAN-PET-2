@@ -64,7 +64,7 @@ ${context || 'Genel Soru'}
       `;
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-flash-latest",
         contents: message,
         config: {
           systemInstruction: systemInstruction,
@@ -75,7 +75,16 @@ ${context || 'Genel Soru'}
       res.json({ reply: response.text });
     } catch (error: any) {
       console.error("Gemini API Error:", error);
-      res.status(500).json({ error: "İşlem sırasında bir hata oluştu." });
+      
+      // Handle 503 and other transient errors gracefully
+      if (error.status === 503 || error.code === 503) {
+        return res.status(503).json({ 
+          error: "Şu anda sistemde yoğunluk yaşanıyor. Lütfen birkaç saniye sonra tekrar deneyin.",
+          isTransient: true 
+        });
+      }
+
+      res.status(500).json({ error: "Yapay zeka yanıtı alınırken bir hata oluştu." });
     }
   });
 

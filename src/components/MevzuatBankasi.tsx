@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Scale, Search, BookOpen, FileText, HelpCircle, ExternalLink, 
   Filter, BookMarked, Briefcase, Calendar, ShieldAlert, CheckCircle,
-  Clock, AlertTriangle, ArrowUpRight, Copy, Check, ChevronDown, ChevronUp
+  Clock, AlertTriangle, ArrowUpRight, Copy, Check, ChevronDown, ChevronUp, X
 } from 'lucide-react';
 
 interface LegislationItem {
@@ -13,6 +13,8 @@ interface LegislationItem {
   summary: string;
   fullText: string;
   importantArticles: { number: string; title: string; content: string; implication: string }[];
+  fullArticles?: { number: string; title: string; content: string }[];
+  pdfUrl?: string; // PDF dosyası için yol
   officialLink: string;
   lastUpdated: string;
 }
@@ -107,10 +109,10 @@ const LEGISLATION_DATA: LegislationItem[] = [
     title: 'EKİP Portalı ve ÇKYS Entegrasyon Genelgesi',
     code: 'Yönerge / SB-BSGM-2024',
     category: 'ekip',
-    summary: 'ÇKYS (Çekirdek Kaynak Yönetim Sistemi) ve KYS yazılımlarının kapatılarak tüm işlemlerin EKİP (Entegre Kurumsal İşlem Platformu) üzerine aktarılması yönergesidir.',
-    lastUpdated: '28.11.2025',
-    officialLink: 'https://ekip.saglik.gov.tr',
-    fullText: 'Sağlık Bakanlığı Bilgi Sistemleri Genel Müdürlüğü tarafından yayımlanan bu yönerge ile insan kaynakları, tescil, terfi, disiplin, özlük, hizmet puanı ve eğitim işlemlerinin tamamı EKİP platformuna taşınmıştır. Sistemde yer almayan hiçbir personelin göreve başlama ve ayrılış tescili yapılamaz, tescili olmayan personele maaş ödemesi gerçekleştirilemez.',
+    summary: 'ÇKYS (Çekirdek Kaynak Yönetim Sistemi) ve EKİP entegrasyonu ile personelin tüm özlük, hareket ve eğitim bilgilerinin dijital ortamda güncel tutulmasını sağlayan teknik uygulama yönergesidir.',
+    lastUpdated: '01.03.2026',
+    officialLink: '#',
+    fullText: 'Sağlık Bakanlığı personelinin tüm atama, ayrılış, başlama ve sertifika tescil işlemlerinin EKİP (Entegre Kurumsal İşlem Platformu) üzerinden yürütülmesine dair usul ve esasları belirler.',
     importantArticles: [
       {
         number: 'Madde 4',
@@ -124,6 +126,11 @@ const LEGISLATION_DATA: LegislationItem[] = [
         content: 'Bakanlık onaylı sertifikalı eğitimler ile kurum içi zorunlu eğitimler EKİP sistemi üzerinde tescil edilmedikçe personelin özlük dosyasında ve hizmet puanı hesaplamasında geçerli kabul edilmez.',
         implication: 'Özellikle yoğun bakım, acil tıp ve ameliyathane sertifikalarının EKİP tescili, o birimlerde "Sertifikalı Personel" olarak çalıştırılabilme şartının önkoşuludur.'
       }
+    ],
+    fullArticles: [
+      { number: 'Madde 1', title: 'Sistem Kapsamı', content: 'EKİP sistemi tüm bakanlık merkez ve taşra teşkilatını kapsayan ana tescil platformudur.' },
+      { number: 'Madde 2', title: 'Veri Giriş Yetkisi', content: 'Birim amirleri tarafından yetkilendirilen özlük birim personeli veri girişinden sorumludur.' },
+      { number: 'Madde 12', title: 'Gizlilik', content: 'Personel verilerinin gizliliği ve güvenliği KVKK hükümlerine tabidir.' }
     ]
   },
   {
@@ -148,6 +155,201 @@ const LEGISLATION_DATA: LegislationItem[] = [
         content: 'Devlet memuru hakkında savunması alınmadan disiplin cezası verilemez. Soruşturmayı yapanın veya yetkili disiplin kurulunun yedi günden az olmamak üzere verdiği süre içinde veya belirtilen tarihte savunmasını yapmayan memur, savunma hakkından vazgeçmiş sayılır.',
         implication: 'Disiplin soruşturmalarında memura en az 7 gün yazılı savunma süresi tanınması zorunludur. Aksi halde verilen ceza idari mahkemelerce usul yönünden iptal edilir.'
       }
+    ],
+    fullArticles: [
+      { number: 'Madde 125', title: 'Cezalar', content: 'Disiplin cezaları ağırlık derecelerine göre sıralanmıştır.' },
+      { number: 'Madde 126', title: 'Yetki', content: 'Disiplin cezası vermeye yetkili amirler ve kurullar.' },
+      { number: 'Madde 127', title: 'Zamanaşımı', content: 'Disiplin cezasını gerektiren fiillerde soruşturma ve ceza zamanaşımı süreleri.' }
+    ]
+  },
+  {
+    id: '4924-sozlesmeli-mevzuat',
+    title: '4924 Sayılı Kanun ve Sözleşmeli Personel Yönetmeliği',
+    code: 'Kanun / 4924',
+    category: 'sozlesmeli',
+    summary: 'Eleman temininde güçlük çekilen yerlerde sözleşmeli sağlık personeli istihdamını, atama ve yer değiştirme usullerini düzenleyen mevzuattır.',
+    lastUpdated: '09.07.2026',
+    fullText: '4924 sayılı Kanun kapsamında istihdam edilen personelin atama, yer değiştirme ve hizmet sözleşmesi esasları bu mevzuatla belirlenmiştir. Personelin hizmet hedeflerine uyumu, sözleşme yenileme kriterleri ve mazeret tayinleri (eş durumu, sağlık vb.) detaylandırılmıştır. Özellikle stratejik personel (Tabip, Uzman Tabip) istihdamı için kritik öneme sahiptir.',
+    importantArticles: [
+      {
+        number: 'Madde 4',
+        title: 'Atanma Şartları',
+        content: '657 sayılı Devlet Memurları Kanununun 48 inci maddesinde belirtilen genel şartlar ile 4924 sayılı Kanuna ekli (1) sayılı cetvelde belirtilen niteliklere sahip olmaları şarttır.',
+        implication: 'Genel memuriyet şartlarının yanı sıra unvan ve birime özel koşullar aranabilir.'
+      },
+      {
+        number: 'Madde 5',
+        title: 'Atama ve Yerleştirme Esasları',
+        content: 'Sınav, kura, hizmet puanı, norm fazlası durumu, eş durumu ve sağlık mazereti gibi tüm atama kriterlerini ve başvuru usullerini kapsar.',
+        implication: 'Yerleştirmeler unvan değişikliği için yılda bir kez, ilk defa/yeniden atama için yılda en fazla üç kez yapılabilir.'
+      },
+      {
+        number: 'Madde 6',
+        title: 'Kısıtlayıcı Hükümler',
+        content: 'Atama koşullarına uymayan, belgelerini teslim etmeyen veya göreve başlamayanlar bir yıl boyunca sözleşmeli personel olarak atanamazlar.',
+        implication: 'Göreve başlamama durumunda ciddi bir hak mahrumiyeti (1 yıl atanamama) söz konusudur.'
+      }
+    ],
+    fullArticles: [
+      { 
+        number: 'Madde 1', 
+        title: 'Amaç ve Kapsam', 
+        content: 'Bu Yönetmelik, Sağlık Bakanlığı taşra teşkilatında 10/7/2003 tarihli ve 4924 sayılı Eleman Temininde Güçlük Çekilen Yerlerde Sözleşmeli Sağlık Personeli Çalıştırılması ile Bazı Kanun ve Kanun Hükmünde Kararnamelerde Değişiklik Yapılması Hakkında Kanuna göre istihdam edilecek sözleşmeli sağlık personelinin atanmalarına ilişkin usul ve esasları belirlemek amacıyla düzenlenmiştir.' 
+      },
+      { 
+        number: 'Madde 2', 
+        title: 'Dayanak', 
+        content: 'Bu Yönetmelik, 4924 sayılı Kanunun 4 üncü maddesine dayanılarak hazırlanmıştır.' 
+      },
+      { 
+        number: 'Madde 3', 
+        title: 'Tanımlar', 
+        content: 'Bu Yönetmelikte geçen; a) Atama: Hizmet sözleşmesinin karşılıklı olarak imzalanması suretiyle sözleşmeli personel pozisyonlarına ilk defa, yeniden veya yer değiştirme suretiyle yapılacak atama işlemlerini, c) Bakanlık: Sağlık Bakanlığını, ç) Hizmet bölgesi: Devlet Memurlarının Yer Değiştirme Suretiyle Atanmalarına İlişkin Yönetmeliğin ekinde yer alan (1) sayılı cetvelde gösterilen illerin gruplarını, e) Kura: Tıpta uzmanlık mevzuatına göre uzman olanlar ile tabip, diş tabibi ve eczacı pozisyonlarına yapılacak yerleştirmelerde; ilgililerin katılımına açık olarak Bakanlık tarafından yapılacak tespit yöntemini, f) Merkezi yerleştirme: KPSS sonucu esas alınarak ÖSYM tarafından yapılacak olan yerleştirme işlemini, g) Sözleşmeli personel: 4924 sayılı Kanuna ekli (1) sayılı cetvelde belirtilen pozisyon unvanlarından birinde görev yapan personeli ifade eder.' 
+      },
+      { 
+        number: 'Madde 4', 
+        title: 'Atanma Şartları', 
+        content: 'Sözleşmeli personel olarak atanacakların; 657 sayılı Devlet Memurları Kanununun 48 inci maddesinde belirtilen genel şartlar ile 4924 sayılı Kanuna ekli (1) sayılı cetvelde belirtilen niteliklere sahip olmaları şarttır. Bunun yanında Bakanlık, sözleşmeli personel olarak atanacaklar için, istihdam edilecek unvan ve hizmet biriminin gerektirdiği özel koşulları ayrıca belirleyebilir.' 
+      },
+      { 
+        number: 'Madde 5', 
+        title: 'Atama ve Yerleştirme İşlemleri', 
+        content: '(1) Yerleştirmeler; unvan değişikliği için yılda bir kez, ilk defa/yeniden atama için yılda en fazla üç kez yapılır. (2) Esaslar: a) Sınav/kura sonucu yerleşenler Bakanlık taşra teşkilatına başvurur. b) Uzman, tabip, diş tabibi, eczacı kura ile; diğerleri merkezi yerleştirme ile atanır. e) Yer değişikliklerinde en az bir yıl fiilen çalışma şarttır. f) Becayiş (Karşılıklı yer değiştirme) aynı bölge, unvan ve branşta 1 yıl çalışma sonrası mümkündür. g) Usulüne aykırı fesihte 2 yıl yeniden atama yapılamaz. j) Eş Durumu: Eşin görev yeri değişikliği mümkün değilse, 1 yıl çalışma şartıyla vizeli boş pozisyona atanabilir. k) Sağlık Mazereti: Tedavinin mümkün olmadığı kurul raporuyla belgelenirse nakil yapılabilir. l) Can Güvenliği: Hayati tehlike belgelenirse yer değişikliği yapılır. m) Şiddet (6284 Sayılı Kanun): Koruyucu tedbir kararı alanlar için yer değişikliği uygulanır. n) Geçici Görev: Afet, sıkıyönetim, OHAL durumlarında veya eğitim amacıyla (toplam 3 ayı geçmemek üzere) yapılabilir.' 
+      },
+      { 
+        number: 'Madde 5/j', 
+        title: 'Eş Durumu Mazereti', 
+        content: 'Sözleşmeli personel; pozisyonunun vizeli olduğu birimde fiilen en az bir yıl görev yapması ve kamu personeli olan eşinin kurum içi görev yeri değişikliğinin mümkün olmadığını belgelendirmesi kaydıyla, eş durumu nedeniyle naklen atanabilir.' 
+      },
+      { 
+        number: 'Madde 5/k', 
+        title: 'Sağlık Mazereti', 
+        content: 'Kendisinin, eşinin, anne, baba veya çocuklarının hastalığının tedavisinin mümkün olmadığını üniversite veya eğitim araştırma hastanelerinden alınacak sağlık kurulu raporu ile belgelendirenler, uygun boş pozisyonlara naklen atanabilir.' 
+      },
+      { 
+        number: 'Madde 5/f', 
+        title: 'Karşılıklı Yer Değiştirme (Becayiş)', 
+        content: 'Aynı hizmet bölgesi illerde aynı unvan ve branşta bir yıl çalışan sözleşmeli personel, uygun görülmesi hâlinde karşılıklı olarak yer değiştirebilir.' 
+      },
+      { 
+        number: 'Madde 6', 
+        title: 'Kısıtlayıcı Hükümler', 
+        content: '(1) Şartlara uymayan, belge teslim etmeyen veya göreve başlamayanlar 1 yıl boyunca yeniden sözleşmeli personel olamazlar. (2) Gerçeğe aykırı beyan verenler hak iddia edemez ve sözleşmeleri feshedilir.' 
+      },
+      { 
+        number: 'Madde 7', 
+        title: 'Yürürlükten Kaldırılan Yönetmelik', 
+        content: '2/9/2003 tarihli ve 25217 sayılı Resmî Gazete’de yayımlanan Sözleşmeli Sağlık Personeli Atama ve Nakil Yönetmeliği yürürlükten kaldırılmıştır.' 
+      },
+      { 
+        number: 'Madde 8', 
+        title: 'Yürürlük', 
+        content: 'Bu Yönetmelik yayımı tarihinde (11/2/2015) yürürlüğe girer.' 
+      },
+      { 
+        number: 'Madde 9', 
+        title: 'Yürütme', 
+        content: 'Bu Yönetmelik hükümlerini Sağlık Bakanı yürütür.' 
+      }
+    ],
+    pdfUrl: '/mevzuat/4924_yonetmelik.pdf',
+    officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=4924&MevzuatTur=1&MevzuatTertip=5'
+  },
+  {
+    id: 'atama-yer-degistirme-yonetmelik',
+    title: 'Sağlık Bakanlığı Atama ve Yer Değiştirme Yönetmeliği',
+    category: '657',
+    summary: 'Sağlık Bakanlığı bünyesindeki sağlık ve yardımcı sağlık hizmetleri personelinin atama, nakil ve yer değiştirme süreçlerini düzenleyen temel yönetmeliktir.',
+    lastUpdated: '27.11.2024',
+    fullText: 'Bu Yönetmelik; Sağlık Bakanlığı taşra teşkilatında görev yapan sağlık hizmetleri ve yardımcı sağlık hizmetleri sınıfı personelini kapsar. Atama dönemleri, hizmet puanı hesaplanması, mazeret tayinleri (eş durumu, sağlık, can güvenliği) ve isteğe bağlı yer değişiklikleri bu mevzuatın temelini oluşturur.',
+    importantArticles: [
+      {
+        number: 'Madde 16',
+        title: 'İsteğe Bağlı Yer Değiştirme',
+        content: 'İller arası atama dönemleri Ocak ve Haziran aylarıdır. Atamalar, tercih sırasına bakılmaksızın hizmet puanına göre yapılır.',
+        implication: 'Tayin dönemlerini takip etmek ve hizmet puanını güncel tutmak kritiktir.'
+      },
+      {
+        number: 'Madde 19',
+        title: 'Sağlık Mazereti',
+        content: 'Personelin kendisinin veya bakmakla yükümlü olduğu yakınlarının hastalığının görev yaptığı yerde tehlikeye girdiğinin sağlık kurulu raporuyla belgelenmesi halidir.',
+        implication: 'Üniversite veya Eğitim Araştırma hastanelerinden alınacak güncel heyet raporu gereklidir.'
+      },
+      {
+        number: 'Madde 20',
+        title: 'Aile Birliği Mazereti',
+        content: 'Eşlerin her ikisinin de Bakanlıkta kamu personeli olması halinde astlık üstlük sıralaması esas alınarak yer değişikliği yapılır.',
+        implication: 'Stratejik personel (tabip vb.) için özel hükümler ve kısıtlamalar mevcuttur.'
+      }
+    ],
+    fullArticles: [
+      { number: 'Madde 1', title: 'Amaç', content: 'Sağlık hizmetlerinin yurt genelinde etkin ve verimli bir şekilde yürütülebilmesi için personelin atama ve yer değiştirmelerine ilişkin usul ve esasları düzenlemektir.' },
+      { number: 'Madde 2', title: 'Kapsam', content: 'Sağlık Bakanlığı taşra teşkilatında görev yapan sağlık hizmetleri ve yardımcı sağlık hizmetleri sınıfı personelini kapsar.' },
+      { number: 'Madde 4', title: 'Tanımlar', content: 'PDC (Personel Dağılım Cetveli), Hizmet Puanı, Stratejik Personel ve Hizmet Bölgesi gibi temel kavramları tanımlar.' },
+      { number: 'Madde 6', title: 'Hizmet Bölgeleri', content: 'İller 6 hizmet bölgesine ayrılır. Genel Yönetmelikteki değişiklikler aynen yansıtılır.' },
+      { number: 'Madde 8', title: 'Hizmet Puanı', content: 'Atama ve yer değiştirme işlemlerinde kullanılmak üzere, çalışılan yerin özelliklerine göre hesaplanan puandır.' },
+      { number: 'Madde 16', title: 'İsteğe Bağlı Yer Değiştirme', content: 'Ocak ve Haziran aylarında yapılan dönem tayinlerini ve mazeret dışı yer değişikliklerini düzenler.' },
+      { number: 'Madde 19', title: 'Sağlık Mazereti', content: 'Hastalık durumunda yapılacak yer değişikliklerini ve kurul raporu şartlarını belirler.' },
+      { number: 'Madde 20', title: 'Aile Birliği Mazereti', content: 'Eş durumu tayinlerini, astlık-üstlük ilişkisini ve stratejik personel durumunu detaylandırır.' },
+      { number: 'Madde 21', title: 'Can Güvenliği Mazereti', content: 'Hayati tehlike veya şiddet durumunda (6284 sayılı Kanun) yapılacak acil yer değişikliklerini kapsar.' }
+    ],
+    pdfUrl: '/mevzuat/atama_yonetmelik.pdf',
+    officialLink: 'https://www.mevzuat.gov.tr/mevzuat?MevzuatNo=17332&MevzuatTur=7&MevzuatTertip=5'
+  },
+  {
+    id: 'surekli-isci-tis-2025',
+    title: 'Sürekli İşçi Toplu İş Sözleşmesi (2025-2026)',
+    code: 'TİS / 2025-2026',
+    category: 'genel',
+    summary: 'Sağlık Bakanlığı ile Öz Sağlık-İş arasında 28.08.2025 tarihinde imzalanan güncel Toplu İş Sözleşmesi.',
+    lastUpdated: '28.08.2025',
+    officialLink: '#',
+    fullText: '01.01.2025 - 31.12.2026 dönemini kapsayan işletme toplu iş sözleşmesidir. İşçilerin tüm mali, sosyal ve idari haklarını düzenler.',
+    importantArticles: [
+      {
+        number: 'Madde 30',
+        title: 'Yıllık Ücretli İzin Süreleri',
+        content: 'Hizmeti 1-10 yıl arası olanlara 20 gün, 10 yıl ve üzeri olanlara 30 gün izin verilir. Cumartesi iş günü sayılır.',
+        implication: 'İzinler bölünerek kullanılabilir. Kullanılmayan izinler bir sonraki yıla aktarılabilir veya akit feshinde ücreti ödenir.'
+      },
+      {
+        number: 'Madde 30/d',
+        title: 'Mazeret İzinleri',
+        content: 'Eşin doğumu: 5 gün, Evlilik: 5 gün, Yakın vefatı: 5 gün, Tabii afet: 7 gün ücretli mazeret izni verilir.',
+        implication: 'Bu izinler iş günü olarak hesaplanır ve yıllık izinden düşülmez.'
+      },
+      {
+        number: 'Madde 33/39/41',
+        title: 'Mali Haklar ve Yardımlar',
+        content: 'Günlük brüt ücret 1.400 TL + 40 TL seyyanen zam. Yemek yardımı net 235,02 TL/Gün, Giyim yardımı yıllık brüt 2.810,19 TL.',
+        implication: 'Ücretlere her altı ayda bir TİS\'te belirtilen oranlarda (01.07.2025\'te %11 + enflasyon farkı gibi) zam uygulanır.'
+      },
+      {
+        number: 'Madde 38',
+        title: 'Fazla Çalışma ve Gece Mesaisi',
+        content: 'Normal haftalık çalışma süresi 40 saattir. Fazla çalışma ücreti normal ücretin %100 zamlı haliyle ödenir. Gece çalışmaları için saat başı ek tazminat ödenir.',
+        implication: 'Haftalık 40 saati aşan her saat fazla mesai sayılır. Gece vardiyası dönüşümlerinde en az 11 saat dinlenme süresi şarttır.'
+      },
+      {
+        number: 'Madde 45',
+        title: 'Sosyal Yardım Ödemeleri',
+        content: 'Evlenme yardımı: 4.500 TL, Doğum yardımı: 2.250 TL, Ölüm yardımı (çalışanın kendisi): 12.000 TL, Yakın ölümü: 3.500 TL.',
+        implication: 'Bu ödemeler net tutarlar olup, olayın vuku bulduğu ayı takip eden ilk maaş döneminde ödenir.'
+      },
+      {
+        number: 'Madde 53 (Ek-1)',
+        title: 'Disiplin Hükümleri',
+        content: 'Göreve geç gelme, izinsiz ayrılma veya işi aksatma hallerinde İhtar, Yevmiye Kesme ve İşten Çıkarma cezaları uygulanır.',
+        implication: 'Disiplin kurulunda sendika temsilcisi bulunur. Savunma hakkı kutsaldır, cezalara itiraz süreci mevzuata tabidir.'
+      }
+    ],
+    fullArticles: [
+      { number: 'Madde 1', title: 'Amaç', content: 'Bu toplu iş sözleşmesinin amacı, işyerinde düzenli ve verimli çalışmayı sağlamak, üretimi artırmak, çalışanların hak ve menfaatlerini korumaktır.' },
+      { number: 'Madde 2', title: 'Kapsam', content: 'Bu sözleşme Sağlık Bakanlığı ve bağlı işyerlerinde çalışan sürekli işçileri kapsar.' },
+      { number: 'Madde 15', title: 'Haftalık Çalışma Süresi', content: 'Haftalık çalışma süresi 40 saattir. Bu süre haftada en çok 5 gün çalışılmak suretiyle uygulanır.' },
+      { number: 'Madde 22', title: 'Ücret Ödeme Günü', content: 'İşçi ücretleri her ayın 15. günü ödenir. Ödeme günü tatile rastlarsa bir önceki iş günü ödeme yapılır.' },
+      { number: 'Madde 30', title: 'Yıllık İzin', content: '1-10 yıl arası 20 gün, 10 yıl üzeri 30 gün ücretli yıllık izin verilir.' },
+      { number: 'Madde 41', title: 'Giyim Yardımı', content: 'İşçilere her yıl Nisan ayında unvanlarına uygun koruyucu giyim yardımı nakdi olarak ödenir.' }
     ]
   }
 ];
@@ -189,6 +391,18 @@ const FAQ_DATA: FAQItem[] = [
     answer: 'Hastalık raporlarının, alındığı günün mesai saati bitimine kadar veya en geç ertesi gün mesai başlangıcına kadar sözlü ya da elektronik iletişim kanallarıyla birim amirine bildirilmesi ve asıllarının en geç 3 iş günü içinde kuruma teslim edilmesi şarttır.',
     reference: 'Devlet Memurlarına Verilecek Hastalık Raporları Yönetmeliği - Madde 7',
     tags: ['Sağlık Raporu', 'Hastalık İzni', 'Teslim Süresi']
+  },
+  {
+    question: '4924 sayılı Kanuna tabi personelin eş durumu tayini şartı nedir?',
+    answer: '4924 sayılı Kanun kapsamındaki personelin eş durumu tayini isteyebilmesi için, pozisyonunun vizeli olduğu ilde fiilen en az bir yıl görev yapmış olması zorunludur.',
+    reference: '4924 Atama ve Yer Değiştirme Yönetmeliği - Madde 5/j',
+    tags: ['4924', 'Eş Durumu', 'Tayin']
+  },
+  {
+    question: 'Sürekli işçilerin (Öz Sağlık-İş TİS) yıllık izin süreleri 2025 itibarıyla nasıldır?',
+    answer: 'Hizmet süresi 1-10 yıl olan işçilere 20 gün, 10 yıldan fazla olanlara ise 30 gün yıllık ücretli izin verilir. Cumartesi günleri de izin hesabında iş günü kabul edilir.',
+    reference: '2025-2026 Öz Sağlık-İş TİS - Madde 30',
+    tags: ['İşçi', 'Yıllık İzin', 'TİS 2025']
   }
 ];
 
@@ -196,6 +410,7 @@ export function MevzuatBankasi() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedItem, setSelectedItem] = useState<LegislationItem | null>(null);
+  const [innerSearch, setInnerSearch] = useState(''); // Detay paneli içi arama
   const [faqSearch, setFaqSearch] = useState('');
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -221,6 +436,16 @@ export function MevzuatBankasi() {
       faq.tags.some(tag => tag.toLowerCase().includes(faqSearch.toLowerCase()))
     );
   }, [faqSearch]);
+
+  const filteredInnerArticles = useMemo(() => {
+    if (!selectedItem?.fullArticles) return [];
+    if (!innerSearch) return selectedItem.fullArticles;
+    return selectedItem.fullArticles.filter(art => 
+      art.number.toLowerCase().includes(innerSearch.toLowerCase()) ||
+      art.title.toLowerCase().includes(innerSearch.toLowerCase()) ||
+      art.content.toLowerCase().includes(innerSearch.toLowerCase())
+    );
+  }, [selectedItem, innerSearch]);
 
   const handleCopyText = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -253,6 +478,16 @@ export function MevzuatBankasi() {
             <p className="text-slate-300 text-sm max-w-2xl leading-relaxed">
               İl Sağlık Müdürlüğü ve bağlı sağlık tesisleri için atama, nakil, özlük hakları, disiplin işlemleri ve EKİP sistem entegrasyonuna ilişkin resmi mevzuat ve uygulama esasları rehberi.
             </p>
+            <div className="pt-2 flex items-center gap-3">
+              <button 
+                onClick={() => {
+                  alert("Yeni Mevzuat Ekleme:\n\n1. PDF dosyanızı yan taraftaki Asistan'a gönderin.\n2. 'Bu PDF'i Mevzuat Bilgi Bankasına ekler misin?' diye sorun.\n3. Asistan içeriği analiz edip sisteme entegre edecektir.");
+                }}
+                className="bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+              >
+                <FileText size={14} className="text-blue-400" /> MEVZUAT NASIL EKLENİR?
+              </button>
+            </div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-2xl shrink-0 self-stretch md:self-center flex flex-col justify-center">
             <div className="text-xs text-slate-300 font-bold tracking-wider uppercase mb-1">YÜKLÜ MEVZUAT METNİ</div>
@@ -518,15 +753,27 @@ export function MevzuatBankasi() {
           >
             {/* Header with gradient */}
             <div className="bg-gradient-to-r from-blue-700 to-indigo-800 p-6 md:p-8 text-white relative">
-              <button 
-                onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all cursor-pointer"
-                title="Kapat"
-              >
-                <Check size={18} />
-              </button>
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <div className="relative group hidden sm:block">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+                  <input
+                    type="text"
+                    placeholder="Mevzuat içinde ara..."
+                    value={innerSearch}
+                    onChange={(e) => setInnerSearch(e.target.value)}
+                    className="bg-white/10 hover:bg-white/20 focus:bg-white/25 border border-white/20 rounded-full pl-9 pr-4 py-1.5 text-xs text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all w-48 md:w-64"
+                  />
+                </div>
+                <button 
+                  onClick={() => setSelectedItem(null)}
+                  className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all cursor-pointer"
+                  title="Kapat"
+                >
+                  <X size={18} />
+                </button>
+              </div>
               
-              <div className="space-y-2 max-w-[90%]">
+              <div className="space-y-2 max-w-[90%] md:max-w-[60%]">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold bg-white/20 px-2.5 py-0.5 rounded-md text-blue-100">
                     {selectedItem.code}
@@ -534,6 +781,20 @@ export function MevzuatBankasi() {
                   <span className="text-[10px] text-blue-200">Güncelleme: {selectedItem.lastUpdated}</span>
                 </div>
                 <h3 className="text-xl md:text-2xl font-black tracking-tight">{selectedItem.title}</h3>
+              </div>
+            </div>
+
+            {/* Mobile Search Bar (Sticky) */}
+            <div className="sm:hidden p-4 border-b border-slate-100 sticky top-0 bg-white z-10 shadow-sm">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Mevzuat içinde ara..."
+                  value={innerSearch}
+                  onChange={(e) => setInnerSearch(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                />
               </div>
             </div>
 
@@ -552,9 +813,11 @@ export function MevzuatBankasi() {
 
               {/* Important Articles Full Specification */}
               <div className="space-y-4">
-                <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-slate-100 pb-2">
-                  <FileText size={14} className="text-blue-600" /> Kritik Maddeler ve İdari Yansımaları
-                </h4>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <FileText size={14} className="text-blue-600" /> Kritik Maddeler ve İdari Yansımaları
+                  </h4>
+                </div>
                 
                 <div className="space-y-4">
                   {selectedItem.importantArticles.map((art, idx) => (
@@ -583,6 +846,33 @@ export function MevzuatBankasi() {
                     </div>
                   ))}
                 </div>
+
+                {/* Full Articles Search & List */}
+                {selectedItem.fullArticles && (
+                  <div className="pt-6 space-y-4 border-t border-slate-100">
+                    <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <Scale size={14} className="text-indigo-600" /> Tüm Mevzuat Maddeleri
+                    </h4>
+
+                    <div className="space-y-2">
+                      {filteredInnerArticles.length === 0 ? (
+                        <p className="text-center py-4 text-[11px] text-slate-400 italic">Aranan kelimeye uygun madde bulunamadı.</p>
+                      ) : (
+                        filteredInnerArticles.map((art, idx) => (
+                          <div key={idx} className="p-3 border border-slate-100 rounded-xl hover:border-blue-100 transition-all group">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-bold text-indigo-600">{art.number}</span>
+                              <span className="text-[10px] font-bold text-slate-700">{art.title}</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
+                              {art.content}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -603,14 +893,44 @@ export function MevzuatBankasi() {
                 )}
               </button>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <input 
+                  type="file" 
+                  accept="application/pdf" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = URL.createObjectURL(file);
+                      setSelectedItem(prev => prev ? { ...prev, pdfUrl: url } : null);
+                    }
+                  }}
+                  className="hidden"
+                  id="pdf-upload-trigger"
+                />
+                <label 
+                  htmlFor="pdf-upload-trigger"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm border border-slate-200"
+                >
+                  <FileText size={14} /> Bilgisayardan PDF Seç
+                </label>
+
+                {selectedItem.pdfUrl && (
+                  <a 
+                    href={selectedItem.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-red-200"
+                  >
+                    <FileText size={14} /> PDF'i Görüntüle
+                  </a>
+                )}
                 <a 
                   href={selectedItem.officialLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-blue-200"
                 >
-                  🌐 Resmi Gazete Metni <ExternalLink size={12} />
+                  🌐 Mevzuat.gov.tr <ExternalLink size={12} />
                 </a>
                 <button
                   onClick={() => setSelectedItem(null)}
