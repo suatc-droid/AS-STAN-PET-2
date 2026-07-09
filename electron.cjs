@@ -46,7 +46,22 @@ function createMainWindow() {
       createMascotWindow();
       return { action: 'deny' };
     }
+    // Handle external links and PDFs
+    if ((url.startsWith('http') && !url.startsWith('http://localhost:3000')) || url.endsWith('.pdf')) {
+      require('electron').shell.openExternal(url);
+      return { action: 'deny' };
+    }
     return { action: 'allow' };
+  });
+
+  // Handle direct link clicks inside the app
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const currentURL = mainWindow.webContents.getURL();
+    // Only intercept if it's a different domain or a PDF
+    if (url !== currentURL && (url.startsWith('http') && !url.startsWith('http://localhost:3000') || url.endsWith('.pdf'))) {
+      event.preventDefault();
+      require('electron').shell.openExternal(url);
+    }
   });
 
   // Retry on connection/load failure (e.g. if express is still starting up)
@@ -114,7 +129,25 @@ function createMascotWindow() {
 
   mascotWindow.loadURL('http://localhost:3000/?view=mascot-only');
 
-  // Retry on connection/load failure (e.g. if express is still starting up)
+  // Intercept external links and PDFs in mascot window
+  mascotWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http') && !url.startsWith('http://localhost:3000')) {
+      require('electron').shell.openExternal(url);
+      return { action: 'deny' };
+    }
+    if (url.endsWith('.pdf')) {
+      require('electron').shell.openExternal(url);
+      return { action: 'deny' };
+    }
+    return { action: 'allow' };
+  });
+
+  mascotWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('http') && !url.startsWith('http://localhost:3000') || url.endsWith('.pdf')) {
+      event.preventDefault();
+      require('electron').shell.openExternal(url);
+    }
+  });
   mascotWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
     if (validatedURL.startsWith('http://localhost:3000')) {
       setTimeout(() => {
@@ -272,4 +305,8 @@ ipcMain.on('teleport-mascot-window', (event) => {
       console.error('Failed to teleport mascot window:', err);
     }
   }
+});
+
+ipcMain.on('open-external-link', (event, url) => {
+  require('electron').shell.openExternal(url);
 });

@@ -426,6 +426,15 @@ export function MevzuatBankasi() {
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // Helper for opening external links (supports system browser in Electron)
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
+    const isStandalone = window.location.search.includes('view=mascot-only') || (window as any).ipcRenderer;
+    if (isStandalone && (window as any).ipcRenderer) {
+      e.preventDefault();
+      (window as any).ipcRenderer.send('open-external-link', url);
+    }
+  };
+
   const filteredLegislation = useMemo(() => {
     return LEGISLATION_DATA.filter(item => {
       const matchesSearch = 
@@ -604,6 +613,7 @@ export function MevzuatBankasi() {
                         href={item.officialLink}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => handleLinkClick(e, item.officialLink)}
                         className="text-slate-400 hover:text-blue-600 bg-slate-50 hover:bg-slate-100 p-2 rounded-xl transition-all shrink-0 border border-slate-100"
                         title="Resmi Mevzuat Sistemine Git"
                       >
@@ -935,6 +945,7 @@ export function MevzuatBankasi() {
                       href={selectedItem.pdfUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => handleLinkClick(e, selectedItem.pdfUrl!)}
                       className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-red-200"
                     >
                       <FileText size={14} /> PDF'i Görüntüle
@@ -947,6 +958,7 @@ export function MevzuatBankasi() {
                     href={pdf.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => handleLinkClick(e, pdf.url)}
                     className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-amber-200"
                   >
                     <FileText size={14} /> {pdf.label}
@@ -956,6 +968,7 @@ export function MevzuatBankasi() {
                   href={selectedItem.officialLink}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => handleLinkClick(e, selectedItem.officialLink)}
                   className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-blue-200"
                 >
                   🌐 Mevzuat.gov.tr <ExternalLink size={12} />

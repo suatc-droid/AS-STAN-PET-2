@@ -1428,6 +1428,14 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
     }
   }, [minimizeOnClose]);
 
+  // Helper for opening external links (supports system browser in Electron)
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
+    if (isStandalone && (window as any).ipcRenderer) {
+      e.preventDefault();
+      (window as any).ipcRenderer.send('open-external-link', url);
+    }
+  };
+
   // Standalone window dragging mechanism using client-side delta coordinates (avoids WebkitAppRegion click-intercept bugs)
   useEffect(() => {
     if (!isDragging || !isStandalone) return;
@@ -1854,6 +1862,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                   href={selectedTopic.pdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => handleLinkClick(e, selectedTopic.pdfUrl!)}
                   className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold transition-all shadow-sm"
                 >
                   <FileText size={14} /> Mevzuat PDF'ini Görüntüle
@@ -1865,6 +1874,7 @@ Lütfen sadece taslak metnini ver, başında veya sonunda ekstra açıklama yapm
                   href={pdf.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => handleLinkClick(e, pdf.url)}
                   className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold transition-all shadow-sm"
                 >
                   <FileText size={14} /> {pdf.label} Görüntüle
